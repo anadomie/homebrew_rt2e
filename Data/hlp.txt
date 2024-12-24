@@ -1,0 +1,40 @@
+"Talents": [["tech_knock",""],["weapon_tech",""]],
+"Talents": ["hatred","choice"],
+"Talents": [["res","cold@1"],["res","heat@1"],["res","poisons@1"]],
+"Skills": [["c_lore","underworld"],["scrutiny",""]],
+"Talents": [["peer","cartel"]],
+"Talents": [["strong_minded",""]],
+------------------------------------------------
+From Classes
+------------------------------------------------
+"Skills": [["f_lore","xenos@1"], ["linguistics","xenos@1"]],
+"Talents": [["aoa",""]["w_training","power|chain"]],
+"Skills": [["f_lore","heresy"], ["f_lore","sororitas"],
+			["s_lore","creed"], ["s_lore","occult"]],
+"Talents": ["w_training","bolt|power"],
+"Skills": [["psyniscience",""], ["f_lore","psyker"], ["s_lore","occult"],
+			["linguistics","h_goth|imp_codes|rt_cant|underworld"]],
+"Talents": [["w_training","las|power"]],
+"Skills": [["psyniscience",""], ["f_lore","psyker"], ["f_lore","warp"]],
+"Talents": [["w_training","las|primitive"],["enemy","inquisition"]],
+"Skills": [],
+"Talents": [["w_training","any"], ["w_training","any"], ["w_training","any"]]
+"Skills": [["psyniscience",""], ["f_lore","psyker"], ["s_lore","occult"],["c_lore","astro"],
+			["linguistics","h_goth|imp_codes|rt_cant|underworld|merchant_code"]],
+"Talents": [["w_training","las|primitive"]],
+"Skills": [["c_lore","tech"],["f_lore","archeotech"],["f_lore","mechanicus"],
+,["linguistics ","binary"],["linguistics ","tech_lingo"]],
+"Talents": [["w_training","melta|plasma"]],
+"Skills": [["c_lore","imp_creed|ecc"],["s_lore","imp_creed"],["f_lore","heresy"],["linguistics","h_goth"]],
+"Skills": [["f_lore","navi"],["s_lore","astromancy"],["trade","astrograph"],["linguistics","h_goth"]],
+"Talents": [["w_training","sp|primitve"]],
+"Skills": [["inquiry",""],["linguistics ","rt_cant"]],
+"Talents": [["w_training","bolt|las"]],
+"Skills": [["operate","voidship|aeronautica"],["navigate","surface|stellar"],["scrutiny",""]],
+"Talents": [["w_training","bolt|power"]],
+"Skills": [["acrobatics",""],["athletics",""],["stealth",""],["sl_o_hand",""]],
+"Talents": [["w_training","primitive|power"]],
+
+---Special rules:
+Willpower and Faith Aptitude. For the purposes of buying Willpower Characteristic advances, the Missionary counts as having both.
+Social Aptitude. For the purposes of buying Willpower and Psyniscience advances the Navigator is counted as having the Psyker Aptitude.

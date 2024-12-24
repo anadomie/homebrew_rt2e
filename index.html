@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta charset="UTF-8">
+    <title>Warhammer 40k Character Builder</title>
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+	<script type="text/javascript"  src="main.js"></script>
+	<script type="text/javascript"  src="interface.js"></script>
+  </head>
+  <body>
+	<div class="top">
+		<div class="flags">
+		  <button class="language languageEN" onclick="setLanguage('en')">
+		  </button>
+		  <button class="language languageDE" onclick="setLanguage('de')">
+		  </button>
+		</div>
+
+		<h1>Warhammer 40k Character Builder</h1>
+		<hr class="tophr">
+		<div class="navbar">
+		  <a href="#" id="classLink" onclick="populateCareers()">Class</a>
+		  <a href="#" id="homeworldLink" onclick="populateHomeworlds()">Homeworld</a>
+		  <a href="#" id="backgroundLink" onclick="populateBackgrounds()">Background</a>
+		  <a href="#" id="roleLink" onclick="populateRoles()">Role</a>
+		  <a href="#" id="roleLink" onclick="populateBirthrights()">Birthright</a>
+		  <a href="#" id="roleLink" onclick="populateLures()">Lure</a>
+		  <a href="#" id="roleLink" onclick="populateTrials()">Trials</a>
+		  <a href="#" id="roleLink" onclick="populateMotivations()">Motivation</a>
+		</div>
+	</div>
+    <div id="tiles" class="tiles"></div>
+	<div id="tiles2" class="tiles2"></div>
+  </body>
+</html>
+
