@@ -11,6 +11,10 @@ function setLanguage(language) {
 	navLinks[0].innerText = currentLanguage === 'en' ? 'Class' : 'Klasse';
 	navLinks[1].innerText = currentLanguage === 'en' ? 'Homeworld' : 'Heimatwelt';
 	navLinks[2].innerText = currentLanguage === 'en' ? 'Background' : 'Hintergrund';
+	navLinks[3].innerText = currentLanguage === 'en' ? 'Role' : 'Rolle';
+	navLinks[4].innerText = currentLanguage === 'en' ? 'Birthright' : 'Werdegang';
+	navLinks[5].innerText = currentLanguage === 'en' ? 'Lure' : 'Verlockung';
+	navLinks[6].innerText = currentLanguage === 'en' ? 'Trials' : 'Niederschlag'
 	
 	refresh();
 
@@ -679,10 +683,11 @@ function populateLures() {
 
 	currentMenu = 6;
 	
-	var sortedArray = Object.entries(lure).sort((a, b) => {
-    return ((currentLanguage === 'de') 
-        ? a[1].NameDe.localeCompare(b[1].NameDe) 
-        : a[1].Name.localeCompare(b[1].Name));});
+	var sortedArray = Object.entries(lure).filter(([key]) => 
+		((brLure.hasOwnProperty(CharData.Birthright)) ? brLure[CharData.Birthright].includes(key) : true)).sort((a, b) => {
+			return ((currentLanguage === 'de') 
+				? a[1].NameDe.localeCompare(b[1].NameDe) 
+				: a[1].Name.localeCompare(b[1].Name));});
 	
 	const labels = {
 		"Skills":((currentLanguage === 'de')? "Fähigkeit: " : "Skill: "),
@@ -778,10 +783,11 @@ function populateTrials() {
 
 	currentMenu = 7;
 	
-	var sortedArray = Object.entries(trials).sort((a, b) => {
-    return ((currentLanguage === 'de') 
-        ? a[1].NameDe.localeCompare(b[1].NameDe) 
-        : a[1].Name.localeCompare(b[1].Name));});
+	var sortedArray = Object.entries(trials).filter(([key]) => 
+		((lureTrials.hasOwnProperty(CharData.Lure)) ? lureTrials[CharData.Lure].includes(key) : true)).sort((a, b) => {
+			return ((currentLanguage === 'de') 
+				? a[1].NameDe.localeCompare(b[1].NameDe) 
+				: a[1].Name.localeCompare(b[1].Name));});
 	
 	const labels = {
 		"Skills":((currentLanguage === 'de')? "Fähigkeit: " : "Skill: "),
@@ -880,10 +886,11 @@ function populateMotivations() {
 
 	currentMenu = 8;
 	
-	var sortedArray = Object.entries(motivations).sort((a, b) => {
-    return ((currentLanguage === 'de') 
-        ? a[1].NameDe.localeCompare(b[1].NameDe) 
-        : a[1].Name.localeCompare(b[1].Name));});
+	var sortedArray = Object.entries(motivations).filter(([key]) => 
+		((trialsMotivation.hasOwnProperty(CharData.Trial)) ? trialsMotivation[CharData.Trial].includes(key) : true)).sort((a, b) => {
+			return ((currentLanguage === 'de') 
+				? a[1].NameDe.localeCompare(b[1].NameDe) 
+				: a[1].Name.localeCompare(b[1].Name));});
 	
 	const labels = {
 		"Skills":((currentLanguage === 'de')? "Fähigkeit: " : "Skill: "),

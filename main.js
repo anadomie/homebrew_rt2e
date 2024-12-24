@@ -28,7 +28,7 @@ var brLure = {
 	"scapegrace":["renegade","hunter","dutybound"]
 }
 
-var LureTrials = {
+var lureTrials = {
 	"crusader":["handofwar","pressganged","vendetta"],
 	"renegade":["handofwar","pressganged","calamity"],
 	"hunter":["pressganged","calamity","shiplorn"],
@@ -40,7 +40,7 @@ var LureTrials = {
 	"newhorizons":["vendetta","lostworlds","darkness"]
 }
 
-var TrialsMotivation = {
+var trialsMotivation = {
 	"handofwar":["wrath","vengeance","pride"],
 	"pressganged":["wrath","vengeance","renown"],
 	"calamity":["vengeance","renown","endurance"],
