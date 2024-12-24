@@ -1453,7 +1453,7 @@ var groups = {
         "NameDe": "Ballistische Waffen"
     },
     "binary": {
-        "Name": "Adeptus Mechanicus",
+        "Name": "Explorator Binary",
         "NameDe": "Explorator-Binär"
     },
     "bolt": {
@@ -2198,8 +2198,8 @@ var careerOpts = {
 		"AEffectDe": "Erhalte zu Beginn des Spiels zwei (2) kybernetische Implantate von gewöhnlicher Qualität. Die Qualität eines dieser Implantate kann durch Ausgeben von 200 EP auf Gute Qualität oder 400 EP auf Beste Qualität erhöht werden.",
     },
     "miss": {
-        "Skills": [["c_lore","imp_creed|ecc"],["s_lore","imp_creed"],["f_lore","heresy"],["linguistics","h_goth"]],
-		"Talents": [],
+        "Skills": [["c_lore","imp_creed"],["c_lore","ecc"],["s_lore","imp_creed"],["f_lore","heresy"],["linguistics","h_goth"]],
+		"Talents": [["w_training","flame|chain"]],
 		"AbilityName": "Pure Faith",
 		"AbilityEffect": "Immune to Baleful Presence. Gain one per session reroll for Fear test from Daemons. Gains access to Pure Faith Talents.",
 		"ANameDe": "Reiner Glaube",

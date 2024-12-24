@@ -242,10 +242,10 @@ function addRole(){
 function addBirthright(){
 	const sel = event.currentTarget.classList.contains('selected');
 	const ev = new Event("br_sel");
-	console.log(event.currentTarget);
 	document.querySelectorAll(".birthright.selected").forEach(div => div.dispatchEvent(ev));
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
+		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
 		event.currentTarget.classList.add('selected');
 	}else{
 		CharData[event.currentTarget.dType] = "";
@@ -258,6 +258,7 @@ function addLure(){
 	document.querySelectorAll(".lure.selected").forEach(div => div.dispatchEvent(ev));
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
+		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
 		event.currentTarget.classList.add('selected');
 	}else{
 		CharData[event.currentTarget.dType] = "";
@@ -269,6 +270,7 @@ function addTrial(){
 	document.querySelectorAll(".trial.selected").forEach(div => div.dispatchEvent(ev));
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
+		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
 		event.currentTarget.classList.add('selected');
 	}else{
 		CharData[event.currentTarget.dType] = "";
@@ -280,6 +282,7 @@ function addMotivation(){
 	document.querySelectorAll(".motivation.selected").forEach(div => div.dispatchEvent(ev));
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
+		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
 		event.currentTarget.classList.add('selected');
 	}else{
 		CharData[event.currentTarget.dType] = "";
@@ -587,7 +590,6 @@ function populateBirthrights() {
 			const mDiv = document.createElement('div');
 			mDiv.classList.add('originTiles');
 			mDiv.classList.add(key);
-			console.log(key);
 			
 			const hDiv = document.createElement('div');
 			hDiv.classList.add('originHeaderTile');
@@ -616,6 +618,8 @@ function populateBirthrights() {
 					}
 					subDiv.dType="BRDetail";
 					subDiv.data=subKey;
+					subDiv.pDType="Birthright";
+					subDiv.pData=key;
 					
 					subDiv.addEventListener("click", addBirthright,false);
 					subDiv.addEventListener("br_sel",removeSelection,false);
@@ -684,7 +688,6 @@ function populateLures() {
 			const mDiv = document.createElement('div');
 			mDiv.classList.add('originTiles');
 			mDiv.classList.add(key);
-			console.log(key);
 			
 			const hDiv = document.createElement('div');
 			hDiv.classList.add('originHeaderTile');
@@ -713,6 +716,8 @@ function populateLures() {
 					}
 					subDiv.dType="LureDetail";
 					subDiv.data=subKey;
+					subDiv.pDType="Lure";
+					subDiv.pData=key;
 					
 					subDiv.addEventListener("click", addLure,false);
 					subDiv.addEventListener("lr_sel",removeSelection,false);
@@ -782,7 +787,6 @@ function populateTrials() {
 			const mDiv = document.createElement('div');
 			mDiv.classList.add('originTiles');
 			mDiv.classList.add(key);
-			console.log(key);
 			
 			const hDiv = document.createElement('div');
 			hDiv.classList.add('originHeaderTile');
@@ -811,6 +815,8 @@ function populateTrials() {
 					}
 					subDiv.dType="TrialDetail";
 					subDiv.data=subKey;
+					subDiv.pDType="Trial";
+					subDiv.pData=key;
 					
 					subDiv.addEventListener("click", addTrial,false);
 					subDiv.addEventListener("tr_sel",removeSelection,false);
@@ -883,7 +889,6 @@ function populateMotivations() {
 			const mDiv = document.createElement('div');
 			mDiv.classList.add('originTiles');
 			mDiv.classList.add(key);
-			console.log(key);
 			
 			const hDiv = document.createElement('div');
 			hDiv.classList.add('originHeaderTile');
@@ -912,6 +917,8 @@ function populateMotivations() {
 					}
 					subDiv.dType="MotivationDetail";
 					subDiv.data=subKey;
+					subDiv.pDType="Motivation";
+					subDiv.pData=key;
 					
 					subDiv.addEventListener("click", addMotivation,false);
 					subDiv.addEventListener("mo_sel",removeSelection,false);
