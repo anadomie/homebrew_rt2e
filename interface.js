@@ -1,5 +1,5 @@
 let currentLanguage = 'en';
-let currentMenu = '';
+let currentMenu = 0;
 	  
 function setLanguage(language) {
 	currentLanguage = language;
@@ -17,28 +17,28 @@ function setLanguage(language) {
 }
 
 function refresh(){
-	if(currentMenu === 'hw')
+	if(currentMenu === 2)
 	{
 		populateHomeworlds();
-	}else if(currentMenu === 'cr')
+	}else if(currentMenu === 1)
 	{
 		populateCareers();
-	}else if(currentMenu === 'bg')
+	}else if(currentMenu === 3)
 	{
 		populateBackgrounds()
-	}else if(currentMenu === 'rl')
+	}else if(currentMenu === 4)
 	{
 		populateRoles();
-	}else if(currentMenu === 'br')
+	}else if(currentMenu === 5)
 	{
 		populateBirthrights();
-	}else if(currentMenu === 'lr')
+	}else if(currentMenu === 6)
 	{
 		populateLures();
-	}else if(currentMenu === 'tr')
+	}else if(currentMenu === 7)
 	{
 		populateTrials()
-	}else if(currentMenu === 'mo')
+	}else if(currentMenu === 8)
 	{
 		populateMotivations()
 	}else{
@@ -191,11 +191,10 @@ function addHomeworld(){
 	const sel = event.currentTarget.classList.contains('selected');
 	const ev = new Event("hw_sel");
 	document.querySelectorAll(".homeworld.selected").forEach(div => div.dispatchEvent(ev));
+	refreshCharData();
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		event.currentTarget.classList.add('selected');
-	}else{
-		CharData[event.currentTarget.dType] = "";
 	}
 	
 }
@@ -204,11 +203,10 @@ function addCareer(){
 	const sel = event.currentTarget.classList.contains('selected');
 	const ev = new Event("cr_sel");
 	document.querySelectorAll(".career.selected").forEach(div => div.dispatchEvent(ev));
+	refreshCharData();
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		event.currentTarget.classList.add('selected');
-	}else{
-		CharData[event.currentTarget.dType] = "";
 	}
 	
 }
@@ -217,11 +215,10 @@ function addBackground(){
 	const sel = event.currentTarget.classList.contains('selected');
 	const ev = new Event("bg_sel");
 	document.querySelectorAll(".background.selected").forEach(div => div.dispatchEvent(ev));
+	refreshCharData();
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		event.currentTarget.classList.add('selected');
-	}else{
-		CharData[event.currentTarget.dType] = "";
 	}
 	
 }
@@ -230,11 +227,10 @@ function addRole(){
 	const sel = event.currentTarget.classList.contains('selected');
 	const ev = new Event("rl_sel");
 	document.querySelectorAll(".role.selected").forEach(div => div.dispatchEvent(ev));
+	refreshCharData();
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		event.currentTarget.classList.add('selected');
-	}else{
-		CharData[event.currentTarget.dType] = "";
 	}
 	
 }
@@ -243,12 +239,11 @@ function addBirthright(){
 	const sel = event.currentTarget.classList.contains('selected');
 	const ev = new Event("br_sel");
 	document.querySelectorAll(".birthright.selected").forEach(div => div.dispatchEvent(ev));
+	refreshCharData();
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
 		event.currentTarget.classList.add('selected');
-	}else{
-		CharData[event.currentTarget.dType] = "";
 	}
 }
 
@@ -256,42 +251,58 @@ function addLure(){
 	const sel = event.currentTarget.classList.contains('selected');
 	const ev = new Event("lr_sel");
 	document.querySelectorAll(".lure.selected").forEach(div => div.dispatchEvent(ev));
+	refreshCharData();
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
 		event.currentTarget.classList.add('selected');
-	}else{
-		CharData[event.currentTarget.dType] = "";
 	}
 }
 function addTrial(){
 	const sel = event.currentTarget.classList.contains('selected');
 	const ev = new Event("tr_sel");
 	document.querySelectorAll(".trial.selected").forEach(div => div.dispatchEvent(ev));
+	refreshCharData();
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
 		event.currentTarget.classList.add('selected');
-	}else{
-		CharData[event.currentTarget.dType] = "";
 	}
 }
 function addMotivation(){
 	const sel = event.currentTarget.classList.contains('selected');
 	const ev = new Event("mo_sel");
 	document.querySelectorAll(".motivation.selected").forEach(div => div.dispatchEvent(ev));
+	refreshCharData();
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
 		event.currentTarget.classList.add('selected');
-	}else{
-		CharData[event.currentTarget.dType] = "";
 	}
 }
 
 
 function removeSelection(){
 	event.currentTarget.classList.remove('selected');
+}
+
+function refreshCharData(){
+	console.log(currentMenu);
+	if(currentMenu > 0){
+		
+		CharData.Career = ((currentMenu<=1)? "" : CharData.Career);
+		CharData.Homeworld=((currentMenu<=2)? "" : CharData.Homeworld);
+		CharData.Background=((currentMenu<=3)? "" : CharData.Background);
+		CharData.Role=((currentMenu<=4)? "" : CharData.Role);
+		CharData.Birthright=((currentMenu<=5)? "" : CharData.Birthright);
+		CharData.BRDetail=((currentMenu<=5)? "" : CharData.BRDetail);
+		CharData.Lure=((currentMenu<=6)? "" : CharData.Lure);
+		CharData.LureDetail=((currentMenu<=6)? "" : CharData.LureDetail);
+		CharData.Trial=((currentMenu<=7)? "" : CharData.Trial);
+		CharData.TrialDetail=((currentMenu<=7)? "" : CharData.TrialDetail);
+		CharData.Motivation=((currentMenu<=8)? "" : CharData.Motivation);
+		CharData.MotivationDetail=((currentMenu<=8)? "" : CharData.MotivationDetail);
+	}
 }
 
 
@@ -301,7 +312,7 @@ function populateHomeworlds() {
 	
 	const container = document.getElementById('tiles');
 	
-	currentMenu = 'hw';
+	currentMenu = 2;
 	
 	var sortedHwArray = Object.entries(homeworlds).sort((a, b) => {
     return ((currentLanguage === 'de') 
@@ -369,7 +380,7 @@ function populateHomeworlds() {
 function populateCareers() {
 	const container = document.getElementById('tiles');
 	clearContentDivs();
-	currentMenu = 'cr';
+	currentMenu = 1;
 	
 	var sortedCareersArray = Object.entries(careers).sort((a, b) => {
     return ((currentLanguage === 'de') 
@@ -442,7 +453,7 @@ function populateCareers() {
 function populateBackgrounds() {
 	const container = document.getElementById('tiles');
 	clearContentDivs();
-	currentMenu = 'bg';
+	currentMenu = 3;
 	
 	var sortedBGArray = Object.entries(backgrounds).sort((a, b) => {
     return ((currentLanguage === 'de') 
@@ -507,7 +518,7 @@ function populateBackgrounds() {
 function populateRoles() {
 	const container = document.getElementById('tiles');
 	clearContentDivs();
-	currentMenu = 'rl';
+	currentMenu = 4;
 	
 	var sortedArray = Object.entries(roles).sort((a, b) => {
     return ((currentLanguage === 'de') 
@@ -568,7 +579,7 @@ function populateBirthrights() {
 	
 	const container = document.getElementById('tiles2');
 
-	currentMenu = 'br';
+	currentMenu = 5;
 	
 	var sortedArray = Object.entries(birthrights).sort((a, b) => {
     return ((currentLanguage === 'de') 
@@ -666,7 +677,7 @@ function populateLures() {
 	
 	const container = document.getElementById('tiles2');
 
-	currentMenu = 'lr';
+	currentMenu = 6;
 	
 	var sortedArray = Object.entries(lure).sort((a, b) => {
     return ((currentLanguage === 'de') 
@@ -765,7 +776,7 @@ function populateTrials() {
 	
 	const container = document.getElementById('tiles2');
 
-	currentMenu = 'tr';
+	currentMenu = 7;
 	
 	var sortedArray = Object.entries(trials).sort((a, b) => {
     return ((currentLanguage === 'de') 
@@ -867,7 +878,7 @@ function populateMotivations() {
 	
 	const container = document.getElementById('tiles2');
 
-	currentMenu = 'mo';
+	currentMenu = 8;
 	
 	var sortedArray = Object.entries(motivations).sort((a, b) => {
     return ((currentLanguage === 'de') 
