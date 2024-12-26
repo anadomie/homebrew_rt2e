@@ -1,5 +1,6 @@
 
 
+
 var CharData =
 {
 	"Career":"",
@@ -13,7 +14,109 @@ var CharData =
 	"Trial":"",
 	"TrialDetail":"",
 	"Motivation":"",
-	"MotivationDetail":""
+	"MotivationDetail":"",
+	"Aptitudes":[],
+	"Stats":[],
+	"Talents":[],
+	"Skills":[],
+	"Gear":[]
+}
+
+function compressObject(jsonObject) {
+    try {
+        // Step 1: Convert JSON object to a string
+        const jsonString = JSON.stringify(jsonObject);
+
+        // Step 2: Compress using Base64 encoding
+        const compressedString = btoa(jsonString);
+
+        return compressedString;
+    } catch (error) {
+        console.error("Error compressing the object:", error);
+        return null;
+    }
+}
+
+function restoreObject(compressedString) {
+    try {
+        // Step 1: Decode Base64 string
+        const jsonString = atob(compressedString);
+
+        // Step 2: Parse the string back into a JSON object
+        const jsonObject = JSON.parse(jsonString);
+
+        return jsonObject;
+    } catch (error) {
+        console.error("Error restoring the object:", error);
+        return null;
+    }
+}
+
+var charLists = ["WS","BS","S","T","Ag","Int","Per","WP","Fel"]
+
+var characteristicsTexts = 
+{
+	"InfoText":`<p>You have two options for determining your character's characteristics:</p>
+		<ol>
+			<li><b>Random Roll:</b> Roll 2d10 for each characteristic.</li>
+			<li><b>Point Buy System:</b> Allocate 100 points across all characteristics with a maximum of 15 for each.</li>
+		</ol>
+		<b>Green Highlight</b>: Your homeworld grants a bonus to this characteristic.
+		<ul>
+		<li>If rolling, use 3d10 and discard the lowest die.</li>
+		<li>If using point buy, characteristics maximum is changed from 15 to 20.</li>
+		</ul>
+		<p>Red Highlight (Disadvantage): Your homeworld imposes a penalty to this characteristic.</p>
+		<ul>
+			<li>If rolling, use 3d10 and discard the highest die.</li>
+			<li>If using point buy, characteristics maximum is changed from 15 to 10.</li>
+		</ul>
+		<p><b>Note:</b> If you choose to roll for your characteristics, you may re-roll one characteristic of your choice.</p>`,
+	"InfoTextDe":`<p>Du hast zwei Möglichkeiten, die Charakteristika deines Charakters zu bestimmen:</p>
+		<ol>
+			<li><b>Würfeln:</b> Es wird für jede Charateristik 2W10 gewürfelt und addiert.</li>
+			<li><b>Punktesystem:</b> Verteile 100 Punkte auf alle Charakteristika (jeweils max. 15).</li>
+		</ol>
+		<b>Grüne Markierung</b>: Deine Herkunftswelt gewährt dir einen Bonus auf diese Charakteristik.
+		<ul>
+		<li>Beim Würfeln werden 3W10 gewürfelt und die besten 2 addiert.</li>
+		<li>Beim Punktesystem wird das Charakteristika maximum von 15 auf 20 geändert</li>
+		</ul>
+		<p><b>Rote Markierung:</b> Deine Herkunftswelt bringt einen Malus auf diese Charakteristik.</p>
+		<ul>
+			<li>Beim Würfeln werden 3W10 gewürfelt und die schlechtesten 2 addiert.</li>
+			<li>Beim Punktesystem wird das Charakteristika maximum von 15 auf 10 geändert.</li>
+		</ul>
+		<p><b>Note:</b> If you choose to roll for your characteristics, you may re-roll one characteristic of your choice.</p>`,
+	"rollBtText":"Roll Characteristics",
+	"rollBtTextDe":"Charakteristika Rollen",
+	"ptBuyBtText":"Use Point Buy System",
+	"ptBuyBtTextDe":"Punkte System verwenden",
+}
+
+var aptitudesTexts = 
+{
+	"InfoText":`<p>Your aptitudes will determine experience costs for skills, characteristics and talents.</br>Aptitudes are given based on your career, homeworld, background, and role.</br>For some aptitudes you will be given a choice of two, please select one.</p>`,
+	"InfoTextDe":`<p>Deine Begabungen bestimmen die Erfahrungskosten für Fertigkeiten, Charateristika und Talente.</br>Begabungen werden basierend auf deiner Klasse, der Heimatwelt, dem Hintergrund und der Rolle vergeben.</br>Für einige Begabungen hast du die Wahl zwischen zwei Optionen, bitte wähle eine aus.</p>
+`
+}
+
+var talentsTexts = 
+{
+	"InfoText":`<p>Talents are unique abilities that enhance your character’s skills or grant powerful effects.
+				They can be purchased later using experience points, with their cost depending on your selected aptitudes.
+				Choose wisely to shape your character's strengths and define their path.</p>`,
+	"InfoTextDe":`<p>Talente sind einzigartige Fähigkeiten, die die Fertigkeiten deines Charakters verbessern oder mächtige Effekte gewähren.
+				Sie können später mit Erfahrungspunkten erworben werden, wobei die Kosten von den gewählten Begabungen abhängen.
+				Wähle mit Bedacht, um die Stärken deines Charakters zu formen und seinen Weg zu bestimmen.</p>
+`
+}
+
+var choices ={
+	"Aptitudes":[],
+	"Talents":[],
+	"Skills":[],
+	"Gear":[]
 }
 
 var brLure = {
@@ -52,13 +155,445 @@ var trialsMotivation = {
 	"darkness":["pride","fortune","knowledge"],
 }
 
+var GearGroups ={
+	"utility":{
+		"Name": "(Utility)",
+        "NameDe": "(Funktionstool)"
+	},
+	"hailer":{
+		"Name": "(Lautsprecher)",
+        "NameDe": "()"
+	},
+	"best":{
+		"Name": "(Best Quality)",
+        "NameDe": "(Beste Qualität)"
+	},
+	"compact":{
+		"Name": "(Compact Uprade)",
+        "NameDe": "(Kompakt Upgrade)"
+	}
+}
+
+var naviMutations = 
+{
+	"01_limbs":
+	{
+		"MinRoll":1,
+		"MaxRoll":15,
+		"Name": "Strangely Jointed Limbs",
+		"Effect": "Your limbs have extra joints that articulate differently to a normal human. You gain the Acrobatics Skill as a trained. If you already possess the		Acrobatics Skill, you gain an additional rank in it instead.",
+		"NameDe": "",
+		"EffectDe": "",
+		"Skills":[["acrobatics",""]]
+		
+	},
+	"02_elongated":
+	{
+		"MinRoll":16,
+		"MaxRoll":30,
+		"Name": "Elongated Form",
+		"Effect": "You are extremely tall and painfully thin, and lose -1d5 Toughness permanently. Re-roll this mutation if you already have the Bloated Form mutation.",
+		"NameDe": "",
+		"EffectDe": "",
+		"Stats" : [["T","-1d5"]],
+		"RerollIfOther": ["06_bloat"]
+		
+	},
+	"03_pale":
+	{
+		"MinRoll":31,
+		"MaxRoll":45,
+		"Name": "Pale and Hairless Flesh",
+		"Effect": "Your skin is pale, marbled with veins and completely without hair.",
+		"NameDe": "",
+		"EffectDe": ""
+		
+	},
+	"04_eyes":
+	{
+		"MinRoll":46,
+		"MaxRoll":55,
+		"Name": "Eyes as Dark as the Void",
+		"Effect": "Your eyes are completely black and without iris; you gain the Dark Sight Trait.",
+		"NameDe": "",
+		"EffectDe": "",
+		"Traits" : ["darksight"]
+		
+	},
+	"05_withered":
+	{
+		"MinRoll":56,
+		"MaxRoll":60,
+		"Name": "Withered Form",
+		"Effect": "Your body is withered, your flesh hanging loosely from your bones. You reduce your Strength Characteristic by 10 permanently and halve your movement rates (to a minimum of 1). Re-roll this mutation if you already have the Bloated Form mutation.",
+		"NameDe": "",
+		"EffectDe": "",
+		"Stats" : [["T","-10"]],
+		"MovementIsHalfed" : 1,
+		"RerollIfOther": ["06_bloat"]
+		
+	},
+	"06_bloat":
+	{
+		"MinRoll":61,
+		"MaxRoll":65,
+		"Name": "Bloated Form",
+		"Effect": "Your body is grossly bloated and your limbs thick with flesh. You gain 5 wounds and the Sturdy trait but may no longer run. Re-roll this mutation if you already have the Elongated Form or Withered Form mutations.",
+		"NameDe": "",
+		"EffectDe": "",
+		"Wounds": "+5";
+		"RerollIfOther": ["05_withered","02_elongated"]
+		
+	},
+	"07_memb":
+	{
+		"MinRoll":66,
+		"MaxRoll":70,
+		"Name": "Membranous Growth",
+		"Effect": "You have membranes of skin between your limbs and digits and your skin sags in folds from your flesh; you suffer -5 Fellowship permanently",
+		"NameDe": "",
+		"EffectDe": "",
+		"Stats" : [["Fel","-5"]]
+		
+	},
+	"09_inhuman":
+	{
+		"MinRoll":71,
+		"MaxRoll":75,
+		"Name": "Inhuman Visage",
+		"Effect": "Your face is devoid of human features, your nose is nothing but a pair of slits, your ears are small holes, your eyes are unblinking. You gain the Fear (1) Trait.",
+		"NameDe": "",
+		"EffectDe": "",
+		"Traits": ["fear"]
+		
+	},
+	"10_talons":
+	{
+		"MinRoll":76,
+		"MaxRoll":80,
+		"Name": "Fingers like Talons",
+		"Effect": "The bones of your fingers have grown and hardened into talons. You gain the Natural Weapons Trait.",
+		"NameDe": "",
+		"EffectDe": "",
+		"Traits": ["nat_weapon"]
+		
+	},
+	"11_teeth":
+	{
+		"MinRoll":81,
+		"MaxRoll":85,
+		"Name": "Teeth as Sharp as Needles",
+		"Effect": "Your mouth is filled with hundreds of fine, pointed teeth. You gain the Natural Weapons Trait and suffer -1d5 Fellowship.",
+		"NameDe": "",
+		"EffectDe": "",
+		"Traits": ["nat_weapon"],
+		"Stats" : [["Fel","-1d5"]]
+		
+	},
+	"12_disturbing":
+	{
+		"MinRoll":86,
+		"MaxRoll":90,
+		"Name": "Disturbing Grace",
+		"Effect": "You move with a fluid, sinuous grace that is somewhat unpleasant and unnatural in its quality. You gain the Unnatural Agility (2) Trait.",
+		"NameDe": "",
+		"EffectDe": "",
+		"Traits": ["agility"]
+		
+	},
+	"13_vitality":
+	{
+		"MinRoll":91,
+		"MaxRoll":95,
+		"Name": "Strange Vitality",
+		"Effect": "You possess a vitality and resilience that is at odds with your physical form; wounds bleed translucent fluid and close quickly, bones knit together after being horrifically broken. You gain the Regeneration (1) Trait.",
+		"NameDe": "",
+		"EffectDe": "",
+		"Traits": ["regeneration"]
+	},
+	"14_unnat":
+	{
+		"MinRoll":96,
+		"MaxRoll":100,
+		"Name": "Unnatural Presence",
+		"Effect": "In your presence living things feel strange unpleasant sensations, a cloying touch to their skin, a keening whine in their ears and a metallic tang in their mouth. All your tests that involve positive social interaction are at –10, whilst all those that involve intimidation or inducing fear are at +10.",
+		"NameDe": "",
+		"EffectDe": "",
+		"EffectIsAbilty": 1
+		
+	},
+}
+
+
+var Gear ={
+    "a_b_bglove": {
+        "Name": "Armoured Bodyglove",
+        "NameDe": "Gepanzerter Ganzkörperanzug"
+    },
+    "a_b_h_leather": {
+        "Name": "Heavy Leathers",
+        "NameDe": "Schweres Leder"
+    },
+    "a_b_imperial": {
+        "Name": "Imperial Robes",
+        "NameDe": "Imperiale Roben"
+    },
+    "a_car_chest": {
+        "Name": "Carapace Chestplate",
+        "NameDe": "Karabiner-Brustplatte"
+    },
+    "a_car_hrlm_chest": {
+        "Name": "Heirloom Carapace Chestplate",
+        "NameDe": "Erbstück-Karabiner-Brustplatte"
+    },
+    "a_car_li_enf": {
+        "Name": "Enforcer Light Carapace",
+        "NameDe": "Leichte Karabinerrüstung der Vollstrecker"
+    },
+    "a_car_tempest": {
+        "Name": "Militarum Tempestus Carapace",
+        "NameDe": "Karabinerrüstung des Militarum Tempestus"
+    },
+    "a_flak_cloak": {
+        "Name": "Flak Cloak",
+        "NameDe": "Splittermantel"
+    },
+    "a_flak_coat": {
+        "Name": "Flak Coat",
+        "NameDe": "Splittermantel"
+    },
+    "a_flak_guard": {
+        "Name": "Imperial Guard Flak Armour",
+        "NameDe": "Splitterrüstung der Imperialen Armee"
+    },
+    "a_flak_vest": {
+        "Name": "Flak Vest",
+        "NameDe": "Splitterweste"
+    },
+    "a_mesh_cloak": {
+        "Name": "Mesh Cloak",
+        "NameDe": "Gewebeumhang"
+    },
+    "cons_ama": {
+        "Name": "Amasec",
+        "NameDe": "Amasec"
+    },
+    "cons_lho": {
+        "Name": "Lho-Sticks",
+        "NameDe": "Lho-Stäbchen"
+    },
+    "cons_obscura": {
+        "Name": "Obscura",
+        "NameDe": "Obscura"
+    },
+    "cons_sacred": {
+        "Name": "Sacred Unguents",
+        "NameDe": "Heilige Salben"
+    },
+    "cons_slaught": {
+        "Name": "Slaught",
+        "NameDe": "Slaught"
+    },
+    "cons_stimm": {
+        "Name": "Stimm",
+        "NameDe": "Stimm"
+    },
+    "cons_tranq": {
+        "Name": "Tranq",
+        "NameDe": "Beruhigungsmittel"
+    },
+    "f_hand": {
+        "Name": "Hand Flamer",
+        "NameDe": "Handflammenwerfer"
+    },
+    "gr_aqpend": {
+        "Name": "Aquila Pendant",
+        "NameDe": "Aquila-Anhänger"
+    },
+    "gr_fil_plug": {
+        "Name": "Filtration Plugs",
+        "NameDe": "Filterstopfen"
+    },
+    "gr_rebbreath": {
+        "Name": "Rebreather",
+        "NameDe": "Atemwiederaufbereiter"
+    },
+    "gr_voidsuit": {
+        "Name": "Synskin",
+        "NameDe": "Synhaut"
+    },
+    "gr_web": {
+        "Name": "Web Grenade",
+        "NameDe": "Netzgranate"
+    },
+    "las_hrlm_pistol": {
+        "Name": "Heirloom Laspistol",
+        "NameDe": "Erbstück-Laserpistole"
+    },
+    "las_hs_gun": {
+        "Name": "Hot-shot Lasgun",
+        "NameDe": "Hochenergie-Lasergewehr"
+    },
+    "las_hs_pistol": {
+        "Name": "Hot-shot Laspistol",
+        "NameDe": "Hochenergie-Laserpistole"
+    },
+    "las_lock": {
+        "Name": "Laslock",
+        "NameDe": "Laslock "
+    },
+    "las_normal": {
+        "Name": "Lasgun",
+        "NameDe": "Lasergewehr"
+    },
+    "las_pistol": {
+        "Name": "Laspistol",
+        "NameDe": "Laserpistole"
+    },
+    "m_ch_blade": {
+        "Name": "Chainblade",
+        "NameDe": "Klingenkettenwaffe"
+    },
+    "m_ch_hrlm_swrd": {
+        "Name": "Heirloom Chainsword",
+        "NameDe": "Erbstück-Kettenschwert"
+    },
+    "m_ch_swrd": {
+        "Name": "Chainsword",
+        "NameDe": "Kettenschwert"
+    },
+    "m_pr_cstaff": {
+        "Name": "Ceremonial Staff",
+        "NameDe": "Zeremonieller Stab"
+    },
+    "m_pr_csword": {
+        "Name": "Ceremonial Sword",
+        "NameDe": "Zeremonielles Schwert"
+    },
+    "m_pr_improv": {
+        "Name": "Improvised",
+        "NameDe": "Improvisierte Waffe"
+    },
+    "m_pr_knife": {
+        "Name": "Knife",
+        "NameDe": ""
+    },
+    "m_pr_staff": {
+        "Name": "Staff",
+        "NameDe": "Messer"
+    },
+    "m_pr_sword": {
+        "Name": "Sword",
+        "NameDe": "Schwert"
+    },
+    "m_pr_warhammer": {
+        "Name": "Warhammer",
+        "NameDe": "Kriegshammer"
+    },
+    "m_pr_whip": {
+        "Name": "Whip",
+        "NameDe": "Peitsche"
+    },
+    "m_sh_maul": {
+        "Name": "Shock Maul",
+        "NameDe": "Elektroschlagstock"
+    },
+    "m_sh_whip": {
+        "Name": "Shock Whip",
+        "NameDe": "Elektropeitsche"
+    },
+    "sp_auto_gun": {
+        "Name": "Autogun",
+        "NameDe": "Autogewehr"
+    },
+    "sp_auto_pstl": {
+        "Name": "Autopistol",
+        "NameDe": "Autopistole"
+    },
+    "sp_c_shotgun": {
+        "Name": "Shotgun (Combat)",
+        "NameDe": "Kampfschrotflinte"
+    },
+    "sp_h_can": {
+        "Name": "Hand Cannon",
+        "NameDe": "Handkanone"
+    },
+    "sp_shotgun": {
+        "Name": "Shotgun",
+        "NameDe": "Schrotflinte"
+    },
+    "sp_stub_auto": {
+        "Name": "Stub Automatic",
+        "NameDe": "Maschinenkarabiner (Automatik)"
+    },
+    "sp_stub_revo": {
+        "Name": "Stub Revolver",
+        "NameDe": "Maschinenkarabiner-Revolver"
+    },
+    "tl_advmedkit": {
+        "Name": "Advanced Medi-kit",
+        "NameDe": "Fortgeschrittenes Medikit"
+    },
+    "tl_auspex": {
+        "Name": "Auspex",
+        "NameDe": "Auspex"
+    },
+    "tl_bead": {
+        "Name": "Micro-bead",
+        "NameDe": "Micro-bead"
+    },
+    "tl_cuff": {
+        "Name": "Manacles",
+        "NameDe": "Handschellen"
+    },
+    "tl_combi": {
+        "Name": "Combi-tool",
+        "NameDe": "Kombinationswerkzeug"
+    },
+    "tl_disguise": {
+        "Name": "Disguise Kit",
+        "NameDe": "Verkleidungsset"
+    },
+    "tl_excruc": {
+        "Name": "Excruciator Kit",
+        "NameDe": "Folterwerkzeug-Set"
+    },
+    "tl_focus": {
+        "Name": "Psy Focus",
+        "NameDe": "Psi-Fokus"
+    },
+    "tl_grap": {
+        "Name": "Grapnel and Line",
+        "NameDe": "Enterhaken mit Seil"
+    },
+    "tl_harness": {
+        "Name": "Clip/Drop Harness",
+        "NameDe": "Sicherungsgurt/Abseilgeschirr"
+    },
+    "tl_inject": {
+        "Name": "Injector",
+        "NameDe": "Inhalator/Injektor"
+    },
+    "tl_medkit": {
+        "Name": "Medi-kit",
+        "NameDe": "Medikit"
+    },
+    "tl_quill": {
+        "Name": "Auto Quill",
+        "NameDe": "Automatischer Schreibfederhalter"
+    },
+    "tl_servoskull": {
+        "Name": "Servoskull",
+        "NameDe": "Servoschädel"
+    }
+}
 
 
 var Apts =
 {
 	"WS": {
 		"Label":"Weapon Skill",
-		"LabelDe":"Kampfgeschick"
+		"LabelDe":"Nahkampf Fähigkeit"
 	},
 	"BS": {
 		"Label":"Ballistic Skill",
@@ -74,7 +609,7 @@ var Apts =
 	},
 	"Ag": {
 		"Label":"Agility",
-		"LabelDe":"Gewandheit"
+		"LabelDe":"Agilität"
 	},
 	"Int": {
 		"Label":"Intelligence",
@@ -675,524 +1210,467 @@ var talents = {
         "IsLeveled": 0,
         "Name": "Ambassador Imperialis",
         "NameDe": "Ambassador Imperialis",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "ambidextrous": {
         "IsLeveled": 0,
         "Name": "Ambidextrous",
         "NameDe": "Beidhändigkeit",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "aoa": {
         "IsLeveled": 0,
         "Name": "Air of Authority",
         "NameDe": "Aura der Autorität",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "archivator": {
         "IsLeveled": 0,
         "Name": "Archivator",
         "NameDe": "Archivar",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "battlerage": {
         "IsLeveled": 0,
         "Name": "Battle Rage",
         "NameDe": "Kampfrausch",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "bloodtracker": {
         "IsLeveled": 0,
         "Name": "Blood Tracker",
         "NameDe": "Blutspurjäger",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "blademaster": {
         "IsLeveled": 0,
         "Name": "Blademaster",
         "NameDe": "Klingenmeister",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "bodyguard": {
         "IsLeveled": 0,
         "Name": "Bodyguard",
         "NameDe": "Leibwächter",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "bulwark_o_faith": {
         "IsLeveled": 0,
         "Name": "Bulwark of Faith",
         "NameDe": "Bollwerk des Glaubens",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "catfall": {
         "IsLeveled": 0,
         "Name": "Catfall",
         "NameDe": "Katzenfall",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "clues_crowd": {
         "IsLeveled": 0,
         "Name": "Clues from the Crowds",
         "NameDe": "Hinweise aus der Menge",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "contact_network": {
         "IsLeveled": 0,
         "Name": "Contact Network",
         "NameDe": "Kontaktnetzwerk",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "constant_vigilance": {
         "IsLeveled": 0,
         "Name": "Constant Vigilance",
         "NameDe": "Ständige Wachsamkeit",
-        "TalentGroups": [
-			["Int","Per"]
-        ]
+        "TalentGroups": {
+				"any": ["Int","Per"]
+			}
     },
     "coverup": {
         "IsLeveled": 0,
         "Name": "Cover-Up",
         "NameDe": "Vertuschung",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "d_team": {
         "IsLeveled": 0,
         "Name": "Double Team",
         "NameDe": "Doppelteam",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "daemonhunter": {
         "IsLeveled": 0,
         "Name": "Daemonhunter",
         "NameDe": "Dämonenjäger",
-        "TalentGroups": [
-        ]
-    },
+        "TalentGroups": {}
+	},
     "darksoul": {
         "IsLeveled": 0,
         "Name": "Dark Soul",
         "NameDe": "Dunkle Seele",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "decadence": {
         "IsLeveled": 0,
         "Name": "Delicate Dealings",
         "NameDe": "Feinsinnige Verhandlungen",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "delicatedealings": {
         "IsLeveled": 0,
         "Name": "Decadence",
         "NameDe": "Dekadenz",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "deny_witch": {
         "IsLeveled": 0,
         "Name": "Deny the Witch",
         "NameDe": "Die Hexe verwehren",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "diehard": {
         "IsLeveled": 0,
         "Name": "Die Hard",
         "NameDe": "Zähigkeit",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "disarm": {
         "IsLeveled": 0,
         "Name": "Disarm",
         "NameDe": "Entwaffnen",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "enemy": {
         "IsLeveled": 0,
         "Name": "Enemy",
         "NameDe": "Feind",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "face_in_crowd": {
         "IsLeveled": 0,
         "Name": "Face in a Crowd",
         "NameDe": "Ein Gesicht in der Menge",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "flagellant": {
         "IsLeveled": 0,
         "Name": "Flagellant",
         "NameDe": "Flagellant",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "foresight": {
         "IsLeveled": 0,
         "Name": "Foresight",
         "NameDe": "Vorausblick",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "frenzy": {
         "IsLeveled": 0,
         "Name": "Frenzy",
         "NameDe": "Raserei",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "grey_soul": {
         "IsLeveled": 0,
         "Name": "Grey Soul",
         "NameDe": "Graue Seele",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },	
     "hard_bargain": {
         "IsLeveled": 0,
         "Name": "Hard Bargain",
         "NameDe": "Harte Verhandlung",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "hard_target": {
         "IsLeveled": 0,
         "Name": "Hard Target",
         "NameDe": "Schweres Ziel",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "hardenedsoul": {
         "IsLeveled": 0,
         "Name": "Harden Soul",
         "NameDe": "Gehärtete Seele",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "hardy": {
         "IsLeveled": 0,
         "Name": "Hardy",
         "NameDe": "Zäh",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "hatred": {
         "IsLeveled": 0,
         "Name": "Hatred",
         "NameDe": "Hass",
-        "TalentGroups": [
-            "ad_sor"
-        ]
+        "TalentGroups": {
+			"any": ["eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
+				"inquisition","nobility","rt","smuggler","pirates","ministorum","navi","daemon"],
+			"xenos": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid"],
+			"any_opp": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid","daemon","pirates","rt"],
+			"any_dyn": ["admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
+				"inquisition","nobility","rt","smuggler","pirates","ministorum","navi"],
+		}
     },
     "heroic_insp": {
         "IsLeveled": 0,
         "Name": "Heroic Inspiration",
         "NameDe": "Heldenhafte Inspiration",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "hotshot_pilot": {
         "IsLeveled": 0,
         "Name": "Hotshot Pilot",
         "NameDe": "Spitzenpilot",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "iron_jaw": {
         "IsLeveled": 0,
         "Name": "Iron Jaw",
         "NameDe": "Eisernes Kinn",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "iron_resolve": {
         "IsLeveled": 0,
         "Name": "Iron Resolve",
         "NameDe": "Eisernes Durchhaltevermögen",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "iron_faith": {
         "IsLeveled": 0,
         "Name": "Iron Faith",
         "NameDe": "Eiserner Glaube",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "intep_target": {
         "IsLeveled": 0,
         "Name": "Independent Targeting",
         "NameDe": "Unabhängige Zielerfassung",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "infusedknowledge": {
         "IsLeveled": 0,
         "Name": "Infused Knowledge",
         "NameDe": "Eingeflößtes Wissen",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "jaded": {
         "IsLeveled": 0,
         "Name": "Jaded",
         "NameDe": "Abgestumpft",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "keen_intuition": {
         "IsLeveled": 0,
         "Name": "Keen Intuition",
         "NameDe": "Scharfe Intuition",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "l_sleeper": {
         "IsLeveled": 0,
         "Name": "Light Sleeper",
         "NameDe": "Leichter Schlaf",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "leapup": {
         "IsLeveled": 0,
         "Name": "Leap Up",
         "NameDe": "Aufspringer",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "leapingdodge": {
         "IsLeveled": 0,
         "Name": "Leaping Dodge",
         "NameDe": "Sprungausweichmanöver",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "lexographer": {
         "IsLeveled": 0,
         "Name": "Lexographer",
         "NameDe": "Lexograf",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "mechadendrite": {
         "IsLeveled": 0,
         "Name": "Mechadendrite Use",
         "NameDe": "Mechadendriten-Nutzung",
-        "TalentGroups": [
-            "utility",
-			"weapon"
-        ]
+        "TalentGroups": {}
     },
     "neverdie": {
         "IsLeveled": 0,
         "Name": "Never Die",
         "NameDe": "Niemals sterben",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "oneonone": {
         "IsLeveled": 0,
         "Name": "One-on-One",
         "NameDe": "Eins-zu-Eins",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "no_hiding": {
         "IsLeveled": 0,
         "Name": "Nowhere to Hide",
         "NameDe": "Kein Versteck",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "peer": {
         "IsLeveled": 0,
         "Name": "Peer",
         "NameDe": "Einfluss",
-        "TalentGroups": [
-            "ad_sor",
-            "cartel"
-        ]
+        "TalentGroups": {
+			"any_vs_owner": ["mechanicus","admin","navy","ecc","ministorum","rt","noble"],
+			"xenos": ["eldar","dark_eldar","ork","tau", "kroot"],
+			"any_imp": ["admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf","inquisition","nobility","rt","smuggler","pirates","ministorum"],
+			"any": ["eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
+				"inquisition","nobility","rt","smuggler","pirates","ministorum"]
+		}
     },
     "pure_hatred": {
         "IsLeveled": 0,
         "Name": "Purity of Hatred",
         "NameDe": "Reinheit des Hasses",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {
+			"any": ["eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
+				"inquisition","nobility","rt","smuggler","pirates","ministorum","navi","daemon"],
+			"xenos": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid"],
+			"any_opp": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid","daemon","pirates","rt"],
+			"any_dyn": ["admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
+				"inquisition","nobility","rt","smuggler","pirates","ministorum","navi"],
+		}
     },
     "q_draw": {
         "IsLeveled": 0,
         "Name": "Quick Draw",
         "NameDe": "Schnelles Ziehen",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "rap_reload": {
         "IsLeveled": 0,
         "Name": "Rapid Reload",
         "NameDe": "Schnelles Nachladen",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "res": {
         "IsLeveled": 0,
         "Name": "Resistance",
         "NameDe": "Widerstandsfähigkeit",
-        "TalentGroups": [
-            "cold",
-            "heat",
-            "poisons",
-            "psychic"
-        ]
+        "TalentGroups": {
+			"any":[
+				"cold",
+				"heat",
+				"fear",
+				"poisons",
+				"radiation"
+			]
+		}
     },
     "sound_const": {
         "IsLeveled": 0,
         "Name": "Sound Constitution",
         "NameDe": "Robuste Konstitution",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "sprint": {
         "IsLeveled": 0,
         "Name": "Sprint",
         "NameDe": "Sprint",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "streetfight": {
         "IsLeveled": 0,
         "Name": "Street Fighting",
         "NameDe": "Straßenkampf",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "strong_minded": {
         "IsLeveled": 0,
         "Name": "Strong Minded",
         "NameDe": "Starker Geist",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "takedown": {
         "IsLeveled": 0,
         "Name": "Takedown",
         "NameDe": "Niederschlag",
-        "TalentGroups": [
-            ""
-        ]
+        "TalentGroups": {}
     },
     "tech_knock": {
         "IsLeveled": 0,
         "Name": "Technical Knock",
         "NameDe": "Technischer Schlag",
-        "TalentGroups": [
-            ""
-        ]
+        "TalentGroups": {}
     },
     "total_recall": {
         "IsLeveled": 0,
         "Name": "Total Recall",
         "NameDe": "Fotografisches Gedächtnis",
-        "TalentGroups": [
-            ""
-        ]
+        "TalentGroups": {}
     },
     "truegrit": {
         "IsLeveled": 0,
         "Name": "True Grit",
         "NameDe": "Wahres Durchhaltevermögen",
-        "TalentGroups": [
-            ""
-        ]
+        "TalentGroups": {}
     },
     "two_weapon": {
         "IsLeveled": 0,
         "Name": "Two-Weapon Wielder",
         "NameDe": "Zwei-Waffen-Kämpfer",
-        "TalentGroups": [
-        ]
+        "TalentGroups": {}
     },
     "unarmed_spec": {
         "IsLeveled": 0,
         "Name": "Unarmed Specialist",
         "NameDe": "Nahkampfspezialist",
-        "TalentGroups": [
-            ""
-        ]
+        "TalentGroups": {}
     },
     "w_training": {
         "IsLeveled": 0,
         "Name": "Weapon Training",
         "NameDe": "Waffentraining",
-        "TalentGroups": [
-            "bolt",
-            "flame",
-            "las",
-            "launcher",
-            "primitive",
-            "melta",
-            "sp",
-            "exotic",
-            "explosives",
-            "chain",
-            "force",
-            "power",
-            "shock",
-            "plasma"
-        ]
+        "TalentGroups":{ 
+			"w_any":
+					[
+				"bolt",
+				"chain",
+				"flame",
+				"heavy",
+				"las",
+				"launcher",
+				"melta",
+				"plasma",
+				"power",
+				"primitive",
+				"shock",
+				"sp"
+			]
+		}
     },
     "warp_sense": {
         "IsLeveled": 0,
         "Name": "Warp Sense",
         "NameDe": "Warp-Sinn",
-        "TalentGroups": [
-            ""
-        ]
+        "TalentGroups": {}
     },
     "weapon_tech": {
         "IsLeveled": 0,
         "Name": "Weapon-Tech",
         "NameDe": "Waffen-Tech",
-        "TalentGroups": [
-            ""
-        ]
+        "TalentGroups": {}
     },
     "witchfinder": {
         "IsLeveled": 0,
         "Name": "Witch Finder",
         "NameDe": "Hexenjäger",
-        "TalentGroups": [
-            ""
-        ]
+        "TalentGroups": {}
     },
     "xenosavant": {
         "IsLeveled": 0,
         "Name": "Xenosavant",
         "NameDe": "Xenokundiger",
-        "TalentGroups": [
-            ""
-        ]
+        "TalentGroups": {}
     },
 }
 
@@ -1200,207 +1678,154 @@ var skills = {
     "acrobatics": {
         "Name": "Acrobatics",
         "NameDe": "Akrobatik",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "athletics": {
         "Name": "Athletics",
         "NameDe": "Athletik",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "awareness": {
         "Name": "Awareness",
         "NameDe": "Wahrnehmung",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "c_lore": {
         "Name": "Common Lore",
         "NameDe": "Allgemeinwissen",
-        "SkillGroups": [
-            "ecc",
-            "ad_sor",
-            "underworld",
-            "astro",
-            "tech",
-            "imp_creed"
-        ]
+        "SkillGroups": {}
     },
     "charm": {
         "Name": "Charm",
         "NameDe": "Charme",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "command": {
         "Name": "Command",
         "NameDe": "Führung",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "commerce": {
         "Name": "Commerce",
         "NameDe": "Handel",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "deceive": {
         "Name": "Deceive",
         "NameDe": "Täuschen",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "dodge": {
         "Name": "Dodge",
         "NameDe": "Ausweichen",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "f_lore": {
         "Name": "Forbidden Lore",
         "NameDe": "Verbotenes Wissen",
-        "SkillGroups": [
-            "xenos",
-            "heresy",
-            "sororitas",
-            "psyker",
-            "warp",
-            "archeotech",
-            "mechanicus",
-            "heresy",
-            "navi"
-        ]
+        "SkillGroups": {}
     },
     "inquiry": {
         "Name": "Inquiry",
         "NameDe": "Ermittlung",
-        "SkillGroups": [
-        ]
+        "SkillGroups":{}
     },
     "interrogation": {
         "Name": "Interrogation",
         "NameDe": "Verhör",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "intimidate": {
         "Name": "Intimidate",
         "NameDe": "Einschüchtern",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "linguistics": {
         "Name": "Linguistics",
         "NameDe": "Linguistik",
-        "SkillGroups": [
-            "xenos",
-            "h_goth",
-            "imp_codes",
-            "rt_cant",
-            "underworld",
-            "merchant_code",
-            "binary",
-            "tech_lingo"
-        ]
+        "SkillGroups": {}
     },
     "logic": {
         "Name": "Logic",
         "NameDe": "Logik",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "medicae": {
         "Name": "Medicae",
         "NameDe": "Medizin",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "navigate": {
         "Name": "Navigate",
         "NameDe": "Navigieren ",
-        "SkillGroups": [
-            "surface",
-            "stellar",
-            "warp"
-        ]
+        "SkillGroups": {}
     },
     "operate": {
         "Name": "Operate",
         "NameDe": "Fahrzeugführen",
-        "SkillGroups": [
-            "voidship",
-            "aeronautica"
-        ]
+        "SkillGroups": {}
     },
     "parry": {
         "Name": "Parry",
         "NameDe": "Parieren",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "psyniscience": {
         "Name": "Psyniscience",
         "NameDe": "Psychische Wahrnehmung",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "s_lore": {
         "Name": "Scholastic Lore",
         "NameDe": "Scholastisches Wissen",
-        "SkillGroups": [
-            "creed",
-            "occult",
-            "imp_creed",
-            "astromancy"
-        ]
+        "SkillGroups": {}
     },
     "scrutiny": {
         "Name": "Scrutiny",
         "NameDe": "Beobachtung",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "security": {
         "Name": "Security",
         "NameDe": "Sicherheit",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "sl_o_hand": {
         "Name": "Sleight of Hand",
         "NameDe": "Fingerfertigkeit",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "stealth": {
         "Name": "Stealth",
         "NameDe": "Schleichen",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "survival": {
         "Name": "Stealth",
         "NameDe": "Überleben",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "techuse": {
         "Name": "Tech-Use",
         "NameDe": "Technologie-Nutzung",
-        "SkillGroups": [
-        ]
+        "SkillGroups": {}
     },
     "trade": {
         "Name": "Trade",
         "NameDe": "Handwerk",
-        "SkillGroups": [
-            "astrograph"
-        ]
+        "SkillGroups": {}
     }
 }
 
 var groups = {
+	"Int": {
+        "Name": "Intelligence",
+        "NameDe": "Intelligenz"
+    },
+	"Per": {
+        "Name": "Perception",
+        "NameDe": "Wahrnehmung"
+    },
     "ad_sor": {
         "Name": "Adepta Sororitas",
         "NameDe": "Adepta Sororitas"
@@ -1413,6 +1838,18 @@ var groups = {
         "NameDe": "Astromantie"
     },
     "any": {
+        "Name": "Choose 1",
+        "NameDe": "Wähle 1"
+    },
+    "any_opp": {
+        "Name": "Choose 1",
+        "NameDe": "Wähle 1"
+    },
+    "any_vs_owner": {
+        "Name": "Choose 1",
+        "NameDe": "Wähle 1"
+    },
+    "any_dyn": {
         "Name": "Choose 1",
         "NameDe": "Wähle 1"
     },
@@ -1492,6 +1929,10 @@ var groups = {
         "Name": "Cook",
         "NameDe": "Koch"
     },
+	"dark_eldar":{
+		"Name": "Dark Eldar",
+		"NameDe": "Drukhari"
+	},
 	"daemons":{
 		"Name": "Daemons",
 		"NameDe": "Dämonen"
@@ -1508,6 +1949,10 @@ var groups = {
         "Name": "Ecclesiarchy",
         "NameDe": "Ekklesiarchie"
     },
+	"eldar":{
+		"Name": "Eldar",
+		"NameDe": "Eldar"
+	},
     "faithful": {
         "Name": "Faithful",
         "NameDe": "Gläubige"
@@ -1535,6 +1980,10 @@ var groups = {
     "h_goth": {
         "Name": "High Gothic",
         "NameDe": "Hochgotisch"
+    },
+    "heavy": {
+        "Name": "Heavy",
+        "NameDe": "Schwere Waffen"
     },
     "horusheresy": {
         "Name": "Horus Heresy",
@@ -1572,6 +2021,10 @@ var groups = {
         "Name": "Judgement",
         "NameDe": "Verturteilungen"
     },
+	"kroot":{
+		"Name":"Kroot",
+		"NameDe":"Kroot"
+	},
     "las": {
         "Name": "Las",
         "NameDe": "Las"
@@ -1595,6 +2048,10 @@ var groups = {
     "mechanicus": {
         "Name": "Adeptus Mechanicus",
         "NameDe": "Adeptus Mechanicus"
+    },
+    "melee": {
+        "Name": "Melee",
+        "NameDe": "Nahkampf"
     },
     "melta": {
         "Name": "Melta",
@@ -1624,6 +2081,14 @@ var groups = {
         "Name": "Imperial Navy",
         "NameDe": "Imperiale Flotte"
     },
+    "necron": {
+        "Name": "Necron",
+        "NameDe": "Necron"
+    },
+    "Nobility": {
+        "Name": "Nobility",
+        "NameDe": "Adelige"
+    },
 	"numerology":{
 		"Name":"Numerology",
 		"NameDe":"Numerologie"
@@ -1631,6 +2096,10 @@ var groups = {
     "occult": {
         "Name": "Occult",
         "NameDe": "Okkult"
+    },
+    "ork": {
+        "Name": "Ork",
+        "NameDe": "Ork"
     },
     "pdf": {
         "Name": "Planetary Defence Force",
@@ -1683,6 +2152,14 @@ var groups = {
     "tr_any": {
         "Name": "Choose 1",
         "NameDe": "Wähle 1"
+    },
+    "tau": {
+        "Name": "Tau",
+        "NameDe": "Tau"
+    },
+    "tyranid": {
+        "Name": "Tyranid",
+        "NameDe": "Tyraniden"
     },
     "shock": {
         "Name": "Shock",
@@ -1752,6 +2229,10 @@ var groups = {
         "Name": "Vehiculum",
         "NameDe": "Fahrzeugbaumeister"
     },
+	"vspid": {
+        "Name": "Vespid",
+        "NameDe": "Vespiden"
+    },
     "shipwright": {
         "Name": "Shipwright",
         "NameDe": "Schiffbaumeister"
@@ -1771,6 +2252,10 @@ var groups = {
     "warp": {
         "Name": "Warp",
         "NameDe": "Warp"
+    },
+    "weapon": {
+        "Name": "Weapon",
+        "NameDe": "Bewaffnet"
     },
     "xenos": {
         "Name": "Choose 1 Type of Xenos",
@@ -1861,7 +2346,7 @@ var hwAbilities = {
         "Effect": "A forge world character starts with either the Technical Knock or Weapon-Tech talent.",
         "EffectDe": "Ein Charakter von einer Schmiedewelt beginnt mit entweder dem Talent Technischer Schlag oder Waffen-Techniker.",
         "Skills": [],
-        "Talents": [["tech_knock@1",""],["weapon_tech@1",""]],
+        "Talents": [["tech_knock|weapon_tech","@@"]],
 		"Corruption":""
     },
     "fortress": {
@@ -1870,7 +2355,7 @@ var hwAbilities = {
         "Effect": "Gain Hatred (Any) connected to whom the Fortress World was fighting against and this works also on Ballistic Skill, but only for you.",
         "EffectDe": "Erhalte die Eigenschaft Hass (Beliebig), die sich auf jene bezieht, gegen die die Festungswelt gekämpft hat. Diese Eigenschaft gilt auch für Ballistik-Fertigkeit, jedoch nur für dich.",
         "Skills": [],
-        "Talents": [["hatred","choice"]],
+        "Talents": [["hatred","any_opp"]],
 		"Corruption":""
     },
     "frontier": {
@@ -1942,7 +2427,7 @@ var hwAbilities = {
         "Effect": "A Mining World characters start with either the Resistance (Cold), Resistance (Heat), or Resistance (Poisons) talent. Additionally, Mining Colony characters gain a +10 to Awareness and Navigation (Surface) tests when underground.",
         "EffectDe": "Ein Charakter von einer Bergbauwelt beginnt mit dem Talent Widerstand (Kälte), Widerstand (Hitze) oder Widerstand (Gifte). Zusätzlich erhalten Charaktere aus einer Bergbaukolonie einen Bonus von +10 auf Wahrnehmung und Navigieren (Oberfläche), wenn sie sich unter der Erde befinden.",
         "Skills": [],
-        "Talents": [["res","cold@1"],["res","heat@1"],["res","poisons@1"]],
+        "Talents": [["res","cold|heat|poisons"]],
 		"Corruption":""
     },
     "penal": {
@@ -2005,7 +2490,7 @@ var hwAbilities = {
         "Effect": "Gain Peer (Any) connected to who owned the station and additional +10 to all Fellowship tests when dealing with that group.",
         "EffectDe": "Erhalte Umgang (Beliebig), bezogen auf die Besitzer der Station, sowie einen zusätzlichen Bonus von +10 auf alle Fertigkeitswürfe für Charisma, wenn du mit dieser Gruppe interagierst.",
         "Skills": [],
-        "Talents": [["peer","choice"]],
+        "Talents": [["peer","any_vs_owner"]],
 		"Corruption":""
     },
     "war": {
@@ -2022,7 +2507,7 @@ var hwAbilities = {
 
 var careers = {
     "rt": {
-        "Apt": "Leadership",
+        "Apt": ["Leadership"],
         "Description": "Rogue Traders are powerful individuals granted a special charter by the Imperium, allowing them to explore, trade, and conquer beyond Imperial borders. They command vast starships and operate with near-autonomous authority, pursuing wealth, power, and discovery. While officially serving the Imperium, many walk a thin line between loyalty and self-interest.",
         "Descritpion_DE": "Freihändler sind mächtige Individuen, die durch ein besonderes Kaperbrief des Imperiums ermächtigt sind, jenseits der imperialen Grenzen zu erkunden, zu handeln und zu erobern. Sie führen gewaltige Raumschiffe und agieren mit nahezu vollständiger Autonomie, stets auf der Suche nach Reichtum, Macht und Entdeckungen. Obwohl sie offiziell dem Imperium dienen, bewegen sich viele Freihändler auf einem schmalen Grat zwischen Loyalität und Eigeninteresse.",
         "IMAGE": "roguetrader.png",
@@ -2030,7 +2515,7 @@ var careers = {
         "NAME_DE": "Freihändler"
     },
     "sister": {
-        "Apt": "WP",
+        "Apt": ["WP"],
         "Description": "A Sister Pariah is a rare and feared individual born with the Pariah Gene, making them completely soulless and immune to psychic powers. They are often recruited by the Inquisition or the Sisters of Silence to serve as anti-psyker operatives. Their presence is deeply unsettling, causing unease or even terror among those around them, as they suppress psychic phenomena through their very existence.",
         "Descritpion_DE": "Eine Schwester Pariah ist eine seltene und gefürchtete Person, die mit dem Pariah-Gen geboren wurde, was sie seelenlos und vollständig immun gegen psionische Kräfte macht. Sie werden oft von der Inquisition oder den Schwestern der Stille rekrutiert, um als Anti-Psioniker-Agenten zu dienen. Ihre bloße Anwesenheit ist zutiefst beunruhigend und kann bei Menschen in ihrer Umgebung Unbehagen oder sogar Angst auslösen, da sie psionische Phänomene durch ihre Existenz unterdrücken.",
         "IMAGE": "sister_pariah.png",
@@ -2060,7 +2545,7 @@ var careers = {
         "NAME_DE": "Nicht-sanktionierter Psioniker"
     },
     "arch": {
-        "Apt": "Offence",
+        "Apt": ["Offence"],
         "Description": "The Arch-Militant is a master of combat, serving as the military commander or personal bodyguard aboard a Rogue Trader's vessel. Hardened by countless battles, they excel in warfare, weapon mastery, and battlefield tactics. Loyal and deadly, they ensure the Rogue Trader’s will is enforced through strength and firepower.",
         "Descritpion_DE": "Der Erzmilitant ist ein Kampfspezialist, der als militärischer Befehlshaber oder persönlicher Leibwächter an Bord eines Freihändlerschiffs dient. Durch zahllose Schlachten gestählt, beherrscht er die Kriegskunst, den Waffeneinsatz und die Taktik des Schlachtfelds. Loyal und tödlich sorgt er dafür, dass der Wille des Freihändlers mit Stärke und Feuerkraft durchgesetzt wird.",
         "IMAGE": "arch_militant.png",
@@ -2079,7 +2564,7 @@ var careers = {
         "NAME_DE": "Erhabener Astropath"
     },
     "explo": {
-        "Apt": "Tech",
+        "Apt": ["Tech"],
         "Description": "An Explorator is a tech-priest of the Adeptus Mechanicus dedicated to exploring uncharted regions of the galaxy in search of lost technology, ancient relics, and forgotten knowledge. They are often members of Explorator Fleets, venturing into dangerous and unknown sectors. Driven by religious devotion to the Machine God, they combine scientific curiosity with a relentless pursuit of technological supremacy.",
         "Descritpion_DE": "Ein Explorator ist ein Tech-Priester des Adeptus Mechanicus, der sich der Erforschung unerforschter Regionen der Galaxis widmet, um verlorene Technologien, antike Relikte und vergessenes Wissen zu entdecken. Sie sind häufig Mitglieder von Exploratorflotten und dringen in gefährliche und unbekannte Sektoren vor. Angetrieben von religiöser Hingabe an den Maschinengott verbinden sie wissenschaftliche Neugier mit einem unermüdlichen Streben nach technologischer Überlegenheit.",
         "IMAGE": "explorator.png",
@@ -2109,7 +2594,7 @@ var careers = {
         "NAME_DE": "Navigator"
     },
     "sen": {
-        "Apt": "Fieldcraft",
+        "Apt": ["Fieldcraft"],
         "Description": "A Seneschal is a master administrator, spy, and advisor, responsible for managing a Rogue Trader's vast holdings, wealth, and intelligence network. They are skilled in diplomacy, trade, and subterfuge, ensuring the smooth operation of commercial ventures and political dealings. Seneschals are invaluable, combining sharp intellect with ruthless efficiency in service to their master’s ambitions.",
         "Descritpion_DE": "Ein Seneschall ist ein Meister der Verwaltung, Spionage und Beratung, der für die Verwaltung des ausgedehnten Besitzes, des Reichtums und des Informationsnetzwerks eines Freihändlers verantwortlich ist. Er beherrscht Diplomatie, Handel und Intrigen, um kommerzielle Unternehmen und politische Geschäfte reibungslos abzuwickeln. Seneschalle sind unverzichtbar und kombinieren scharfen Verstand mit gnadenloser Effizienz, um die ehrgeizigen Ziele ihres Meisters zu unterstützen.",
         "IMAGE": "seneschal.png",
@@ -2117,7 +2602,7 @@ var careers = {
         "NAME_DE": "Seneschall (Verwalter)"
     },
     "voidm": {
-        "Apt": "Finesse",
+        "Apt": ["Finesse"],
         "Description": "A Void-Master is an expert in starship operations, responsible for overseeing vital shipboard functions such as navigation, piloting, weapon control, or engineering. They are seasoned veterans of space travel, possessing unmatched technical and tactical skills. Void-Masters ensure the efficient and effective running of a Rogue Trader's vessel, making them indispensable in the harsh, unforgiving expanse of the galaxy.",
         "Descritpion_DE": "Ein Void-Meister ist ein Experte für die Bedienung und Verwaltung von Raumschiffen. Er überwacht entscheidende Schiffsfunktionen wie Navigation, Steuerung, Waffenkontrolle oder Maschinenwartung. Als erfahrene Veteranen des Raumfluges verfügen sie über unvergleichliche technische und taktische Fähigkeiten. Void-Meister sorgen für den reibungslosen und effektiven Betrieb des Schiffs eines Freihändlers und sind in der harten, unerbittlichen Weite der Galaxis unverzichtbar.",
         "IMAGE": "void_master.png",
@@ -2125,7 +2610,7 @@ var careers = {
         "NAME_DE": "Void-Meister"
     },
     "executor": {
-        "Apt": "Finesse",
+        "Apt": ["Finesse"],
         "Description": "An Executioner is a deadly enforcer, trained to deliver the Emperor’s justice with brutal efficiency. They serve as hunters, assassins, and executioners, skilled in combat, tracking, and killing their targets without mercy. Executioners are feared across the galaxy for their unwavering dedication to carrying out death sentences in the name of the Imperium.",
         "Descritpion_DE": "Ein Vollstrecker ist ein tödlicher Vollstrecker des imperialen Willens, der darin ausgebildet ist, die Gerechtigkeit des Imperators mit brutaler Effizienz zu vollziehen. Sie dienen als Jäger, Assassinen und Henker, spezialisiert auf Kampf, Verfolgung und das erbarmungslose Töten ihrer Ziele. Vollstrecker sind in der gesamten Galaxis gefürchtet für ihre kompromisslose Hingabe, Todesurteile im Namen des Imperiums auszuführen.",
         "IMAGE": "executioner.png",
@@ -2137,7 +2622,7 @@ var careers = {
 
 var careerOpts = {
     "rt": {
-        "Skills": [["f_lore","xenos@1"], ["linguistics","xenos@1"]],
+        "Skills": [["f_lore","xenos"], ["linguistics","xenos"]],
 		"Talents": [["aoa",""],["w_training","power|chain"]],
 		"AbilityName": "Exceptional Leader",
 		"AbilityEffect": "As a free action once per round, the Rogue Trader may grant an ally that he can see and who can hear him +10% to any one test.",
@@ -2243,8 +2728,7 @@ var careerOpts = {
 var backgrounds = {
     "admin": {
         "Apts": [
-            "Knowledge",
-            "Social"
+            "Knowledge|Social"
         ],
         "Description": "The Adeptus Administratum is the vast bureaucratic arm of the Imperium, responsible for managing the endless records, logistics, and tithes that keep the galaxy-spanning empire functioning. Its members are clerks, scribes, and officials who labor tirelessly to maintain order amidst the chaos of the Imperium’s endless demands.",
         "Descritpion_DE": "Das Adeptus Administratum ist der gewaltige bürokratische Arm des Imperiums, der für die Verwaltung der endlosen Aufzeichnungen, Logistik und Zehnten verantwortlich ist, die das galaxisweite Imperium am Laufen halten. Seine Mitglieder sind Schreiber, Beamte und Funktionäre, die unermüdlich daran arbeiten, Ordnung inmitten der unzähligen Anforderungen des Imperiums aufrechtzuerhalten.",
@@ -2254,8 +2738,7 @@ var backgrounds = {
         "Skills": [["commerce|medicae","@@"],["c_lore","admin"],["linguistics","h_goth"],
 			["logic",""],["s_lore","sl_any"]],
         "Talents": [["w_training","las|sp"]],
-        "Gear": ["Laspistol|Stub automatic", "Imperial robes","autoquill","chrono",
-			"dataslate","medi-kit"],
+        "Gear": [["las_pistol|sp_stub_auto","@@",1], ["a_b_imperial","",1], ["tl_quill","",1],["tl_medkit","",1]],
         "AName": "Master of Paperwork",
         "ANameDe": "Meister der Bürokratie",
         "ADesc": "An Adeptus Administratum character gains +10 to his Acquisition tests.",
@@ -2263,8 +2746,7 @@ var backgrounds = {
     },
     "arbite": {
         "Apts": [
-            "Offence",
-            "Defense"
+            "Offence|Defense"
         ],
         "Description": "The Adeptus Arbites are the Imperium’s enforcers of law and order, tasked with upholding the Emperor’s justice across countless worlds. They are judge, jury, and executioner, wielding brutal efficiency to suppress rebellion, punish heresy, and enforce Imperial edicts. Known for their unwavering loyalty, they operate above planetary laws to ensure compliance with the will of Terra.",
         "Descritpion_DE": "Das Adeptus Arbites ist die Strafverfolgungsbehörde des Imperiums, die für die Aufrechterhaltung von Gesetz und Ordnung auf unzähligen Welten verantwortlich ist. Sie agieren als Richter, Geschworene und Henker und setzen mit brutaler Effizienz Rebellionen nieder, bestrafen Ketzerei und setzen die Erlasse des Imperators durch. Bekannt für ihre unerschütterliche Loyalität stehen sie über den planetaren Gesetzen, um die Befolgung des Willens von Terra zu gewährleisten.",
@@ -2274,8 +2756,7 @@ var backgrounds = {
         "Skills": [["awareness",""],["c_lore","arbites"],["c_lore","underworld"],
 			["inquiry|interrogation","@@"],["intimidate",""],["scrutiny",""]],
         "Talents": [["w_training","shock|sp"]],
-        "Gear": ["Shotgun|Shock Maul","Enforcer light carapace armor|carapace chestplate",
-			"stimm[3]","manacles"],
+        "Gear": [["sp_shotgun|m_sh_maul","@@",1],["a_car_li_enf|a_car_chest","@@",1],["cons_stimm","",3],["tl_cuff","",1]],
         "AName": "The Face of the Law",
         "ANameDe": "Das Gesicht des Gesetzes",
         "ADesc": "An Arbitrator can re-roll any Intimidation and Interrogation test, and can substitute his Willpower bonus for his degrees of success on these tests.",
@@ -2283,8 +2764,7 @@ var backgrounds = {
     },
     "astronom": {
         "Apts": [
-            "Knowledge",
-            "WP"
+            "Knowledge|WP"
         ],
         "Description": "The Adeptus Astronomica is the Imperial organization responsible for maintaining the Astronomican, the psychic beacon that guides starships through the Warp. Based on Terra, it is staffed by thousands of psykers who sacrifice their lives daily to power this vital light. The Adeptus Astronomica is crucial to interstellar travel, ensuring the Imperium’s vast domains remain connected.",
         "Descritpion_DE": "Das Adeptus Astronomica ist die imperiale Organisation, die für die Aufrechterhaltung des Astronomicans verantwortlich ist, des psionischen Leuchtfeuers, das Raumschiffe durch den Warp führt. Auf Terra stationiert, wird es von Tausenden Psionikern betrieben, die täglich ihr Leben opfern, um dieses lebenswichtige Licht zu speisen. Das Adeptus Astronomica ist entscheidend für die interstellare Navigation und stellt sicher, dass die weiten Domänen des Imperiums verbunden bleiben.",
@@ -2294,8 +2774,8 @@ var backgrounds = {
         "Skills": [["awareness",""],["c_lore","astro"],["linguistics","h_goth"],
 			["linguistics","imp_creed"],["s_lore","occult"],["logic",""]],
         "Talents": [["res|bodyguard","psychic@@"]],
-        "Gear": ["las pistol","ceremonial staff|ceremonial sword","Imperial Robes",
-			"psychic focus|carapace chestplate","ceremonial vestments"],
+        "Gear": [["las_pistol","",1],["m_pr_cstaff|m_pr_csword","@@",1],["a_b_imperial","",1],
+			["tl_focus|a_car_chest","@@",1]],
         "AName": "Service to the Hollow Mountain",
         "ANameDe": "Dienst am Hohlen Berg",
         "ADesc": "An Adeptus Astronomica character gains the Sanctified quality to his attacks with low-tech weapons or psychic powers.",
@@ -2303,8 +2783,7 @@ var backgrounds = {
     },
     "childofdyn": {
         "Apts": [
-            "Leadership",
-            "Int"
+            "Leadership|Int"
         ],
         "Description": "A Child of Dynasty is a scion of a powerful Rogue Trader lineage, born into privilege, wealth, and influence. They inherit the responsibility of expanding their family’s legacy through exploration, conquest, and diplomacy. Skilled in leadership and accustomed to commanding others, they navigate the void with confidence, driven by ambition and the desire to uphold their dynasty’s name.",
         "Descritpion_DE": "Ein Kind der Dynastie ist ein Nachkomme einer mächtigen Freihändlerfamilie, geboren in ein Leben voller Privilegien, Reichtum und Einfluss. Sie erben die Verantwortung, das Vermächtnis ihrer Familie durch Erforschung, Eroberung und Diplomatie zu erweitern. Geübt in Führung und daran gewöhnt, andere zu kommandieren, durchqueren sie die Leere mit Selbstbewusstsein, getrieben von Ehrgeiz und dem Wunsch, den Namen ihrer Dynastie zu ehren.",
@@ -2315,7 +2794,7 @@ var backgrounds = {
 			["s_lore","astro"]],
         "Talents": [["aoa|decadence","@@"],["l_sleeper|res","@@cold"],["w_training","las"]
 			,["w_training","primitive"]],
-        "Gear": ["Laspistol|Handcannon","Heirloom Item or Staff","Micro-bead","void suit|fine clothing"],
+        "Gear": [["las_pistol|sp_h_can","@@",1],["las_hrlm_pistol|m_ch_hrlm_swrd|a_car_hrlm_chest","@@@@",1], ["tl_bead","",1],["gr_voidsuit","",1]],
         "AName": "Master of Etiquette",
         "ANameDe": "Meister der Etikette",
         "ADesc": "When dealing with high authority, the character gains additional +10 to Fellowship Tests to influence it.",
@@ -2323,8 +2802,7 @@ var backgrounds = {
     },
     "crime": {
         "Apts": [
-            "Offence",
-            "Social"
+            "Offence|Social"
         ],
         "Description": "A crime syndicate is a large and well-organized network of criminals operating across multiple worlds or within the shadows of an Imperial hive city. These organizations engage in smuggling, trafficking, illegal trade, and assassination, often wielding significant political and economic influence. Ruthlessly efficient, they rely on secrecy, corruption, and fear to maintain control over their territories.",
         "Descritpion_DE": "Ein Verbrechersyndikat ist ein großes und gut organisiertes Netzwerk von Kriminellen, das über mehrere Welten oder im Schatten einer imperialen Makropole operiert. Diese Organisationen sind in Schmuggel, Menschenhandel, illegalen Handel und Attentate verwickelt und üben oft erheblichen politischen und wirtschaftlichen Einfluss aus. Sie agieren mit gnadenloser Effizienz und sichern ihre Kontrolle über ihre Territorien durch Geheimhaltung, Korruption und Angst.",
@@ -2334,7 +2812,7 @@ var backgrounds = {
         "Skills": [["c_lore","underworld"],["f_lore","cartel"],["f_lore","smuggler"],
 			["stealth|deceive","@@"],["intimidate",""],["operate","surface"],["sl_o_hand",""]],
         "Talents": [["peer","underworld"],["w_training","chain"],["w_training","las|sp"]],
-        "Gear": ["Lasgun","chainsword","armoured bodyglove","amasec(2)"],
+        "Gear": [["las_normal","",1],["m_ch_swrd","",1],["a_b_bglove","",1],["cons_ama","",2]],
         "AName": "Criminal Inclination",
         "ANameDe": "Kriminelle Neigung",
         "ADesc": "In addition to the normal uses of Fate Points, the character may spend a Fate point to automatically succeed at a Sleight of Hand, Stealth or Intimidate skill test with a number of degrees of success equal to his Perception bonus",
@@ -2342,8 +2820,7 @@ var backgrounds = {
     },
     "deathcult": {
         "Apts": [
-            "Ag",
-            "Finesse"
+            "Ag|Finesse"
         ],
         "Description": "Death Cults are shadowy sects within the Imperium that worship death as a sacred aspect of the Emperor’s will. Their adherents are highly trained assassins and warriors who see killing as a holy act. Often employed by the Inquisition or Imperial elite, Death Cultists are fanatically loyal and lethal, combining religious zeal with unmatched skill in combat and stealth.",
         "Descritpion_DE": "Todeskulte sind geheimnisvolle Sekten im Imperium, die den Tod als heiligen Aspekt des Willens des Imperators verehren. Ihre Anhänger sind hoch ausgebildete Assassinen und Krieger, die das Töten als heiligen Akt betrachten. Sie werden oft von der Inquisition oder der imperialen Elite eingesetzt und sind fanatisch loyal und tödlich, wobei sie religiösen Eifer mit unvergleichlichen Fähigkeiten in Kampf und Heimlichkeit verbinden.",
@@ -2353,7 +2830,7 @@ var backgrounds = {
         "Skills": [["dodge|parry","@@"],["athletics",""],["acrobatics|stealth","@@"],
 			["c_lore","ecc"], ["sl_o_hand",""], ["linguistics","h_goth|chaos_marked"]],
         "Talents": [["jaded",""], ["w_training","primitive"]],
-        "Gear": ["Mono-sword|knive(6)","grapnel and line", "equipment harness", "stimm(3)", "armored bodyglove"],
+        "Gear": [["m_pr_sword|m_pr_knife","@@",1,6],["tl_grap","",1], ["tl_harness","",1],["cons_stimm","",3],["a_b_bglove","",1]],
         "AName": "Preternatural Speed",
         "ADesc": "Once per combat, a Death Cult character may use a Swift Attack or Lightning Attack actions as part of a Charge.",
         "ANameDe": "Übernatürliche Geschwindigkeit",
@@ -2361,8 +2838,7 @@ var backgrounds = {
     },
     "exorcised": {
         "Apts": [
-            "Defense",
-            "Knowledge"
+            "Defense|Knowledge"
         ],
         "Description": "Refers to individuals or objects that have undergone a ritual to cleanse them of Warp corruption, daemonic possession, or other heretical influences. Such rituals are conducted by sanctioned psykers, priests, or inquisitors and often leave lasting scars, both physical and spiritual, on the subject.",
         "Descritpion_DE": "Bezieht sich auf Personen oder Objekte, die einem Ritual unterzogen wurden, um sie von Warp-Korruption, dämonischer Besessenheit oder anderen ketzerischen Einflüssen zu reinigen. Solche Rituale werden von gesegneten Psionikern, Priestern oder Inquisitoren durchgeführt und hinterlassen oft bleibende Spuren, sowohl körperlicher als auch geistiger Natur.",
@@ -2372,9 +2848,8 @@ var backgrounds = {
         "Skills": [["awareness",""],["deceive|dodge","@@"], ["f_lore","daemonology"],
 			["intimidate|scrutiny","@@"]],
         "Talents": [["hatred","daemons"],["w_training","sp"],["w_training","chain"]],
-        "Gear": ["Autopistol|stub revolver", "shotgun", "chainblade", "Imperial robes", 
-			"obscura(3)|tranq(3)", "disguise kit|excruciator kit", "rebreather", 
-			"stablight|glow-globe"],
+        "Gear": [["sp_auto_pstl|sp_stub_revo","@@",1],["sp_shotgun","",1],["m_ch_blade","",1],["a_b_imperial","",1],
+			["cons_obscura|cons_tranq","@@",3],["tl_disguise|tl_excruc","@@",1],["gr_rebbreath","",1]],
         "AName": "Starting Malignancy",
         "ANameDe": "Anfängliches Verderbnis",
         "ADesc": "An Exorcised character starts with one Malignancy",
@@ -2382,8 +2857,7 @@ var backgrounds = {
     },
     "galaxia": {
         "Apts": [
-            "Social",
-            "WP"
+            "Social|WP"
         ],
         "Description": "The Missionaria Galaxia is the missionary branch of the Adeptus Ministorum, tasked with spreading the Imperial Creed to the farthest reaches of the galaxy. Its members are devout preachers and zealous orators who travel to uncharted or rebellious worlds, seeking to convert the population to the worship of the Emperor. They often face extreme dangers but are armed with unshakable faith and the authority of the Ecclesiarchy.",
         "Descritpion_DE": "Die Missionaria Galaxia ist der Missionszweig des Adeptus Ministorum, der damit beauftragt ist, den imperialen Glauben bis in die entlegensten Winkel der Galaxis zu verbreiten. Ihre Mitglieder sind fromme Prediger und eifrige Redner, die zu unbekannten oder rebellischen Welten reisen, um die Bevölkerung zur Verehrung des Imperators zu bekehren. Sie stehen oft extremen Gefahren gegenüber, sind jedoch mit unerschütterlichem Glauben und der Autorität der Ekklesiarchie ausgestattet.",
@@ -2393,8 +2867,7 @@ var backgrounds = {
         "Skills": [["c_lore","imp_creed"],["c_lore","imperium"],["f_lore|medicae","heresy@@"],
 			["s_lore","imp_creed"],["linguistics","h_goth"]],
         "Talents": [["w_training","primitive"],["w_training","chain"],["w_training","flame"]],
-        "Gear": ["Lasgun","Flak Armor|Ecclesiarchal Robes","Aquila Pendant", "Sepulchre", "Censer and Incense", 
-			"Micro-Bead"],
+        "Gear": [["las_normal","",1],["a_flak_coat|a_b_imperial","@@",1],["gr_aqpend","",1],["tl_bead","",1]],
         "AName": "Unshakeable Faith",
         "ANameDe": "Unerschütterlicher Glaube",
         "ADesc": "Missionaria Galaxia characters may spend a Fate Point to avoid gaining Insanity or Corruption for an encounter, as determined by the GM.",
@@ -2402,8 +2875,7 @@ var backgrounds = {
     },
     "gang": {
         "Apts": [
-            "Fieldcraft",
-            "Offence"
+            "Fieldcraft|Offence"
         ],
         "Description": "A gang is a loosely organized group of criminals, often operating in the underhive or lower levels of Imperial cities. They engage in smuggling, theft, and violent turf wars, often tied to larger criminal syndicates or rebellions. Gangs thrive in lawless areas, their members relying on brutality, cunning, and loyalty to their own.",
         "Descritpion_DE": "Eine Gang ist eine lose organisierte Gruppe von Kriminellen, die häufig im Unterstock oder in den unteren Ebenen imperialer Städte operiert. Sie sind in Schmuggel, Diebstahl und gewalttätige Revierkämpfe verwickelt und oft mit größeren Verbrechersyndikaten oder Aufständen verbunden. Gangs gedeihen in gesetzlosen Gebieten, wobei ihre Mitglieder auf Brutalität, Gerissenheit und Loyalität innerhalb ihrer Gruppe setzen.",
@@ -2414,7 +2886,7 @@ var backgrounds = {
 			["f_lore","syndicates"], ["deceive",""], ["athletics|acrobatics","@@"],
 			["scrutiny",""]],
         "Talents": [["w_training","sp"], ["w_training","primitive"]],
-        "Gear": ["Stub pistol|chainsword", "knife|improvised weapon", "flak vest", "stimm(2)|obscura(2)"],
+        "Gear": [["sp_auto_pstl|m_ch_swrd","@@",1],["m_pr_knife|m_pr_improv","@@",1],["a_flak_vest","",1],["cons_stimm|cons_obscura","@@",2]],
         "AName": "Signature Weapon",
         "ANameDe": "Signaturwaffe",
         "ADesc": "A Gang character chooses one specific weapon. The character gains a +10 bonus to hit and a +2 to damage when using a weapon of his choice in combat.",
@@ -2422,8 +2894,7 @@ var backgrounds = {
     },
     "guard": {
         "Apts": [
-            "Fieldcraft",
-            "Leadership"
+            "Fieldcraft|Leadership"
         ],
         "Description": "The Imperial Guard, officially known as the Astra Militarum, is the massive standing army of the Imperium, composed of countless regiments drawn from every corner of the galaxy. They serve as the primary ground forces, fighting wars of attrition against the Imperium’s myriad enemies. Despite their lack of advanced technology compared to the Adeptus Astartes, their sheer numbers and unyielding discipline make them a formidable force.",
         "Descritpion_DE": "Die Imperiale Armee, offiziell bekannt als Astra Militarum, ist die gewaltige stehende Armee des Imperiums, bestehend aus unzähligen Regimentern, die aus allen Ecken der Galaxis rekrutiert werden. Sie dienen als primäre Bodentruppen und führen Abnutzungskriege gegen die zahllosen Feinde des Imperiums. Trotz ihres technologischen Nachteils im Vergleich zu den Adeptus Astartes machen ihre schiere Anzahl und ihre eiserne Disziplin sie zu einer beeindruckenden Streitmacht.",
@@ -2433,8 +2904,7 @@ var backgrounds = {
         "Skills": [["athletics",""],["command",""],["c_lore","guard"],["medicae|operate","@@surface"],
 			["navigate","surface"]],
         "Talents": [["w_training","las"],["w_training","primitive"]],
-        "Gear": ["Lasgun|laspistol and sword","combat vest","Imperial Guard flak armour", "grapnel and line", 
-			"12 lho sticks", "magnoculars"],
+        "Gear": [["las_normal|las_pistol&m_pr_sword","@@",1],["a_flak_guard","",1],["tl_grap","",1],["cons_lho","",12]],
         "AName": "Hammer of the Emperor",
         "ANameDe": "Hammer des Imperators",
         "ADesc": "When attacking a target that an ally attacked since the end of the Guardsman’s last turn, the Guardsman can re-roll any results of 1 or 2 on damage rolls.",
@@ -2442,8 +2912,7 @@ var backgrounds = {
     },
     "heretek": {
         "Apts": [
-            "Finesse",
-            "Tech"
+            "Finesse|Tech"
         ],
         "Description": "A Heretek is a member of the Adeptus Mechanicus who has turned against the tenets of the Machine Cult, engaging in forbidden research, dealing with xenos technology, or worshiping the Dark Mechanicum. They are considered dangerous heretics and are hunted ruthlessly by loyalist Tech-Priests for their betrayal of the Omnissiah.",
         "Descritpion_DE": " Ein Häretiker ist ein Mitglied des Adeptus Mechanicus, das sich gegen die Lehren des Maschinenglaubens gewandt hat, indem es verbotene Forschungen betreibt, mit Xenos-Technologien arbeitet oder dem Dunklen Mechanicum dient. Sie gelten als gefährliche Ketzer und werden von loyalen Tech-Priestern erbarmungslos für ihren Verrat am Omnissiah gejagt.",
@@ -2454,8 +2923,7 @@ var backgrounds = {
 			["techuse",""], ["trade","tr_any"]],
         "Talents": [["w_training","sp"]],
 		"Special": ["Mechanicus Implants"],
-        "Gear": ["Stub revolver", "Expander bullets(2)|Man-Stopper rounds(2)","web grenade(1)", 
-			"combi-tool", "flak cloak", "filtration plugs", "de-tox(1)", "dataslate", "stablight"],
+        "Gear": [["sp_stub_revo","",1], ["gr_web","",2],["tl_combi","",1],["a_flak_cloak","",1],["gr_fil_plug","",1]],
         "AName": "Master of Hidden Lores",
         "ANameDe": "Meister der Verborgenen Lehren",
         "ADesc": "When a Heretek makes a Tech-Use test to comprehend, use, repair, or modify an unfamiliar device, he gains a +20 bonus if he has one or more relevant Forbidden Lore skill specializations at Rank 1 (Known) or higher.",
@@ -2463,8 +2931,7 @@ var backgrounds = {
     },
     "mechanicus": {
         "Apts": [
-            "Knowledge",
-            "Tech"
+            "Knowledge|Tech"
         ],
         "Description": "The Adeptus Mechanicus is the Imperium’s technological priesthood, dedicated to the worship of the Machine God and the preservation of ancient knowledge. They are the masters of science, engineering, and the arcane technologies of the Imperium. From Forge Worlds, they provide weapons, starships, and countless other tools of war, blending faith and function in their pursuit of the Omnissiah’s will.",
         "Descritpion_DE": "Das Adeptus Mechanicus ist die technologische Priesterschaft des Imperiums, die dem Maschinengott huldigt und altes Wissen bewahrt. Sie sind Meister der Wissenschaft, Ingenieurskunst und der arkanen Technologien des Imperiums. Von den Schmiedewelten aus liefern sie Waffen, Raumschiffe und unzählige andere Kriegswerkzeuge und verbinden Glauben und Funktion in ihrem Streben nach dem Willen des Omnissiah.",
@@ -2475,8 +2942,7 @@ var backgrounds = {
 			["techuse",""]],
         "Talents": [["mechadendrite","utility"],["w_training","sp"]],
 		"Special": ["Mechanicus Implants"],
-        "Gear": ["Autogun|hand cannon", "servo-skull (utility)|optical mechadendrite", "Imperial robes", 
-			"sacred unguents(2)"],
+        "Gear": [["sp_auto_gun|sp_h_can","@@",1],["tl_servoskull","utility",1], ["a_b_imperial","",1],["cons_sacred","",2]],
         "AName": "Replace the Weak Flesh",
         "ANameDe": "Das schwache Fleisch ersetzen",
         "ADesc": "An Adeptus Mechanicus character gains +20 to his Acquisition tests for all cybernetics.",
@@ -2484,8 +2950,7 @@ var backgrounds = {
     },
     "medicae": {
         "Apts": [
-            "Knowledge",
-            "Fieldcraft"
+            "Knowledge|Fieldcraft"
         ],
         "Description": "The Officio Medicae is the medical branch of the Imperium, responsible for the training and deployment of doctors, surgeons, and medics across countless battlefields and worlds. Its personnel are highly skilled in treating wounds, combating plagues, and performing cybernetic surgeries. Though often overworked and under-resourced, they are essential for maintaining the health and combat readiness of the Imperium’s forces and citizens.",
         "Descritpion_DE": "Das Officio Medicae ist die medizinische Abteilung des Imperiums, verantwortlich für die Ausbildung und den Einsatz von Ärzten, Chirurgen und Sanitätern auf unzähligen Schlachtfeldern und Welten. Sein Personal ist hochqualifiziert in der Behandlung von Wunden, der Bekämpfung von Seuchen und der Durchführung kybernetischer Operationen. Obwohl oft überarbeitet und unterversorgt, sind sie unverzichtbar für die Aufrechterhaltung der Gesundheit und Einsatzbereitschaft der Streitkräfte und Bürger des Imperiums.",
@@ -2495,7 +2960,7 @@ var backgrounds = {
         "Skills": [["c_lore","admin"],["linguistics","h_goth"],["logic",""], ["medicae",""],
 			["s_lore","bureaucracy|chymistry"]],
         "Talents": [["w_training","las|primitive"]],
-        "Gear": ["Laspistol|knife", "Imperial robes", "autoquill", "chrono", "dataslate", "advanced medi-kit"],
+        "Gear": [["las_pistol|m_pr_knife","@@",1,3], ["a_b_imperial","",1], ["tl_quill","",1], ["tl_advmedkit","",1]],
         "AName": "Medicae Imperialis",
         "ANameDe": "Medicae Imperialis",
         "ADesc": "An Officio Medicae character counts the state of damage a character is considered as one degree more or less severe (Critically Damaged count as Heavily Damaged, Heavily Damaged count as Lightly Damaged, etc.).",
@@ -2503,8 +2968,7 @@ var backgrounds = {
     },
     "merchant": {
         "Apts": [
-            "Fel",
-            "Social"
+            "Fel|Social"
         ],
         "Description": "A Merchant House is a powerful commercial enterprise within the Imperium, controlling vast trade networks, voidships, and wealth. These houses operate across countless worlds, brokering deals, amassing riches, and influencing politics. Members of a Merchant House are skilled negotiators, traders, and opportunists, driven by profit and the desire to dominate interstellar commerce.",
         "Descritpion_DE": "Ein Handelshaus ist ein mächtiges Handelsunternehmen im Imperium, das riesige Handelsnetzwerke, Raumschiffe und Reichtümer kontrolliert. Diese Häuser agieren auf unzähligen Welten, schließen Geschäfte ab, häufen Reichtum an und beeinflussen die Politik. Mitglieder eines Handelshauses sind geschickte Verhandler, Händler und Opportunisten, getrieben von Gewinnstreben und dem Wunsch, den interstellaren Handel zu beherrschen.",
@@ -2513,7 +2977,7 @@ var backgrounds = {
         "NAME_DE": "Handelshaus",
         "Skills": [["commerce",""],["c_lore","imperium"],["charm",""]],
         "Talents": [["hard_bargain",""],["w_training","las"],["w_training","primitive"]],
-        "Gear": ["Laspistol","sword","autoquill","data-slate","pict recorder"],
+        "Gear": [["las_pistol","",1],["m_pr_sword","",1], ["tl_quill","",1], ["a_b_imperial","",1]],
         "AName": "Money Talks",
         "ANameDe": "Geld regiert die Welt",
         "ADesc": "In addition to the normal uses of Fate Points, the character may spend a Fate point to automatically succeed at a Commerce, Inquiry or Interrogation skill test with a number of degrees of success equal to his Fellowship bonus.",
@@ -2521,8 +2985,7 @@ var backgrounds = {
     },
     "ministorum": {
         "Apts": [
-            "Leadership",
-            "Social"
+            "Leadership|Social"
         ],
         "Description": "The Adeptus Ministorum, also known as the Ecclesiarchy, is the religious institution of the Imperium that enforces the Imperial Creed. Its priests, preachers, and missionaries spread the worship of the Emperor as the divine savior of humanity. The Ministorum commands immense influence, organizing holy crusades and maintaining shrines and cathedrals across the galaxy.",
         "Descritpion_DE": "Das Adeptus Ministorum, auch bekannt als die Ekklesiarchie, ist die religiöse Institution des Imperiums, die den imperialen Glauben durchsetzt. Ihre Priester, Prediger und Missionare verbreiten die Verehrung des Imperators als göttlichen Retter der Menschheit. Das Ministorum besitzt enormen Einfluss, organisiert heilige Kreuzzüge und unterhält Schreine und Kathedralen in der gesamten Galaxis.",
@@ -2532,8 +2995,7 @@ var backgrounds = {
         "Skills": [["charm",""],["command",""],["c_lore","ministorum"],["inquiry|scrutiny","@@"],
 			["linguistics","h_goth"]],
         "Talents": [["w_training|w_training","flame@@primitive&sp"]],
-        "Gear": ["Hand flamer|warhammer&stub revolver", "Imperial robes|flak vest", 
-			"backpack", "glow-globe", "servo-skull (laud hailer)"],
+        "Gear": [["f_hand|m_pr_warhammer&sp_stub_revo","@@",1], ["a_b_imperial|a_flak_vest","@@",1],["tl_servoskull","hailer",1]],
         "AName": "Faith is All",
         "ANameDe": "Glaube ist alles",
         "ADesc": "When spending a Fate point to gain a +10 bonus to any one test, an Adeptus Ministorum character gains a +20 bonus instead.",
@@ -2541,8 +3003,7 @@ var backgrounds = {
     },
     "munitorum": {
         "Apts": [
-            "Social",
-            "Knowledge"
+            "Social|Knowledge"
         ],
         "Description": "The Departmento Munitorum is the logistical branch of the Adeptus Administratum, responsible for supplying the Astra Militarum with weapons, equipment, vehicles, and provisions. It coordinates the vast network of resources needed to sustain the Imperium’s endless wars. Despite its efficiency, its immense bureaucracy can lead to delays or errors, sometimes with disastrous consequences.",
         "Descritpion_DE": "Das Departmento Munitorum ist der logistische Zweig des Adeptus Administratum und verantwortlich für die Versorgung des Astra Militarum mit Waffen, Ausrüstung, Fahrzeugen und Vorräten. Es koordiniert das gewaltige Netzwerk an Ressourcen, das benötigt wird, um die endlosen Kriege des Imperiums zu unterstützen. Trotz seiner Effizienz kann die immense Bürokratie zu Verzögerungen oder Fehlern führen, die manchmal katastrophale Folgen haben.",
@@ -2552,8 +3013,7 @@ var backgrounds = {
         "Skills": [["command",""],["c_lore","war"],["c_lore","admin"],["deceive|charm","@@"],
 			["s_lore","bureaucracy"],["operate","surface|aeronautica"]],
         "Talents": [["w_training","las|sp"]],
-        "Gear": ["Stub revolver|las pistol", "imperial robes", "data-slate", "chrono", 
-			"auto-quill|servo-skull (utility)"],
+        "Gear": [["las_pistol|sp_stub_revo","@@",1], ["a_b_imperial","",1],["tl_servoskull","utility",1]],
         "AName": "Master of Logistics",
         "ANameDe": "Meister der Logistik",
         "ADesc": "A Departmento Munitorum character gains +20 to his Acquisition tests for all Weapons and Armor.",
@@ -2561,8 +3021,7 @@ var backgrounds = {
     },
     "mutant": {
         "Apts": [
-            "Fieldcraft",
-            "Offence"
+            "Fieldcraft|Offence"
         ],
         "Description": "A Mutant is an individual whose body has been warped by genetic corruption, exposure to the Warp, or toxic environments. Mutants are often ostracized and persecuted within the Imperium, as their deformities are seen as a sign of impurity or heretical influence. While some mutations are minor, others grant extraordinary, and often dangerous, abilities.",
         "Descritpion_DE": "Ein Mutant ist eine Person, deren Körper durch genetische Korruption, Warp-Einflüsse oder toxische Umgebungen verändert wurde. Mutanten werden im Imperium oft geächtet und verfolgt, da ihre Deformitäten als Zeichen von Unreinheit oder ketzerischem Einfluss gelten. Während einige Mutationen geringfügig sind, verleihen andere außergewöhnliche und oft gefährliche Fähigkeiten.",
@@ -2572,8 +3031,8 @@ var backgrounds = {
         "Skills": [["acrobatics|sl_o_hand","@@"],["c_lore","underworld"], ["deceive",""],
 			["dodge",""],["stealth",""]],
         "Talents": [["w_training","chain"],["w_training","las|sp"]],
-        "Gear": ["Autopistol|laspistol", "chainsword", "armoured bodyglove|flak vest", "injector", 
-			"obscura(2)|slaught(2)"],
+        "Gear": [["sp_auto_pstl|las_pistol","@@",1], ["m_ch_swrd","",1], ["a_b_bglove|a_flak_vest","@@",1], ["tl_inject","",1], 
+			["cons_obscura|cons_slaught","@@",2]],
         "AName": "Never Quit",
         "ANameDe": "Niemals aufgeben",
         "ADesc": "An Outcast character counts his Toughness bonus as two higher for purposes of determining Fatigue. ",
@@ -2581,8 +3040,7 @@ var backgrounds = {
     },
     "navis": {
         "Apts": [
-            "Knowledge",
-            "Social"
+            "Knowledge|Social"
         ],
         "Description": "The Navis Nobilite is a powerful and ancient organization of Navigator families, genetically gifted mutants capable of steering ships through the Warp. These noble houses hold immense influence within the Imperium, as interstellar travel would be impossible without their talents. Despite their indispensable role, their mutant nature isolates them socially, making them both revered and feared.",
         "Descritpion_DE": "Die Navis Nobilite ist eine mächtige und alte Organisation von Navigatorenfamilien, genetisch begabten Mutanten, die in der Lage sind, Schiffe durch den Warp zu lenken. Diese adeligen Häuser besitzen enormen Einfluss im Imperium, da interstellarer Reisen ohne ihre Fähigkeiten unmöglich wäre. Trotz ihrer unverzichtbaren Rolle isoliert ihre mutierte Natur sie gesellschaftlich, was sie zugleich verehrt und gefürchtet macht.",
@@ -2599,8 +3057,7 @@ var backgrounds = {
     },
     "navy": {
         "Apts": [
-            "Offence",
-            "Tech"
+            "Offence|Tech"
         ],
         "Description": "The Imperial Navy is the vast fleet responsible for the defense and expansion of the Imperium’s interstellar territories. It provides warships, troop transports, and orbital support for ground operations. The Navy also patrols Imperial space, combats alien fleets, and ensures the flow of trade and tithes. Its officers and crew are drawn from the countless worlds of the Imperium, trained to uphold the Emperor’s will in the void.",
         "Descritpion_DE": "Die Imperiale Flotte ist die gewaltige Raumstreitmacht, die für die Verteidigung und Expansion der interstellaren Gebiete des Imperiums verantwortlich ist. Sie stellt Kriegsschiffe, Truppentransporter und orbitale Unterstützung für Bodeneinsätze bereit. Die Flotte patrouilliert im imperialen Raum, bekämpft außerirdische Flotten und sichert den Fluss von Handel und Zehnten. Ihre Offiziere und Besatzungsmitglieder werden aus den unzähligen Welten des Imperiums rekrutiert und ausgebildet, um den Willen des Imperators im Weltraum durchzusetzen.",
@@ -2610,7 +3067,7 @@ var backgrounds = {
         "Skills": [["athletics",""], ["command|intimidate","@@"], ["c_lore","navy"], ["navigate","stellar"],
 			["operate","aeronautica|voidship"]],
         "Talents": [["w_training","chain|shock"],["w_training","sp"]],
-        "Gear": ["Combat shotgun|hand cannon", "chainsword|shock whip", "flak coat", "rebreather", "micro-bead"],
+        "Gear": [["sp_c_shotgun|sp_h_can","@@",1], ["m_ch_swrd|m_sh_whip","@@",1], ["a_flak_coat","",1], ["gr_rebbreath","",1], ["tl_bead","",1]],
         "AName": "Close Quarters Discipline",
         "ANameDe": "Disziplin für Nahkampf",
         "ADesc": "An Imperial Navy character scores one additional degree of success on successful Ballistic Skill tests he makes against targets at Point-Blank range, at Short range, and with whom he is engaged in melee.",
@@ -2618,8 +3075,7 @@ var backgrounds = {
     },
     "noble": {
         "Apts": [
-            "Fel",
-            "Leadership"
+            "Fel|Leadership"
         ],
         "Description": "A Great Noble House is a powerful aristocratic family within the Imperium, wielding immense political, economic, and military influence across entire sectors or even systems. These houses often control vast estates, fleets, and armies, using their wealth and connections to maintain their status. Members of these houses are skilled in diplomacy, intrigue, and command, ever seeking to expand their power and preserve their legacy.",
         "Descritpion_DE": "Ein Großes Adelsgeschlecht ist eine mächtige aristokratische Familie im Imperium, die enormen politischen, wirtschaftlichen und militärischen Einfluss über ganze Sektoren oder sogar Systeme ausübt. Diese Häuser kontrollieren oft riesige Ländereien, Flotten und Armeen und nutzen ihren Reichtum und ihre Verbindungen, um ihren Status zu bewahren. Mitglieder dieser Häuser sind in Diplomatie, Intrigen und Führung geübt und streben stets danach, ihre Macht auszubauen und ihr Erbe zu sichern.",
@@ -2629,8 +3085,7 @@ var backgrounds = {
         "Skills": [["awareness",""],["c_lore","imperium"],["s_lore","bureaucracy"],
 			["s_lore","heraldry"], ["parry|scrutiny","@@"]],
         "Talents": [["w_training","chain|primitive"]],
-        "Gear": ["Mono-sword|chainsword", "las pistol", "noble attire", "family crest|signet ring", 
-			"imperial robes|armored body glove", "retainer|servo-skull (utility)"],
+        "Gear": [["m_pr_sword|m_ch_swrd","@@",1], ["las_pistol","",1], ["a_b_imperial","",1], ["a_b_bglove","",1],["tl_servoskull","utility",1]],
         "AName": "Imperial Etiquette",
         "ANameDe": "Imperiale Etikette",
         "ADesc": "A Great House character gains a +10 bonus to Charm, Deceive and Scrutiny tests when dealing with high authority and in formal situations.",
@@ -2638,8 +3093,7 @@ var backgrounds = {
     },
     "outcast": {
         "Apts": [
-            "Fieldcraft",
-            "Social"
+            "Fieldcraft|Social"
         ],
         "Description": "An Outcast is an individual who has been exiled or shunned by society, whether due to crime, heresy, or misfortune. They survive on the fringes of the Imperium, often as smugglers, mercenaries, or scavengers. Though distrusted, their resourcefulness and ability to navigate the underbelly of the galaxy make them valuable allies or dangerous enemies.",
         "Descritpion_DE": "Ein Ausgestoßener ist eine Person, die aufgrund von Verbrechen, Ketzerei oder Unglück aus der Gesellschaft verbannt oder gemieden wurde. Sie überleben am Rande des Imperiums, oft als Schmuggler, Söldner oder Plünderer. Obwohl sie misstraut werden, machen ihre Einfallsreichtum und ihre Fähigkeit, sich in den Schatten der Galaxis zurechtzufinden, sie zu wertvollen Verbündeten oder gefährlichen Feinden.",
@@ -2649,8 +3103,8 @@ var backgrounds = {
         "Skills": [["acrobatics|sl_o_hand","@@"],["c_lore","underworld"],["deceive",""],["dodge",""],
 			["stealth",""]],
         "Talents": [["w_training","chain"], ["w_training","las|sp"]],
-        "Gear": ["Autopistol|laspistol", "chainsword", "armoured bodyglove|flak vest", "injector", 
-			"obscura(2)|slaught(2)"],
+        "Gear": [["sp_auto_pstl|las_pistol","@@",1], ["m_ch_swrd","",1] ["a_b_bglove|a_flak_vest","@@",1] ["tl_inject","",1], 
+			["cons_obscura|cons_slaught","@@",2]],
         "AName": "Never Quit",
         "ANameDe": "Niemals aufgeben",
         "ADesc": "An Outcast character counts his Toughness bonus as two higher for purposes of determining Fatigue",
@@ -2658,8 +3112,7 @@ var backgrounds = {
     },
     "pdf": {
         "Apts": [
-            "Defense",
-            "Fieldcraft"
+            "Defense|Fieldcraft"
         ],
         "Description": "The Planetary Defence Force is the local military force of an Imperial world, tasked with defending the planet from internal threats, alien invasions, and Chaos incursions. Composed of local recruits, the PDF varies widely in training, equipment, and effectiveness, often relying on Imperial Guard reinforcements when overwhelmed. They are the first line of defense for the Emperor’s domain.",
         "Descritpion_DE": "Die Planetaren Verteidigungsstreitkräfte sind die lokalen Militäreinheiten einer imperialen Welt, die mit der Verteidigung des Planeten gegen innere Bedrohungen, außerirdische Invasionen und Angriffe des Chaos beauftragt sind. Sie bestehen aus lokalen Rekruten und variieren stark in Ausbildung, Ausrüstung und Effektivität, wobei sie bei Überforderung oft auf Verstärkung durch die Imperiale Armee angewiesen sind. Sie bilden die erste Verteidigungslinie im Herrschaftsbereich des Imperators.",
@@ -2669,8 +3122,8 @@ var backgrounds = {
         "Skills": [["athletics",""],["command",""],["c_lore","pdf"], ["medicae|operate","@@surface"],
 			["navigate","surface"]],
         "Talents": [["w_training","sp"], ["w_training","primitive"]],
-        "Gear": ["Autogun|Autopistol&sword", "planetary trappings", "flak armor", "grapnel and line", 
-			"obscura(2)", "magnoculars"],
+        "Gear": [["sp_auto_gun|sp_auto_pstl&m_pr_sword","@@",1], ["tl_cuff","",1] ["a_flak_guard","",1], ["tl_grap","",1] 
+			["cons_obscura","",1]],
         "AName": "Granted Authority",
         "ANameDe": "Gewährte Autorität",
         "ADesc": "When using the Influence mechanic of Profit Factor against military-oriented groups, the character gains additional Degrees of Success equal to half his Fellowship Bonus (rounded up)",
@@ -2678,8 +3131,7 @@ var backgrounds = {
     },
     "pirate_fleet": {
         "Apts": [
-            "Fel",
-            "WS"
+            "Fel|WS"
         ],
         "Description": "A Pirate Fleet is a ragtag armada of renegades, outlaws, and cutthroats who prey on Imperial shipping lanes, raid isolated colonies, and plunder voidships. Commanded by ruthless leaders, these fleets thrive on chaos, seizing wealth and resources while avoiding Imperial retribution. Their crews are hardened criminals who value profit over loyalty, making them both unpredictable and deadly.",
         "Descritpion_DE": "Eine Piratenflotte ist eine zusammengewürfelte Armada aus Gesetzlosen, Verrätern und Halsabschneidern, die imperiale Handelsrouten überfallen, isolierte Kolonien plündern und Raumschiffe ausrauben. Unter dem Kommando skrupelloser Anführer gedeihen diese Flotten im Chaos und erbeuten Reichtümer und Ressourcen, während sie der Vergeltung des Imperiums entkommen. Ihre Besatzungen sind abgebrühte Kriminelle, die Profit über Loyalität stellen, was sie unberechenbar und tödlich macht.",
@@ -2689,7 +3141,7 @@ var backgrounds = {
         "Skills": [["f_lore","pirates"],["parry",""],["medicae",""],["techuse",""]],
         "Talents": [["decadence",""],["hard_bargain|contact_network","@@"],
 			["w_training","chain|power"], ["w_training","las"]],
-        "Gear": ["Laslock<best>|Chainsword", "Fancy pirate hat|mechanical parrot", "glow-globe", "magnoculars|amasec"],
+        "Gear": [["las_lock|m_ch_swrd","best@@",1], ["a_b_h_leather","",1],["tl_servoskull","utility",1], ["cons_ama","",3]],
         "AName": "Aye laddie, ‘ats parry not parley!",
         "ANameDe": "Aye, Junge, das ist Parieren, nicht Verhandeln!",
         "ADesc": "In addition to the normal uses of Fate Points, a the character may spend a Fate point to gain rerolls for Parry (up to his Weapon Skill Bonus) until the end of the encounter.",
@@ -2697,8 +3149,7 @@ var backgrounds = {
     },
     "rt_fleet": {
         "Apts": [
-            "Finesse",
-            "Social"
+            "Finesse|Social"
         ],
         "Description": "A Rogue Trader Fleet is a private armada commanded by a Rogue Trader, an individual granted a Warrant of Trade by the Imperium. These fleets are composed of powerful voidships and loyal crews, venturing beyond the boundaries of Imperial space to explore, trade, and conquer in the Emperor’s name. They act with near-total autonomy, amassing wealth and influence while charting the unknown.",
         "Descritpion_DE": "Eine Freihändlerflotte ist eine private Armada, die von einem Freihändler kommandiert wird, einem Individuum, dem vom Imperium ein Kaperbrief ausgestellt wurde. Diese Flotten bestehen aus mächtigen Raumschiffen und treuen Besatzungen, die jenseits der Grenzen des imperialen Raums erkunden, handeln und erobern, um im Namen des Imperators zu agieren. Sie handeln mit nahezu völliger Autonomie, sammeln Reichtum und Einfluss und kartografieren das Unbekannte.",
@@ -2708,8 +3159,8 @@ var backgrounds = {
         "Skills": [["charm|scrutiny","@@"],["commerce",""],["c_lore","rt"],
 			["linguistics","xenos"],["operate","surface|aeronautica"]],
         "Talents": [["w_training","las|sp"],["w_training","shock"]],
-        "Gear": ["Laspistol|autopistol", "Compact weapon upgrade", "shock maul", "mesh cloak|carapace chestplate", 
-			"auspex", "chrono"],
+        "Gear": [["las_pistol|sp_auto_pstl","compact@@compact",1], ["m_sh_maul","",1], ["a_mesh_cloak|a_car_chest","@@",1], 
+			["tl_auspex","",1]],
         "AName": "Inured to the Xenos",
         "ANameDe": "Abgehärtet gegen Xenos",
         "ADesc": "A character from a Rogue Trader Fleet gains a +10 bonus to Fear tests caused by aliens and a +20 bonus to Interaction skill tests with alien characters.",
@@ -2717,8 +3168,7 @@ var backgrounds = {
     },
     "skitarii": {
         "Apts": [
-            "Offence",
-            "Finesse"
+            "Offence|Finesse"
         ],
         "Description": "The Skitarii are the cybernetic soldiers of the Adeptus Mechanicus, engineered for war and unwavering loyalty to the Machine God. Enhanced with powerful augmentations, they serve as the Mechanicus’ primary military force, wielding advanced weaponry and fighting in perfect synchronization. Whether defending Forge Worlds or leading Mechanicus expeditions, the Skitarii are relentless warriors driven by faith and logic.",
         "Descritpion_DE": "Die Skitarii sind die kybernetischen Soldaten des Adeptus Mechanicus, erschaffen für den Krieg und unerschütterlich loyal zum Maschinengott. Mit mächtigen Verbesserungen ausgestattet, dienen sie als die Hauptstreitmacht des Mechanicus, bewaffnet mit fortschrittlicher Technologie und kämpfend in perfekter Synchronisation. Ob bei der Verteidigung von Schmiedewelten oder der Führung von Mechanicus-Expeditionen – die Skitarii sind unerbittliche Krieger, getrieben von Glaube und Logik.",
@@ -2728,7 +3178,8 @@ var backgrounds = {
         "Skills": [["athletics",""],["awareness",""],["c_lore","mechanicus"],["dodge",""],
 			["linguistics","tech_lingo"]],
         "Talents": [["w_training","primitive"],["w_training","sp"]],
-        "Gear": ["Mechanicus Robes"|"Autogun|Sword&Autopistol", "Bionic Replacement<good>"],
+        "Gear": [["a_b_imperial","",1],["sp_auto_gun|m_pr_sword&sp_auto_pstl","@@",1]],
+		"Special": [["bionic_replacment","good"]],
         "AName": "Eternal Vigilance",
         "ANameDe": "Ewige Wachsamkeit",
         "ADesc": "When attacking, the Skitarii Character can replace any results of 1 or 2 on damage rolls with his Intelligence Bonus instead.",
@@ -2736,8 +3187,7 @@ var backgrounds = {
     },
     "sororitas": {
         "Apts": [
-            "Offence",
-            "Social"
+            "Offence|Social"
         ],
         "Description": "The Adepta Sororitas, also known as the Sisters of Battle, are an all-female militant order dedicated to the Imperial Creed and the service of the Ecclesiarchy. They are fanatically devout warriors who combine martial prowess with unshakable faith, wielding holy weapons to purge heretics, witches, and xenos in the name of the Emperor.",
         "Descritpion_DE": "Die Adepta Sororitas, auch bekannt als die Schwestern des Kampfes, sind ein rein weiblicher Kampforden, der dem imperialen Glauben und dem Dienst der Ekklesiarchie gewidmet ist. Sie sind fanatisch gläubige Kriegerinnen, die Kampfkraft mit unerschütterlichem Glauben verbinden und heilige Waffen führen, um Ketzer, Hexen und Xenos im Namen des Imperators zu reinigen.",
@@ -2747,8 +3197,7 @@ var backgrounds = {
         "Skills": [["athletics",""],["charm|intimidate","@@"],["c_lore","sororitas"],["linguistics","h_goth"],
 			["medicae|parry","@@"]],
         "Talents": [["w_training","flame|las"],["w_training","chain"]],
-        "Gear": ["Laspistol|hand flamer", "chainblade", "armored bodyglove", "chrono", "dataslate", "stablight", 
-			"micro-bead"],
+        "Gear": [["las_pistol|f_hand","@@",1], ["m_ch_blade","",1], ["a_b_bglove","",1], ["tl_bead","",1]],
         "AName": "Incorruptible Devotion",
         "ANameDe": "Unbestechliche Hingabe",
         "ADesc": "Whenever an Adepta Sororitas character would gain 1 or more Corruption Points, she gains that many Insanity Points minus 1 (to a minimum of 0) instead.",
@@ -2756,8 +3205,7 @@ var backgrounds = {
     },
     "telepathica": {
         "Apts": [
-            "Defense",
-            "Psyker"
+            "Defense|Psyker"
         ],
         "Description": "The Adeptus Astra Telepathica is the Imperial institution responsible for training and regulating psykers. It oversees the Scholastica Psykana, where psykers are tested, sanctioned, and taught to safely wield their powers. Its members include Astropaths, soul-bound to the Emperor, who ensure communication across the vastness of the galaxy through the Warp.",
         "Descritpion_DE": "Das Adeptus Astra Telepathica ist die imperiale Institution, die für die Ausbildung und Regulierung von Psionikern verantwortlich ist. Es überwacht die Scholastica Psykana, in der Psioniker getestet, gesegnet und darin ausgebildet werden, ihre Kräfte sicher einzusetzen. Zu seinen Mitgliedern gehören Astropathen, die durch die Seelenbindung an den Imperator gebunden sind und die Kommunikation über die Weiten der Galaxis hinweg durch den Warp gewährleisten.",
@@ -2767,7 +3215,7 @@ var backgrounds = {
         "Skills": [["awareness",""],["c_lore","astro"],["deceive|interrogation","@@"],
 			["f_lore","warp"],["psyniscience|scrutiny","@@"]],
         "Talents": [["w_training","las"],["w_training","primitive"]],
-        "Gear": ["Laspistol", "staff|whip", "light flak cloak|flak vest", "micro-bead|psy focus"],
+        "Gear": [["las_pistol","",1], ["m_pr_staff|m_pr_whip","@@",1], ["a_flak_cloak","",1], ["tl_bead|tl_focus","@@",1]],
         "AName": "The Constant Threat",
         "ANameDe": "Die ständige Bedrohung",
         "ADesc": "When the character or an ally within 10 meters triggers a Psychic Phenomenon, the Adeptus Astra Telepathica character can increase or decrease the result by amount equal to his Willpower bonus.",
@@ -2775,8 +3223,7 @@ var backgrounds = {
     },
     "tempest": {
         "Apts": [
-            "Finesse",
-            "Fieldcraft"
+            "Finesse|Fieldcraft"
         ],
         "Description": "The Militarum Tempestus, also known as the Tempestus Scions or Storm Troopers, are the elite shock troops of the Astra Militarum. Trained in the prestigious Schola Progenium, they carry out high-risk missions requiring exceptional discipline, skill, and precision. Armed with advanced weaponry and carapace armor, they serve as the Imperium’s spearhead in combat, often deployed for assassination, sabotage, and infiltration operations.",
         "Descritpion_DE": "Das Militarum Tempestus, auch bekannt als Tempestus-Scions oder Sturmtruppen, ist die Elite-Schocktruppe des Astra Militarum. Sie werden an der angesehenen Schola Progenium ausgebildet und führen riskante Missionen aus, die außergewöhnliche Disziplin, Fähigkeiten und Präzision erfordern. Ausgerüstet mit fortschrittlicher Bewaffnung und Carapax-Rüstungen dienen sie als Speerspitze des Imperiums im Kampf und werden häufig für Attentate, Sabotage und Infiltrationsoperationen eingesetzt.",
@@ -2786,7 +3233,7 @@ var backgrounds = {
         "Skills": [["awareness",""],["dodge|parry","@@"],["intimidate",""],["security",""],
 			["s_lore","tactica"],["stealth",""]],
         "Talents": [["w_training","las"],["w_training","primitive"]],
-        "Gear": ["Hot-shot lasgun|mono-sword&hot-shot laspistol", "militarum tempestus carapace armor"],
+        "Gear": [["las_hs_gun|m_pr_sword&las_hs_pistol","@@",1], ["a_car_tempest","",1]],
         "AName": "Expert Operator",
         "ANameDe": "Erfahrener Operator",
         "ADesc": "A Militarum Tempestus character gains a +10 bonus to all skill tests made to operate military ground vehicles, walkers, skimmers or flyers.",
@@ -2853,7 +3300,7 @@ var roles = {
         "ADescDe": "Zusätzlich zu den normalen Verwendungen von Schicksalspunkten kann ein Schläger einen Schicksalspunkt ausgeben, um eine zusätzliche Reaktion zu erhalten.",
         "AName": "Lightning Reflexes",
         "ANameDe": "Blitzschnelle Reflexe",
-        "Aptitudes":  ["Ag", "Finesse", "Offense", "S", "T|WS"],
+        "Aptitudes":  ["Ag", "Finesse", "Offence", "S", "T|WS"],
         "Description": "A brawler is a rough and tenacious fighter who thrives in close combat, relying on brute strength, raw aggression, and sheer determination. Skilled in unarmed or improvised fighting, they excel in chaotic, hand-to-hand brawls, often using their environment and physical resilience to overcome their opponents.",
         "Descritpion_DE": "Ein Schläger ist ein harter und zäher Kämpfer, der im Nahkampf glänzt und sich auf rohe Kraft, unbändige Aggression und schiere Entschlossenheit verlässt. Versiert im unbewaffneten oder improvisierten Kampf, brilliert er in chaotischen Handgemengen und nutzt oft seine Umgebung und körperliche Widerstandskraft, um seine Gegner zu besiegen.",
         "IMAGE": "brawler.png",
@@ -2885,7 +3332,7 @@ var roles = {
         "IMAGE": "commander.png",
         "NAME": "Commander",
         "NAME_DE": "Kommandant",
-        "Talents": [["constant_vigilance|heroic_insp","@@"]]
+        "Talents": [["constant_vigilance|heroic_insp","any@@"]]
     },
     "crusader": {
         "ADesc": "In addition to the normal uses of Fate points, a Crusader character can also spend a Fate Point to automatically pass a Fear test with a number of degrees of success equal to his Willpower bonus. In addition, whenever he inflicts a hit with a melee attack against a target with the Fear (X) trait, he inflicts X additional damage and counts his weapon’s penetration as being X higher.",
@@ -2931,7 +3378,7 @@ var roles = {
         "ADescDe": "Zusätzlich zu den normalen Verwendungen von Schicksalspunkten kann ein Vollstrecker einen Schicksalspunkt ausgeben, um eine Entwaffnen-, Doppelschlag- oder Niederschlagsaktion automatisch zu bestehen, mit einer Anzahl von Erfolgsgraden, die seinem Waffenfertigkeitsbonus entspricht.",
         "AName": "De-escalation Expert",
         "ANameDe": "Experte für Deeskalation",
-        "Aptitudes": ["S", "T", "WS", "BS", "Offense"],
+        "Aptitudes": ["S", "T", "WS", "BS", "Offence"],
         "Description": "An enforcer is a lawkeeper and executor of authority, tasked with maintaining order and suppressing dissent. Operating in the dangerous and chaotic environments of the Imperium, they rely on intimidation, combat skills, and a strong sense of duty to impose the Emperor's justice and uphold societal stability.",
         "Descritpion_DE": "Ein Vollstrecker ist ein Gesetzeshüter und Ausführer von Autorität, dessen Aufgabe es ist, Ordnung aufrechtzuerhalten und Aufstände zu unterdrücken. In den gefährlichen und chaotischen Umgebungen des Imperiums agierend, verlassen sie sich auf Einschüchterung, Kampffähigkeiten und einen starken Sinn für Pflicht, um die Gerechtigkeit des Imperators durchzusetzen und die Stabilität der Gesellschaft zu wahren.",
         "IMAGE": "enforcer.png",
@@ -2970,7 +3417,7 @@ var roles = {
         "ADescDe": "Zusätzlich zu den normalen Verwendungen von Schicksalspunkten kann ein Fanatiker-Charakter einen Schicksalspunkt ausgeben, um für die Dauer des Konflikts als im Besitz des Talents Hass gegen seinen aktuellen Feind zu gelten. Sollte er sich jedoch entscheiden, den Kampf gegen einen gehassten Feind in diesem Konflikt zu verlassen, erhält er 1 Wahnsinnspunkt.",
         "AName": "Death to All Who Oppose Me!",
         "ANameDe": "Tod allen, die sich mir widersetzen!",
-        "Aptitudes": ["Leadership", "Offense", "T", "WS", "WP"],
+        "Aptitudes": ["Leadership", "Offence", "T", "WS", "WP"],
         "Description": "A fanatic is an individual driven by unwavering devotion to a cause, belief, or figure, often to the point of obsession. Their zeal makes them fearless and unrelenting, willing to sacrifice everything in the name of their faith or mission, making them both inspiring and dangerous to those around them.",
         "Descritpion_DE": "Ein Fanatiker ist eine Person, die von unerschütterlicher Hingabe an eine Sache, einen Glauben oder eine Figur getrieben wird, oft bis zur Besessenheit. Ihr Eifer macht sie furchtlos und unnachgiebig, bereit, alles im Namen ihres Glaubens oder ihrer Mission zu opfern, was sie sowohl inspirierend als auch gefährlich für ihre Umgebung macht.",
         "IMAGE": "fanatic.png",
@@ -3087,7 +3534,7 @@ var roles = {
         "ADescDe": "Immer wenn ein Büßer-Charakter 1 oder mehr Schadenspunkte erleidet (nach Abzug von Zähigkeitsbonus und Rüstung), erhält er einen Bonus von +10 auf die erste Probe, die er vor dem Ende seines nächsten Zuges ablegt.",
         "AName": "Cleansing Pain",
         "ANameDe": "Reinigender Schmerz",
-        "Aptitudes": ["Ag", "Fieldcraft", "Int", "Offense", "T"],
+        "Aptitudes": ["Ag", "Fieldcraft", "Int", "Offence", "T"],
         "Description": "A penitent is an individual seeking redemption for their perceived sins or failures, often through acts of extreme devotion, suffering, or sacrifice. They carry the weight of guilt and strive to prove their loyalty and worthiness to the Emperor or their faith, sometimes enduring brutal trials or taking on suicidal missions in their pursuit of absolution.",
         "Descritpion_DE": "Ein Büßer ist eine Person, die Vergebung für ihre vermeintlichen Sünden oder Versagen sucht, oft durch extreme Hingabe, Leiden oder Opferbereitschaft. Sie tragen die Last der Schuld und bemühen sich, ihre Loyalität und Würdigkeit gegenüber dem Imperator oder ihrem Glauben zu beweisen, indem sie manchmal brutale Prüfungen erdulden oder selbstmörderische Missionen übernehmen, um Erlösung zu finden.",
         "IMAGE": "penitent.png",
@@ -3677,7 +4124,7 @@ var lure =
 				"Desc":"War called and you answered. Imperium needs those ready to fight.",
 				"NameDe":"Ruf zum Krieg",
 				"DescDe":"Der Krieg rief, und du hast geantwortet. Das Imperium braucht jene, die bereit sind zu kämpfen.",
-				"Talents":[["hatred","any"],["jaded",""]],
+				"Talents":[["hatred","any_opp"],["jaded",""]],
 				"Skills":[],
 				"Points":5,
 				"PType":"IP"
@@ -3805,7 +4252,7 @@ var lure =
 				"Desc":"You lived on the outskirts of human civilization. People who walk ruined worlds need people such as yourself.",
 				"NameDe":"Waldläufer",
 				"DescDe":"Ein Meister des Überlebens, der Jagd und der Erkundung in ungezähmten und gefährlichen Gebieten.",
-				"Talents":[["constant_vigilance",""]],
+				"Talents":[["constant_vigilance","any"]],
 				"Skills":[["navigate","surface"]],
 				"Points":5,
 				"PType":"IP"
@@ -3855,7 +4302,7 @@ var lure =
 				"Desc":"Your duty is to a specific organization. They must have sent you to spy on the Dynasty or join them as “allies.” However, they wanted assurances that you will never betray them.",
 				"NameDe":"Pflicht gegenüber anderen",
 				"DescDe":"Deine Pflicht gilt einer bestimmten Organisation. Sie haben dich entweder geschickt, um die Dynastie auszuspionieren, oder um ihnen als „Verbündete“ beizutreten. Allerdings wollten sie sicherstellen, dass du sie niemals verraten wirst.",
-				"Talents":[["peer","any"]],
+				"Talents":[["peer","any_imp"]],
 				"Skills":"",
 				"Gear":["Volitor Implant"],
 				"Points":5,
@@ -4345,7 +4792,7 @@ var trials = {
 				"Desc":"Whenever it was at your home planet, maybe some once peaceful land or the voidship you lived for some time, the worst happened. Something or someone came aboard. People started to go missing. Bodies started to pile up in strange places. Skulls littered without bodies. Something was playing with you and the rest of your friends. You survived in the nick of time but the scars are still there. You start to have attacks of paranoia, especially in silent situations. You want sound or else the memories will flood back.",
 				"NameDe":"Gejagt im eigenen Heim",
 				"DescDe":"Egal, ob es auf deinem Heimatplaneten geschah, vielleicht einem einst friedlichen Land, oder dem Voidschiff, auf dem du eine Zeit lang lebtest, das Schlimmste passierte. Etwas oder jemand kam an Bord. Menschen begannen zu verschwinden. Leichen häuften sich an seltsamen Orten. Schädel verstreut ohne Körper. Etwas spielte mit dir und dem Rest deiner Freunde. Du hast es im letzten Moment überlebt, aber die Narben sind noch da. Du bekommst Panikattacken, besonders in stillen Situationen. Du brauchst Geräusche, sonst kehren die Erinnerungen zurück.",
-				"Talents":[["constant_vigilance",""]],
+				"Talents":[["constant_vigilance","any"]],
 				"Skills":[["scrutiny",""],["survival",""],["trade","voidfarer"]],
 				"AName":"They Are Here, I know it",
 				"ADesc":"The character was hunted in his own home, be it on a voidship or on his home planet by Xenos or worse. The constant feeling of fear never left him, leaving him more of a shell. The character is extremely paranoid of everything, especially being in a small group or alone. He receives -20 penalty to all Stealth actions, while also being very easy to find, allowing others to have +20 bonus to find him.",
@@ -4423,7 +4870,7 @@ var trials = {
 				"Desc":"This is above your abilities. Somebody bad happened in the past and it will never go away, it will never wash out. This person, this family, this Dynasty, seeks nothing more than your torment. They want to see you on the pyre, that might be not even of your making! No matter what you do, it will never please them and will seek nothing less than total annihilation of your person, your family, friends and your home.",
 				"NameDe":"Blutfehde",
 				"DescDe":"Das liegt jenseits deiner Möglichkeiten. Irgendetwas Schreckliches geschah in der Vergangenheit, und es wird nie vergessen oder vergeben. Eine Person, eine Familie oder eine Dynastie sucht nichts Geringeres als dein Leid. Sie wollen dich auf dem Scheiterhaufen sehen – selbst wenn du nicht einmal die Ursache dafür bist! Egal, was du tust, du wirst sie niemals besänftigen können, und sie streben nicht weniger an als deine völlige Auslöschung – von dir, deiner Familie, deinen Freunden und deiner Heimat.",
-				"Talents":[["l_sleeper",""],["constant_vigilance",""],["hatred","any"],["pure_hatred","any"]],
+				"Talents":[["l_sleeper",""],["constant_vigilance","any"],["hatred","any_dyn"],["pure_hatred","any_dyn"]],
 				"Skills":[["awareness",""],["s_lore","heraldry"]],
 				"AName":"Highest of Feuds",
 				"ADesc":"When it all started? It doesn’t matter. What matters is that it continues to this day. The rival is someone who is much stronger and influential than the character, maybe he isn’t a Dynasty but an Inquisitor. He will always try his best to bring death or destruction upon the character without being outright responsible for it. Maybe sending a self-destructing assassin, killing a member of the character’s family when he wasn’t home or worse - planting seeds of destruction on the character’s homeworld, so when he comes back, it is either overrun with Tyranids, Orks or Exterminatus.",
@@ -4667,7 +5114,7 @@ var trials = {
 				"Desc":"This couldn’t happen to just anyone. You just had to do it, right? The deed is done. The dead tell no tales. However, it will haunt you and when it surfaces, there will be consequences more deadly than anybody can imagine. Maybe even sending a Temple Assassin for your ass. Whatever you did, nobody will help you after they learn your secret.",
 				"NameDe":"Dunkles Geheimnis",
 				"DescDe":"Dies hätte jedem passieren können, aber es musste ausgerechnet dir geschehen, oder? Die Tat ist vollbracht, und die Toten erzählen keine Geschichten. Doch es wird dich verfolgen, und wenn es ans Licht kommt, werden die Konsequenzen tödlicher sein, als sich irgendjemand vorstellen kann. Vielleicht wird sogar ein Tempel-Assassine auf dich angesetzt. Was auch immer du getan hast, niemand wird dir helfen, sobald sie dein Geheimnis kennen.",
-				"Talents":[["constant_vigilance",""],["coverup",""],["face_in_crowd",""]],
+				"Talents":[["constant_vigilance","any"],["coverup",""],["face_in_crowd",""]],
 				"Skills":[],
 				"AName":"A Ghastly Deed",
 				"ADesc":"The character made a mistake, he can never be forgiven for. If the truth goes out, he will be branded Excommunicato Traitoris for this. It has to be some heinous deed, like selling out an Inquisitor to the Drukhari, making a sacred world the target of a Tyranid invasion or worse. People, however, must use it against the character. As such, he receives -40 penalty to any social test made against those who know his secret.",

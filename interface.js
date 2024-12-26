@@ -7,15 +7,6 @@ function setLanguage(language) {
 	  ? 'Warhammer 40k Character Builder' 
 	  : 'Warhammer 40k Charaktergenerator';
 
-	const navLinks = document.querySelectorAll('.navbar a');
-	navLinks[0].innerText = currentLanguage === 'en' ? 'Class' : 'Klasse';
-	navLinks[1].innerText = currentLanguage === 'en' ? 'Homeworld' : 'Heimatwelt';
-	navLinks[2].innerText = currentLanguage === 'en' ? 'Background' : 'Hintergrund';
-	navLinks[3].innerText = currentLanguage === 'en' ? 'Role' : 'Rolle';
-	navLinks[4].innerText = currentLanguage === 'en' ? 'Birthright' : 'Werdegang';
-	navLinks[5].innerText = currentLanguage === 'en' ? 'Lure' : 'Verlockung';
-	navLinks[6].innerText = currentLanguage === 'en' ? 'Trials' : 'Niederschlag'
-	
 	refresh();
 
 }
@@ -53,6 +44,7 @@ function refresh(){
 function clearContentDivs(){
 	document.getElementById('tiles').innerHTML = '';
 	document.getElementById('tiles2').innerHTML = '';
+	document.getElementById('charChoice').innerHTML = '';	
 }
 
 function parseSkills(pSkills){
@@ -67,10 +59,10 @@ function parseSkills(pSkills){
 			throw new Error(`Item at index ${index} is not an array.`);
 		}
 		else{
+			const or = ((currentLanguage==='de') ? ' oder ' : ' <or> ');
 			const res = splitAndTranslateSkills(item[0],item[1]);
-			result.push(res.join(' or '));
+			result.push(res.join(or));
 		}
-		
 	});
 	
 	if(result.length === 0)
@@ -78,7 +70,6 @@ function parseSkills(pSkills){
 		result.push('---');
 	}
 	return result;
-	
 }
 
 function splitAndTranslateSkills(pSkills, pGroups)
@@ -92,8 +83,6 @@ function splitAndTranslateSkills(pSkills, pGroups)
 		result.push('<b class="skill">'+translateSkill(skillsOr[i])+
 			'</b>'+translateGroups(pGroupsOr[i]));
 	}
-	
-	
 	return result;
 }
 
@@ -113,7 +102,6 @@ function translateGroups(sGroups){
 		return ' ('+groupsArray.map(translateGroup).join(((currentLanguage==='de') ? ' oder ' : ' or '))+')';
 
 	}
-	
 	return res;
 }
 
@@ -128,6 +116,58 @@ function translateGroup(sGroup){
 	return ((currentLanguage === 'de') ? res.NameDe : res.Name);
 }
 
+function translateGear(pGear)
+{
+	const gearOr = pGear[0].split('|');
+	const pGroupsOr = pGear[1].split('@@');
+	const indivQty = (pGear.lengt > 3);
+	var result = [];
+	
+	for (let i = 0; i < gearOr.length; i++) 
+	{	
+		const gearAnd = gearOr[i].split('&');
+		let gear = ''
+		
+		for(let j = 0; j < gearAnd.length; j++)
+		{
+			if(j > 1){
+				gear+=' & ';
+			}
+			gear+= '<b>'+((currentLanguage==='de') ? Gear[gearAnd[j]].NameDe: Gear[gearAnd[j]].Name)+'</b>';
+			const qty = ((indivQty) ? pGear[2+i+j].toString() : pGear[2].toString());
+			gear+= ((qty > 1) ? ' x'+qty.toString() : '');
+		}
+		if(pGroupsOr[i]!==""){
+			gear+=((currentLanguage==='de') ? GearGroups[pGroupsOr[i]].NameDe : GearGroups[pGroupsOr[i]].Name);
+		}
+		result.push(gear);
+	}
+	const or = ((currentLanguage === 'de')? ' oder ' : ' or ');
+	return result.join(or);
+}
+
+function parseGear(pGear){
+	if (!Array.isArray(pGear)) {
+        throw new Error("The 'pGear' parameter must be an array.");
+    }
+	var result = [];
+	
+	pGear.forEach((item,index) => {
+		if(item)
+		{
+			if(Array.isArray(item)){
+				result.push(translateGear(item));
+			}
+		}
+	});
+	
+	if(result.length === 0)
+	{
+		result.push('---');
+	}
+	return result;
+}
+
 function parseTalents(pTalents){
 	if (!Array.isArray(pTalents)) {
         throw new Error("The 'pTalents' parameter must be an array.");
@@ -139,10 +179,10 @@ function parseTalents(pTalents){
 			throw new Error(`Item at index ${index} is not an array.`);
 		}
 		else{		
+			const or = ((currentLanguage==='de') ? ' oder ' : ' or ');
 			const res = splitAndTranslateTalents(item[0],item[1]);
-			result.push(res.join(' or '));
+			result.push(res.join(or));
 		}
-		
 	});
 	
 	if(result.length === 0)
@@ -150,7 +190,6 @@ function parseTalents(pTalents){
 		result.push('---');
 	}
 	return result;
-	
 }
 
 function translateTalent(talentkey){
@@ -173,7 +212,6 @@ function splitAndTranslateTalents(pTalent, pGroups)
 			'</b>'+translateGroups(pGroupsOr[i]));
 	}
 	
-	
 	return result;
 }
 
@@ -183,11 +221,22 @@ function getTranslatedApts(input, language) {
     
     // Map over the keys and return the corresponding labels
     return keys.map(key => {
-        const apt = Apts[key];
-        if (!apt) {
-            return `Unknown key: ${key}`;
-        }
-        return language === "de" ? apt.LabelDe : apt.Label;
+        // Split the key by "|" if it exists, otherwise handle it as a single key
+        const subKeys = key.split("|");
+
+        // Translate each part of the split key
+        const translatedParts = subKeys.map(subKey => {
+            const apt = Apts[subKey];
+            if (!apt) {
+                return `Unknown key: ${subKey}`;
+            }
+            return language === "de" ? apt.LabelDe : apt.Label;
+        });
+		
+		const or = ((currentLanguage === 'de')? " oder " : " or ");
+
+        // Join translated parts with " or " and return
+        return translatedParts.join(or);
     });
 }
 
@@ -199,8 +248,8 @@ function addHomeworld(){
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		event.currentTarget.classList.add('selected');
+		populateBackgrounds();
 	}
-	
 }
 
 function addCareer(){
@@ -211,8 +260,8 @@ function addCareer(){
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		event.currentTarget.classList.add('selected');
+		populateHomeworlds();
 	}
-	
 }
 
 function addBackground(){
@@ -223,8 +272,8 @@ function addBackground(){
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		event.currentTarget.classList.add('selected');
+		populateRoles();
 	}
-	
 }
 
 function addRole(){
@@ -235,8 +284,8 @@ function addRole(){
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		event.currentTarget.classList.add('selected');
+		populateBirthrights();
 	}
-	
 }
 
 function addBirthright(){
@@ -248,6 +297,7 @@ function addBirthright(){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
 		event.currentTarget.classList.add('selected');
+		populateLures();
 	}
 }
 
@@ -260,6 +310,7 @@ function addLure(){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
 		event.currentTarget.classList.add('selected');
+		populateTrials();
 	}
 }
 function addTrial(){
@@ -270,7 +321,7 @@ function addTrial(){
 	if(!sel){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
-		event.currentTarget.classList.add('selected');
+		populateMotivations();
 	}
 }
 function addMotivation(){
@@ -282,6 +333,7 @@ function addMotivation(){
 		CharData[event.currentTarget.dType] = event.currentTarget.data;
 		CharData[event.currentTarget.pDType] = event.currentTarget.pData;
 		event.currentTarget.classList.add('selected');
+		generateStatSelection();
 	}
 }
 
@@ -291,7 +343,6 @@ function removeSelection(){
 }
 
 function refreshCharData(){
-	console.log(currentMenu);
 	if(currentMenu > 0){
 		
 		CharData.Career = ((currentMenu<=1)? "" : CharData.Career);
@@ -313,9 +364,7 @@ function refreshCharData(){
 function populateHomeworlds() {
 	
 	clearContentDivs();
-	
 	const container = document.getElementById('tiles');
-	
 	currentMenu = 2;
 	
 	var sortedHwArray = Object.entries(homeworlds).sort((a, b) => {
@@ -323,16 +372,12 @@ function populateHomeworlds() {
         ? a[1].Name_De.localeCompare(b[1].Name_De) 
 		: a[1].Name.localeCompare(b[1].Name));
 	});
-	
-
 	// Convert sorted array back to object
 	var sortedHw = Object.fromEntries(sortedHwArray);
-
 	// Loop through the homeworlds object
 	for (let key in sortedHw) {
 		if (homeworlds.hasOwnProperty(key)) {
 			const homeworld = homeworlds[key];
-			
 			const Ability = {"Name": "",
 				"Effect": ""
 			}
@@ -348,7 +393,6 @@ function populateHomeworlds() {
 				"Wounds":((currentLanguage === 'de')? "Wunden" : "Wounds"),
 				"Fate":((currentLanguage === 'de')? "Schicksal" : "Fate")
 			}
-
 			// Create a div for each homeworld
 			const div = document.createElement('div');
 			
@@ -380,6 +424,1180 @@ function populateHomeworlds() {
 	}
 }
 
+function validateSelections() {
+    const dropdowns = document.querySelectorAll("select");
+
+    // If no dropdowns exist, return true
+    if (dropdowns.length === 0) {
+        return true;
+    }
+
+    // Check that every dropdown has a non-empty value
+    return Array.from(dropdowns).every(dropdown => dropdown.value !== "");
+}
+
+function generateAptitudeSelection() {
+	clearContentDivs();
+	CharData.Aptitudes = [];
+	choices.Aptitudes = [];
+	
+	updateAptitudes([careers[CharData.Career].Apt, 
+		[homeworlds[CharData.Homeworld].Apt],
+		backgrounds[CharData.Background].Apts,
+		roles[CharData.Role].Aptitudes]);
+		
+		
+		
+	const container = document.getElementById('charChoice');
+	
+	var div = document.createElement('div');
+	div.classList.add('infoCard');
+	
+	div.innerHTML = `${((currentLanguage==='de') ? aptitudesTexts.InfoTextDe : aptitudesTexts.InfoText)}`;
+	container.appendChild(div);
+	
+	div = document.createElement('div');
+		
+	div.classList.add('dataCard');
+	
+	const tab = document.createElement('table');
+	const tbody = document.createElement('tbody'); // Create the tbody
+
+	for (let i = 0; i < choices.Aptitudes.length; i++) {
+		var tr = document.createElement('tr');
+		var td = document.createElement('td');
+		
+		const apts = choices.Aptitudes[i].split('|');
+		const aptFiltered = apts.filter(key => !CharData.Aptitudes.some(obj => obj.value === key));
+		
+		if(aptFiltered.length === 0){
+			aptFiltered = Object.keys(Apts).filter(
+					key => !(CharData.Aptitudes.some(obj => obj.value === key) && key.length <= 3)
+				);
+		}
+		if(aptFiltered.length === 1){
+			td.textContent = getTranslatedApts(aptFiltered[0]);
+		}else{
+			var dropDown = document.createElement('select');
+			dropDown.id = 'selApt'+i.toString();
+			const placeholder = document.createElement('option');
+			placeholder.textContent = '---';
+			placeholder.value = "";
+			placeholder.disabled = true;
+			placeholder.selected = true;
+			dropDown.appendChild(placeholder);
+			
+			aptFiltered.forEach(aptitude => {
+			const option = document.createElement('option');
+			option.value = aptitude;
+			option.textContent = getTranslatedApts(aptitude);
+			dropDown.appendChild(option);
+			});
+			
+			dropDown.addEventListener("change", (event) => {
+			  if(validateSelections()){
+				showNextBt();
+			  }
+			});
+			
+			td.appendChild(dropDown);
+		}
+
+		tr.appendChild(td);
+		tbody.appendChild(tr);
+	}
+	for (let i = 0; i < CharData.Aptitudes.length; i++) {
+		var tr = document.createElement('tr');
+		var td = document.createElement('td');
+		
+		td.textContent = getTranslatedApts(CharData.Aptitudes[i].value,currentLanguage);
+		
+		tr.appendChild(td);
+		tbody.appendChild(tr);
+	}
+	tab.appendChild(tbody);
+	div.appendChild(tab);
+	
+	var nextDiv = document.createElement('div');
+	nextDiv.classList.add("dataCardNext");
+	
+	const btNxt = document.createElement("button");
+	btNxt.classList.add("btNext","hidden");
+	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
+	btNxt.addEventListener("click", (event) => {
+		  setSelectedAptitudes();
+		  chooseTalents();
+		});
+	
+	nextDiv.appendChild(btNxt);
+
+	div.appendChild(nextDiv);
+	
+	container.appendChild(div);
+	
+	if(validateSelections())
+	{
+		showNextBt();
+	}
+}
+
+function setSelectedAptitudes(){
+	console.log('ToDo');
+}
+
+function getTranslatedSkills(input) {
+	const result = [];
+	const base = splitInputWithOptions(input);
+
+	for(let i = 0; i < base.length; i++){
+		let resString = ((currentLanguage === 'de') ? (skills[base[i][0]].NameDe) : (skills[base[i][0]].Name));
+		if(base[i][1] !== "")
+		{
+			if(base[i][1] in skills[base[i][0]].SkillGroups){
+				const currGrp = skills[base[i][0]].SkillGroups[base[i][1]];
+				currGrp.forEach(item => {
+					const res = resString+"("+((currentLanguage === 'de') ? (groups[item].NameDe) : (groups[item].Name))+")";
+					result.push(res);
+				});
+			}
+			else{
+					resString+="("+((currentLanguage === 'de') ? (groups[base[i][1]].NameDe) : (groups[base[i][1]].Name))+")";
+					result.push(resString);
+			}
+			
+		}else {
+		result.push(resString);
+		}
+	}
+	return result;
+}
+
+function getTranslatedGear(input) {
+	const result = [];
+	const base = splitInputWithOptions([input[0],input[1]]);
+
+	for(let i = 0; i < base.length; i++){
+		let resString = ((currentLanguage === 'de') ? (Gear[base[i][0]].NameDe) : (Gear[base[i][0]].Name));
+		if(base[i][1] !== "")
+		{
+			resString+=((currentLanguage === 'de') ? (GearGroups[base[i][1]].NameDe) : (GearGroups[base[i][1]].Name));
+			result.push(resString);
+		}
+		else {
+		result.push(resString);
+		}
+	}
+	return result;
+}
+
+function getTranslatedTalents(input) {
+	const result = [];
+	const base = splitInputWithOptions(input);
+
+	for(let i = 0; i < base.length; i++){
+		let resString = ((currentLanguage === 'de') ? (talents[base[i][0]].NameDe) : (talents[base[i][0]].Name));
+		if(base[i][1] !== "")
+		{
+			if(base[i][1] in talents[base[i][0]].TalentGroups){
+				const currGrp = talents[base[i][0]].TalentGroups[base[i][1]];
+				currGrp.forEach(item => {
+					const res = resString+"("+((currentLanguage === 'de') ? (groups[item].NameDe) : (groups[item].Name))+")";
+					result.push(res);
+				});
+			}
+			else{
+					resString+="("+((currentLanguage === 'de') ? (groups[base[i][1]].NameDe) : (groups[base[i][1]].Name))+")";
+					result.push(resString);
+			}
+			
+		}else {
+		result.push(resString);
+		}
+	}
+	return result;
+}
+
+function splitInputWithOptions(input) {
+    if (!Array.isArray(input) || input.length !== 2) {
+        throw new Error("Input must be an array of size 2.");
+    }
+
+    const [firstString, secondString] = input;
+    let firstParts = [firstString];
+    let secondParts = [secondString];
+
+    // Split the first string if it contains "|"
+    if (firstString.includes("|")) {
+        firstParts = firstString.split("|");
+		if (!secondParts.includes("@@")) {
+			throw new Error("Insufficient options for Talent group");
+		}
+		secondParts = secondString.split("@@");
+    }
+
+    const result = [];
+
+    // Process the second parts for nested "|"
+    secondParts.forEach((part, index) => {
+        if (part.includes("|")) {
+            const nestedParts = part.split("|");
+            nestedParts.forEach((nestedPart) => {
+                const firstValue = firstParts[Math.min(index, firstParts.length - 1)];
+                result.push([firstValue, nestedPart]);
+            });
+        } else {
+            const firstValue = firstParts[Math.min(index, firstParts.length - 1)];
+            result.push([firstValue, part]);
+        }
+    });
+
+    // Ensure all firstParts are represented if the secondParts are smaller
+    for (let i = result.length; i < firstParts.length; i++) {
+        result.push([firstParts[i], ""]);
+    }
+
+    return result;
+}
+function updateSkills(data){
+    data.forEach(skillsArray => {
+        skillsArray.forEach(value => {
+			let currSkills = [];
+			
+			if(Array.isArray(value) && value.length === 2)
+			{
+				currSkills = getTranslatedSkills(value);
+			}else
+			{
+				console.log("Error");
+				CharData.Talents.push(["ERROR"])
+			}
+			
+			if(currSkills.length > 1)
+			{
+				choices.Skills.push(currSkills);
+			}
+			else{
+				const existingEntry = CharData.Skills.find(entry => entry.value === currSkills[0]);
+				if (existingEntry) {
+					existingEntry.amount += 1;
+				} else {
+					CharData.Skills.push({ value: currSkills[0], amount: 1 });
+				}
+				
+			}
+			
+        });
+    });
+}
+
+function updateGear(data){
+    data.forEach(gearArray => {
+        gearArray.forEach(value => {
+			let currGear = [];
+			
+			if(Array.isArray(value) && value.length > 2)
+			{
+				currGear = getTranslatedGear(value);	
+			}
+			else
+			{
+				console.log("Error");
+				CharData.Gear.push(["ERROR"])
+			}
+			
+			if(currGear.length > 1)
+			{
+				choices.Gear.push(currGear);
+			}
+			else{
+				CharData.Gear.push({ value: currGear[0], amount: 1 });
+			}
+			
+        });
+    });
+}
+
+function updateTalents(data) {
+    data.forEach(talentsArray => {
+        talentsArray.forEach(value => {
+			let currTalents = [];
+			
+			if(Array.isArray(value) && value.length === 2)
+			{
+				currTalents = getTranslatedTalents(value);
+			}else
+			{
+				console.log("Error");
+				CharData.Talents.push(["ERROR"])
+			}
+			
+			if(currTalents.length > 1)
+			{
+				choices.Talents.push(currTalents);
+			}
+			else{
+				const existingEntry = CharData.Talents.find(entry => entry.value === currTalents[0]);
+				if (existingEntry) {
+					existingEntry.amount += 1;
+				} else {
+					CharData.Talents.push({ value: currTalents[0], amount: 1 });
+				}
+				
+			}
+			
+        });
+    });
+}
+
+function chooseTalents(){
+	
+	clearContentDivs();
+	CharData.Talents = [];
+	choices.Talents = [];
+	
+	const hwT = hwAbilities[CharData.Homeworld];
+	const caT = careerOpts[CharData.Career];
+	const bgT = backgrounds[CharData.Background];
+	const rT  = roles[CharData.Role];
+	const brT = birthrights[CharData.Birthright].options[CharData.BRDetail];
+	const luT = lure[CharData.Lure].options[CharData.LureDetail];
+	const trT = trials[CharData.Trial].options[CharData.TrialDetail];
+
+	
+	updateTalents([
+			(("Talents" in hwT)? hwT.Talents : []),
+			(("Talents" in caT)? caT.Talents : []),
+			(("Talents" in bgT)? bgT.Talents : []),
+			(("Talents" in rT )? rT.Talents : []),
+			(("Talents" in brT)? brT.Talents : []),
+			(("Talents" in luT)? luT.Talents : []),
+			(("Talents" in trT)? trT.Talents : []),
+		]);
+	
+	
+	
+	const container = document.getElementById('charChoice');
+	
+	var div = document.createElement('div');
+	div.classList.add('infoCard');
+	
+	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	container.appendChild(div);
+	
+	div = document.createElement('div');
+	
+	const table = document.createElement('table'); // Create the table
+	const tHead = document.createElement('tHead'); // Create the header
+	const htr = document.createElement('tr');
+	var th = document.createElement('th');
+	th.textContent = 'Talent';
+	htr.appendChild(th);
+	th = document.createElement('th');
+	th.textContent = ((currentLanguage==='de') ? 'Beschreibung' : 'Description');
+	htr.appendChild(th);
+	tHead.appendChild(htr);
+	table.appendChild(tHead);
+	
+	
+	const tbody = document.createElement('tbody'); // Create the tbody
+
+	const currChoices = choices.Talents;
+	for (let i = 0; i < currChoices.length; i++) {
+		var tr = document.createElement('tr');
+		var td = document.createElement('td');
+		
+		td.classList.add('tdStat');
+		
+		const filteredChoices = currChoices[i];
+		
+		if(filteredChoices.length === 1){
+			td.textContent = filteredChoices[0];
+		}else{
+			var dropDown = document.createElement('select');
+			dropDown.id = 'selTal'+i.toString();
+			const placeholder = document.createElement('option');
+			placeholder.textContent = '---';
+			placeholder.value = "";
+			placeholder.disabled = true;
+			placeholder.selected = true;
+			dropDown.appendChild(placeholder);
+			
+			filteredChoices.forEach(tal => {
+			const option = document.createElement('option');
+			option.value = tal;
+			option.textContent = tal;
+			dropDown.appendChild(option);
+			});
+			
+			dropDown.addEventListener("change", (event) => {
+			  if(validateSelections()){
+				showNextBt();
+			  }
+			});
+			
+			td.appendChild(dropDown);
+		}
+		
+		tr.appendChild(td);
+		
+		td = document.createElement('td');
+		td.classList.add('tdDesc');
+		td.textContent = 'ToDo: here are short descriptions';
+		tr.appendChild(td);
+		
+		
+		tbody.appendChild(tr);
+	}
+	
+	const selTalents = CharData.Talents;
+	for (let i = 0; i < selTalents.length; i++) {
+		var tr = document.createElement('tr');
+		var td = document.createElement('td');
+		
+		td.classList.add('tdStat');
+		
+		const filteredChoices = selTalents[i];
+		
+		td.textContent = filteredChoices.value;
+		
+		tr.appendChild(td);
+		td = document.createElement('td');
+		
+		td.classList.add('tdDesc');
+		td.textContent = 'ToDo: here are short descriptions';
+		tr.appendChild(td);
+		
+		tbody.appendChild(tr);
+	}
+
+	table.appendChild(tbody); // Append tbody to the table
+	div.appendChild(table); // Append the table to the div
+
+	
+	var nextDiv = document.createElement('div');
+	nextDiv.classList.add("dataCardNext");
+	
+	
+	const btNxt = document.createElement("button");
+	btNxt.classList.add("btNext","hidden");
+	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
+	btNxt.addEventListener("click", (event) => {
+		  chooseSkills();
+		});
+	
+	nextDiv.appendChild(btNxt);
+
+	div.appendChild(nextDiv);
+	
+		
+	div.classList.add('dataCard');
+	container.appendChild(div);
+}
+
+function chooseSkills(){
+	
+	clearContentDivs();
+	CharData.Skills = [];
+	choices.Skills = [];
+	
+	const hwT = hwAbilities[CharData.Homeworld];
+	const caT = careerOpts[CharData.Career];
+	const bgT = backgrounds[CharData.Background];
+	const rT  = roles[CharData.Role];
+	const brT = birthrights[CharData.Birthright].options[CharData.BRDetail];
+	const luT = lure[CharData.Lure].options[CharData.LureDetail];
+	const trT = trials[CharData.Trial].options[CharData.TrialDetail];
+
+	
+	updateSkills([
+			(("Skills" in hwT)? hwT.Skills : []),
+			(("Skills" in caT)? caT.Skills : []),
+			(("Skills" in bgT)? bgT.Skills : []),
+			(("Skills" in rT )? rT.Skills : []),
+			(("skills" in brT)? brT.skills : []),
+			(("Skills" in luT)? luT.Skills : []),
+			(("Skills" in trT)? trT.Skills : []),
+		]);
+	
+	
+	
+	const container = document.getElementById('charChoice');
+	
+	var div = document.createElement('div');
+	div.classList.add('infoCard');
+	
+	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	container.appendChild(div);
+	
+	div = document.createElement('div');
+	
+	const table = document.createElement('table'); // Create the table
+	const tHead = document.createElement('tHead'); // Create the header
+	const htr = document.createElement('tr');
+	var th = document.createElement('th');
+	th.textContent = 'Skills';
+	htr.appendChild(th);
+	th = document.createElement('th');
+	th.textContent = ((currentLanguage==='de') ? 'Beschreibung' : 'Description');
+	htr.appendChild(th);
+	tHead.appendChild(htr);
+	table.appendChild(tHead);
+	
+	
+	const tbody = document.createElement('tbody'); // Create the tbody
+
+	const currChoices = choices.Skills;
+	for (let i = 0; i < currChoices.length; i++) {
+		var tr = document.createElement('tr');
+		var td = document.createElement('td');
+		
+		td.classList.add('tdStat');
+		
+		const filteredChoices = currChoices[i];
+		
+		if(filteredChoices.length === 1){
+			td.textContent = filteredChoices[0];
+		}else{
+			var dropDown = document.createElement('select');
+			dropDown.id = 'selSkill'+i.toString();
+			const placeholder = document.createElement('option');
+			placeholder.textContent = '---';
+			placeholder.value = "";
+			placeholder.disabled = true;
+			placeholder.selected = true;
+			dropDown.appendChild(placeholder);
+			
+			filteredChoices.forEach(skill => {
+			const option = document.createElement('option');
+			option.value = skill;
+			option.textContent = skill;
+			dropDown.appendChild(option);
+			});
+			
+			dropDown.addEventListener("change", (event) => {
+			  if(validateSelections()){
+				showNextBt();
+			  }
+			});
+			
+			td.appendChild(dropDown);
+		}
+		
+		tr.appendChild(td);
+		
+		td = document.createElement('td');
+		td.classList.add('tdDesc');
+		td.textContent = 'ToDo: here are short descriptions';
+		tr.appendChild(td);
+		
+		
+		tbody.appendChild(tr);
+	}
+	
+	const selSkills = CharData.Skills;
+	for (let i = 0; i < selSkills.length; i++) {
+		var tr = document.createElement('tr');
+		var td = document.createElement('td');
+		
+		td.classList.add('tdStat');
+		
+		const filteredChoices = selSkills[i];
+		
+		td.textContent = filteredChoices.value;
+		
+		tr.appendChild(td);
+		td = document.createElement('td');
+		
+		td.classList.add('tdDesc');
+		td.textContent = 'ToDo: here are short descriptions';
+		tr.appendChild(td);
+		
+		tbody.appendChild(tr);
+	}
+
+	table.appendChild(tbody); // Append tbody to the table
+	div.appendChild(table); // Append the table to the div
+
+	
+	var nextDiv = document.createElement('div');
+	nextDiv.classList.add("dataCardNext");
+	
+	
+	const btNxt = document.createElement("button");
+	btNxt.classList.add("btNext","hidden");
+	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
+	btNxt.addEventListener("click", (event) => {
+		  chooseGear();
+		});
+	
+	nextDiv.appendChild(btNxt);
+
+	div.appendChild(nextDiv);
+	
+		
+	div.classList.add('dataCard');
+	container.appendChild(div);
+}
+
+function chooseGear(){
+	clearContentDivs();
+	CharData.Gear = [];
+	choices.Gear = [];
+	
+	const bgT = backgrounds[CharData.Background];
+
+	
+	updateGear([(("Gear" in bgT)? bgT.Gear : [])
+		]);
+	
+	
+	
+	const container = document.getElementById('charChoice');
+	
+	var div = document.createElement('div');
+	div.classList.add('infoCard');
+	
+	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	container.appendChild(div);
+	
+	div = document.createElement('div');
+	
+	const table = document.createElement('table'); // Create the table
+	const tHead = document.createElement('tHead'); // Create the header
+	const htr = document.createElement('tr');
+	var th = document.createElement('th');
+	th.textContent = ((currentLanguage==='de')? 'Ausrüstung' : 'Gear');
+	htr.appendChild(th);
+	th = document.createElement('th');
+	th.textContent = ((currentLanguage==='de') ? 'Beschreibung' : 'Description');
+	htr.appendChild(th);
+	tHead.appendChild(htr);
+	table.appendChild(tHead);
+	
+	
+	const tbody = document.createElement('tbody'); // Create the tbody
+
+	const currChoices = choices.Gear;
+	for (let i = 0; i < currChoices.length; i++) {
+		var tr = document.createElement('tr');
+		var td = document.createElement('td');
+		
+		td.classList.add('tdStat');
+		
+		const filteredChoices = currChoices[i];
+		
+		if(filteredChoices.length === 1){
+			td.textContent = filteredChoices[0];
+		}else{
+			var dropDown = document.createElement('select');
+			dropDown.id = 'selGear'+i.toString();
+			const placeholder = document.createElement('option');
+			placeholder.textContent = '---';
+			placeholder.value = "";
+			placeholder.disabled = true;
+			placeholder.selected = true;
+			dropDown.appendChild(placeholder);
+			
+			filteredChoices.forEach(gear => {
+			const option = document.createElement('option');
+			option.value = gear;
+			option.textContent = gear;
+			dropDown.appendChild(option);
+			});
+			
+			dropDown.addEventListener("change", (event) => {
+			  if(validateSelections()){
+				showNextBt();
+			  }
+			});
+			
+			td.appendChild(dropDown);
+		}
+		
+		tr.appendChild(td);
+		
+		td = document.createElement('td');
+		td.classList.add('tdDesc');
+		td.textContent = 'ToDo: here are short descriptions';
+		tr.appendChild(td);
+		
+		
+		tbody.appendChild(tr);
+	}
+	
+	const selGear = CharData.Gear;
+	for (let i = 0; i < selGear.length; i++) {
+		var tr = document.createElement('tr');
+		var td = document.createElement('td');
+		
+		td.classList.add('tdStat');
+		
+		const filteredChoices = selGear[i];
+		
+		td.textContent = filteredChoices.value;
+		
+		tr.appendChild(td);
+		td = document.createElement('td');
+		
+		td.classList.add('tdDesc');
+		td.textContent = 'ToDo: here are short descriptions';
+		tr.appendChild(td);
+		
+		tbody.appendChild(tr);
+	}
+
+	table.appendChild(tbody); // Append tbody to the table
+	div.appendChild(table); // Append the table to the div
+
+	
+	var nextDiv = document.createElement('div');
+	nextDiv.classList.add("dataCardNext");
+	
+	
+	const btNxt = document.createElement("button");
+	btNxt.classList.add("btNext","hidden");
+	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
+	btNxt.addEventListener("click", (event) => {
+		  console.log('ToDo');
+		});
+	
+	nextDiv.appendChild(btNxt);
+
+	div.appendChild(nextDiv);
+	
+		
+	div.classList.add('dataCard');
+	container.appendChild(div);
+}
+
+function chooseMutationsAndImplants(){
+	clearContentDivs();
+	CharData.Gear = [];
+	choices.Gear = [];
+	
+	const bgT = backgrounds[CharData.Background];
+
+	
+	updateGear([(("Gear" in bgT)? bgT.Gear : [])
+		]);
+	
+	
+	
+	const container = document.getElementById('charChoice');
+	
+	var div = document.createElement('div');
+	div.classList.add('infoCard');
+	
+	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	container.appendChild(div);
+	
+	div = document.createElement('div');
+	
+	const table = document.createElement('table'); // Create the table
+	const tHead = document.createElement('tHead'); // Create the header
+	const htr = document.createElement('tr');
+	var th = document.createElement('th');
+	th.textContent = ((currentLanguage==='de')? 'Ausrüstung' : 'Gear');
+	htr.appendChild(th);
+	th = document.createElement('th');
+	th.textContent = ((currentLanguage==='de') ? 'Beschreibung' : 'Description');
+	htr.appendChild(th);
+	tHead.appendChild(htr);
+	table.appendChild(tHead);
+	
+	
+	const tbody = document.createElement('tbody'); // Create the tbody
+
+	const currChoices = choices.Gear;
+	for (let i = 0; i < currChoices.length; i++) {
+		var tr = document.createElement('tr');
+		var td = document.createElement('td');
+		
+		td.classList.add('tdStat');
+		
+		const filteredChoices = currChoices[i];
+		
+		if(filteredChoices.length === 1){
+			td.textContent = filteredChoices[0];
+		}else{
+			var dropDown = document.createElement('select');
+			dropDown.id = 'selGear'+i.toString();
+			const placeholder = document.createElement('option');
+			placeholder.textContent = '---';
+			placeholder.value = "";
+			placeholder.disabled = true;
+			placeholder.selected = true;
+			dropDown.appendChild(placeholder);
+			
+			filteredChoices.forEach(gear => {
+			const option = document.createElement('option');
+			option.value = gear;
+			option.textContent = gear;
+			dropDown.appendChild(option);
+			});
+			
+			dropDown.addEventListener("change", (event) => {
+			  if(validateSelections()){
+				showNextBt();
+			  }
+			});
+			
+			td.appendChild(dropDown);
+		}
+		
+		tr.appendChild(td);
+		
+		td = document.createElement('td');
+		td.classList.add('tdDesc');
+		td.textContent = 'ToDo: here are short descriptions';
+		tr.appendChild(td);
+		
+		
+		tbody.appendChild(tr);
+	}
+	
+	const selGear = CharData.Gear;
+	for (let i = 0; i < selGear.length; i++) {
+		var tr = document.createElement('tr');
+		var td = document.createElement('td');
+		
+		td.classList.add('tdStat');
+		
+		const filteredChoices = selGear[i];
+		
+		td.textContent = filteredChoices.value;
+		
+		tr.appendChild(td);
+		td = document.createElement('td');
+		
+		td.classList.add('tdDesc');
+		td.textContent = 'ToDo: here are short descriptions';
+		tr.appendChild(td);
+		
+		tbody.appendChild(tr);
+	}
+
+	table.appendChild(tbody); // Append tbody to the table
+	div.appendChild(table); // Append the table to the div
+
+	
+	var nextDiv = document.createElement('div');
+	nextDiv.classList.add("dataCardNext");
+	
+	
+	const btNxt = document.createElement("button");
+	btNxt.classList.add("btNext","hidden");
+	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
+	btNxt.addEventListener("click", (event) => {
+		  console.log('ToDo');
+		});
+	
+	nextDiv.appendChild(btNxt);
+
+	div.appendChild(nextDiv);
+	
+		
+	div.classList.add('dataCard');
+	container.appendChild(div);
+}
+
+function rollDice(sides) {
+        return Math.floor(Math.random() * sides) + 1;
+    }
+
+function rollStatWithMod(modifier) {
+	const nums = [rollDice(10), rollDice(10), rollDice(10)];
+		
+    if (modifier === 1) {
+        nums.sort((a, b) => b - a); // Sort descending
+    } else if (modifier === -1){
+        nums.sort((a, b) => a - b); // Sort ascending
+    } 
+	return nums[0] + nums[1];
+}
+
+function hideinfoCardBts(){
+	document.getElementById("infoCardBts").innerHTML ="";
+}
+
+function hideRerolls(){
+	document.querySelectorAll(".btReroll").forEach(entry => entry.classList.add("hidden"));
+}
+
+function showNextBt(){
+	document.querySelectorAll(".btNext.hidden").forEach(entry => entry.classList.remove("hidden"));
+	document.querySelectorAll(".prRest").forEach(entry => entry.classList.add("hidden"));
+}
+
+function hideNextBt(){
+	document.querySelectorAll(".btNext").forEach(entry => entry.classList.add("hidden"));
+	document.querySelectorAll(".prRest.hidden").forEach(entry => entry.classList.remove("hidden"));
+}
+
+
+function showRestPoint(){
+	document.querySelectorAll(".prRest.hidden").forEach(entry => entry.classList.remove("hidden"));
+}
+
+function rollStats()
+{
+	document.querySelectorAll(".btReroll.hidden").forEach(entry => entry.classList.remove("hidden"));
+	for (let i = 0; i < CharData.Stats.length; i++) {
+		CharData.Stats[i].rolledValues = rollStatWithMod(CharData.Stats[i].mod);
+		var classes = ".tdIncr."+CharData.Stats[i].value;
+		document.querySelectorAll(classes).forEach(entry => entry.textContent = "+"+CharData.Stats[i].rolledValues.toString());
+		
+		refreshTotals(i);
+		hideinfoCardBts();
+		showNextBt();
+	}
+}
+
+function refreshTotals(index){
+	var classes = ".tdRes."+CharData.Stats[index].value;
+	
+	document.querySelectorAll(classes).forEach(entry => entry.textContent = 
+			(CharData.Stats[index].brBonus+CharData.Stats[index].moBonus+
+			CharData.Stats[index].rolledValues+CharData.Stats[index].base).toString());
+	const freePts = getFreeStatPoints();
+	if(freePts===0)
+	{
+		showNextBt();
+	}else{
+		hideNextBt();
+	}
+	document.querySelectorAll(".prRest").forEach(entry => entry.textContent=freePts);
+}
+
+function getFreeStatPoints(){
+	return 100 - (CharData.Stats.reduce((total, entry) => {
+        return total + (entry.rolledValues);
+    }, 0));
+}
+
+function enablePtBuy()
+{
+	document.querySelectorAll(".tbBuys.hidden").forEach(entry => entry.classList.remove("hidden"));
+	hideinfoCardBts();
+	for (let i = 0; i < CharData.Stats.length; i++) {
+		refreshTotals(i);
+	}
+	
+	hideinfoCardBts();
+	showRestPoint();
+	
+}
+
+function generateStatSelection() {
+	clearContentDivs();
+	CharData.Stats = [];
+	
+	const container = document.getElementById('charChoice');
+	
+	var div = document.createElement('div');
+	div.classList.add('infoCard');
+	
+	div.innerHTML = `
+		${((currentLanguage==='de') ? characteristicsTexts.InfoTextDe : characteristicsTexts.InfoText)}
+		<div class="infoCardBts" id="infoCardBts">
+		<hr>
+		<button class="rollBt" id="btRoll" onclick="rollStats()">${((currentLanguage === 'de') ? characteristicsTexts.rollBtTextDe : characteristicsTexts.rollBtText)}</button>
+		<hr>
+		<button class="ptBuyBt" id="ptBuyBt" onclick="enablePtBuy()">${((currentLanguage === 'de') ? characteristicsTexts.ptBuyBtTextDe : characteristicsTexts.ptBuyBtText)}</button>
+		</div>
+		<p></p>
+	`;
+	container.appendChild(div);
+	
+	div = document.createElement('div');
+	
+	const table = document.createElement('table'); // Create the table
+	const tHead = document.createElement('tHead'); // Create the header
+	const htr = document.createElement('tr');
+	var th = document.createElement('th');
+	th.textContent = ((currentLanguage==='de') ? 'Charakteristika' : 'Characteristics');
+	htr.appendChild(th);
+	th = document.createElement('th');
+	th.textContent = ((currentLanguage==='de') ? 'Basis' : 'Base');
+	htr.appendChild(th);
+	th = document.createElement('th');
+	th.textContent = 'Bonus';
+	htr.appendChild(th);
+	th = document.createElement('th');
+	th.textContent = ((currentLanguage==='de') ? 'Increase' : 'Vergabe');
+	htr.appendChild(th);
+	th = document.createElement('th');
+	htr.appendChild(th);
+	th = document.createElement('th');
+	th.textContent = 'Total';
+	htr.appendChild(th);
+	tHead.appendChild(htr);
+	table.appendChild(tHead);
+	
+	
+	const tbody = document.createElement('tbody'); // Create the tbody
+
+	for (let i = 0; i < charLists.length; i++) {
+		var tr = document.createElement('tr');
+		var td = document.createElement('td');
+		var isNeg = 0;
+		var isPos = 0;
+		
+		CharData.Stats.push({ value: charLists[i], base: 25, brBonus:0, moBonus: 0, rolledValues: 0, mod: 0 });
+		
+		td.classList.add('tdStat');
+		td.textContent = getTranslatedApts(charLists[i],currentLanguage);
+		if(homeworlds[CharData.Homeworld].NegChars == charLists[i]){
+			td.classList.add('stNeg');
+			CharData.Stats.find(entry => entry.value === charLists[i]).mod=-1;
+			isNeg = 1;
+		}
+		if(homeworlds[CharData.Homeworld].PosChars.includes(charLists[i])){
+			td.classList.add('stPos');
+			CharData.Stats.find(entry => entry.value === charLists[i]).mod=1;
+			isPos = 1;
+		}
+		tr.appendChild(td);
+		
+		td = document.createElement('td');
+		td.classList.add('tdBase');
+		td.textContent = '25';
+		tr.appendChild(td);
+		
+		td = document.createElement('td');
+		td.classList.add('tdBonus');
+			var bonus = 0;
+			if(birthrights[CharData.Birthright].options[CharData.BRDetail].stat == charLists[i]){
+				CharData.Stats.find(entry => entry.value === charLists[i]).brBonus=5;
+				bonus = 5;
+			}
+			if(motivations[CharData.Motivation].options[CharData.MotivationDetail].stat == charLists[i]){
+				bonus+=5;
+				CharData.Stats.find(entry => entry.value === charLists[i]).moBonus=5;
+			}
+			if(bonus > 0)
+			{
+				td.textContent = '+'+bonus.toString();
+			}
+		tr.appendChild(td);
+				
+		td = document.createElement('td');
+		td.classList.add('tdIncr');
+		td.classList.add(charLists[i]);
+		td.textContent = '';
+		
+		const txBx = document.createElement("input");
+		txBx.type = "number";
+		txBx.classList.add("tbBuys","hidden");
+		txBx.min = "0";
+		txBx.max = "15";
+		txBx.value = "0";
+		
+		txBx.MaxValue = (15 + (isPos * 5)) - (isNeg * 5);
+		txBx.ArrIndex = i;
+		
+		txBx.addEventListener("input", (event) => {
+		  let value = parseInt(event.target.value, 10); // Convert to an integer
+		  CharData.Stats.find(entry => entry.value === charLists[i]).rolledValues=0;
+		  let maxVal = ((event.target.MaxValue > getFreeStatPoints())? getFreeStatPoints() : event.target.MaxValue);
+		  if (isNaN(value)) {
+			event.target.value = "0"; // Default to 0 if the input is empty or invalid
+		  } else if (value < 0) {
+			event.target.value = "0"; // Set to minimum
+		  } else if (value >maxVal) {
+			event.target.value = maxVal; // Set to maximum
+		  }
+		  CharData.Stats.find(entry => entry.value === charLists[i]).rolledValues = parseInt(event.target.value, 0);
+		  refreshTotals(event.target.ArrIndex);
+		});
+		td.appendChild(txBx);
+		
+		tr.appendChild(td);
+		
+		
+		
+		td = document.createElement('td');
+		td.classList.add('tdReRoll');
+
+		const bt = document.createElement("button");
+		bt.classList.add("btReroll","hidden");
+		bt.textContent = "reroll";
+		bt.ArrIndex = i;
+		bt.CurrMod = CharData.Stats[i].mod;
+		bt.addEventListener("click", (event) => {
+		  CharData.Stats[event.target.ArrIndex].rolledValues = rollStatWithMod(event.target.CurrMod);
+		  var classes = ".tdIncr."+CharData.Stats[i].value;
+		  document.querySelectorAll(classes).forEach(entry => entry.textContent = "+"+CharData.Stats[event.target.ArrIndex].rolledValues.toString());
+		  refreshTotals(event.target.ArrIndex);
+		  hideRerolls();
+		});
+		td.appendChild(bt);
+		tr.appendChild(td);
+		
+		
+		
+		
+		td = document.createElement('td');
+		td.classList.add('tdRes');
+		td.classList.add(charLists[i]);
+		td.textContent = '';
+		tr.appendChild(td);
+		
+		tbody.appendChild(tr);
+	}
+
+	table.appendChild(tbody); // Append tbody to the table
+	div.appendChild(table); // Append the table to the div
+
+	
+	var nextDiv = document.createElement('div');
+	nextDiv.classList.add("dataCardNext");
+	
+	const pRest = document.createElement("p");
+	pRest.classList.add("prRest","hidden");
+	pRest.textContent = "0";
+	nextDiv.appendChild(pRest);
+	
+	const btNxt = document.createElement("button");
+	btNxt.classList.add("btNext","hidden");
+	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
+	btNxt.addEventListener("click", (event) => {
+		  generateAptitudeSelection();
+		});
+	
+	nextDiv.appendChild(btNxt);
+
+	div.appendChild(nextDiv);
+	
+		
+	div.classList.add('dataCard');
+	container.appendChild(div);
+	
+	
+}
+
+function updateAptitudes(data) {
+    // Ensure CharData.Aptitudes is initialized as an array
+    data.forEach(aptitudesArray => {
+        aptitudesArray.forEach(value => {
+            // Check if the value already exists in CharData.Aptitudes
+            
+			if(value.includes('|')){
+				choices.Aptitudes.push(value);
+			}
+			else{
+				const existingEntry = CharData.Aptitudes.find(entry => entry.value === value);
+				if (existingEntry) {
+					// If it exists, increment the amount
+					existingEntry.amount += 1;
+				} else {
+					// If it doesn't exist, add a new entry with amount 1
+					CharData.Aptitudes.push({ value: value, amount: 1 });
+				}
+			}
+        });
+    });
+}
 
 function populateCareers() {
 	const container = document.getElementById('tiles');
@@ -443,9 +1661,9 @@ function populateCareers() {
 				<hr>
 				<p class="stats"><strong>${labels.Aptitude}: </strong>${getTranslatedApts(career.Apt,currentLanguage)}</p>
 				<hr>
-				<p class="stats"><strong>${labels.Skills}</strong></br></br>${Ability.Skills.join(',  ')}</p>
+				<p class="stats"><strong>${labels.Skills}</strong></br></br>${Ability.Skills.join('</br>')}</p>
 				<hr>
-				<p class="stats"><strong>${labels.Talents}</strong></br></br>${Ability.Talents.join(',  ')}</p>
+				<p class="stats"><strong>${labels.Talents}</strong></br></br>${Ability.Talents.join('</br>')}</p>
 				<hr>
 				<p class="stats"><strong>${Ability.Name}</strong></br> ${Ability.Effect}</p>
 			`;
@@ -482,7 +1700,7 @@ function populateBackgrounds() {
 				"Aptitude":((currentLanguage === 'de')? "Eignung" : "Aptitude"),
 				"Skills":((currentLanguage === 'de')? "Fähigkeiten" : "Skills"),
 				"Talents":((currentLanguage === 'de')? "Talente" : "Talents"),
-				"Gear":((currentLanguage === 'de')? "Gear" : "Ausrüstung")
+				"Gear":((currentLanguage === 'de')? "Ausrüstung" : "Gear")
 			}
 
 			// Create a div for each homeworld
@@ -504,13 +1722,13 @@ function populateBackgrounds() {
 				<h2>${((currentLanguage === 'de') ? bg.NAME_DE : bg.NAME)}</h2>
 				<p>${((currentLanguage === 'de') ? bg.Descritpion_DE : bg.Description)}</p>
 				<hr>
-				<p class="stats"><strong>${labels.Aptitude}: </strong>${getTranslatedApts(bg.Apts,currentLanguage).join(' or ')}</p>
+				<p class="stats"><strong>${labels.Aptitude}: </strong>${getTranslatedApts(bg.Apts,currentLanguage).join('</br>')}</p>
 				<hr>
-				<p class="stats"><strong>${labels.Skills}</strong></br></br>${parseSkills(bg.Skills).join(',  ')}</p>
+				<p class="stats"><strong>${labels.Skills}</strong></br></br>${parseSkills(bg.Skills).join('</br>')}</p>
 				<hr>
-				<p class="stats"><strong>${labels.Talents}</strong></br></br>${parseTalents(bg.Talents).join(',  ')}</p>
+				<p class="stats"><strong>${labels.Talents}</strong></br></br>${parseTalents(bg.Talents).join('</br>')}</p>
 				<hr>
-				<p class="stats"><strong>${labels.Gear}</strong></br></br></p>
+				<p class="stats"><strong>${labels.Gear}</strong></br></br>${parseGear(bg.Gear).join('</br>')}</p>
 				<hr>
 				<p class="stats"><strong>${Ability.Name}</strong></br> ${Ability.Effect}</p>
 			`;
