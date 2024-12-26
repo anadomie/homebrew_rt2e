@@ -91,6 +91,95 @@ body {
       .navbar a:hover {
         background-color: #575757;
       }
+	  
+	  .infoCard{
+		background: #C8C8C8;
+        padding: 0;
+		padding:0px;
+        border-radius: 12px; 
+        font-size: 12px; 
+		max-width: 600px;
+		margin: 0px;
+		overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.5s ease;
+		
+		box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+		
+		flex: 1; /* Each column takes up equal width */
+		display: flex;
+		flex-direction: column; 
+	  }
+	  
+	  .infoCardBts{
+		text-align:center;
+	  }
+	  
+	  .dataCard{
+        padding: 0;
+		padding:0px;
+        border-radius: 12px; 
+		background:#C5C07B;
+        font-size: 14px; 
+		max-width: 700px;
+		margin: 0px;
+		overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.5s ease;
+		
+		box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+		
+		flex: 1; /* Each column takes up equal width */
+		display: flex;
+		flex-direction: column; 
+	  }
+	  
+	  .charChoice {
+        display: flex;
+        grid-template-columns: 1fr 1fr;
+		max-width: 1600px;
+        gap: 5px;
+        padding: 0px;
+        justify-content: center;
+		margin: auto;
+		align-items: start;
+      }
+	  
+	  .dataCardNext{
+		  display: flex;
+		  align-items: center; /* Vertically centers content */
+		  height:50px;
+		  padding-right:20px;
+		  justify-content: right; 
+		  
+	  }
+	  
+	  .tbBuys{
+	    background-color: #f7f7f7;
+		color: #333;
+		margin: 0;
+		height: 20px;
+		width: 40px;
+	  }
+	  
+	  .btNext{
+		font-size: 16px;
+		background: blue;
+		color: white;
+		width: 90px;
+		text-align: center;
+		padding: 5px;
+		margin: 5px;
+		box-sizing: border-box; 
+        border-radius: 5px;
+		transition: transform 0.3s ease, box-shadow 0.5s ease;
+		box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+		border-color:blue;
+        cursor: pointer;
+	  }
+	  
+	  .btNext:hover{
+		border-color:#0056B3;
+		background: #0056B3;
+	  }
 
       .tiles {
         display: grid;
@@ -217,3 +306,135 @@ body {
       .tile p {
         margin: 0 15px 15px;
       }
+	  
+	  .stNeg{
+		  background: red;
+		  color:white;
+	  }
+	  
+	  .stPos{
+		  background: green;
+		  color:white;
+	  }
+	  
+	  table {
+		  padding: 10px;
+	  }
+	  
+	  th{
+		  font-size: 16px; 
+		  padding: 5px;
+		  text-align: left;
+	  }
+	  
+	  td {
+		  width:  50px;
+		  height: 30px;
+		  padding-left: 10px;
+		  font-size: 16px; 
+		  text-align: left;
+	  }
+	  .tdRes {
+		  width:  150px;
+	  }
+	  
+	  .tdReRoll{
+		  width:  55px;
+		  height: 30px;
+		  text-align: left;
+	  }
+	  
+	  .tdStat {
+		  width:  180px;
+		  height: 30px;
+		  padding-left: 10px;
+		  font-size: 16px; 
+		  text-align: left;
+	  }
+	  
+	  .prRest{
+		display: flex;
+		justify-content: center; /* Horizontally centers text */
+		align-items: center; /* Vertically centers text */
+		font-weight: bold; /* Makes the text bold */
+		height: 35px; /* Set height of the container */
+		width: 35px;
+		font-size:20px;
+		background: #C8C8C8;
+		color: black;
+		text-align: center; /* Ensure multi-line text is centered */
+		border: 2px solid #black; /* Optional: Border for visual reference */
+		margin-right: 380px;
+		border-radius: 4px;
+
+	  }
+	  
+	  .tdRes{
+		  width:  40px;
+		  height: 30px;
+		  padding-left: 10px;
+		  font-size: 16px; 
+		  text-align: left;
+	  }
+	  
+	  .rollBt{
+		font-size: 20px;
+		background: blue;
+		color: white;
+		text-align: center;
+		padding: 5px;
+		margin: 5px;
+		box-sizing: border-box; 
+        border-radius: 5px;
+		transition: transform 0.3s ease, box-shadow 0.5s ease;
+		box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+		border-color:blue;
+        cursor: pointer;
+	  }
+	  
+	  .ptBuyBt{
+		font-size: 20px;
+		background: orange;
+		color: white;
+		text-align: center;
+		padding: 5px;
+		margin: 5px;
+        border-radius: 5px;
+		transition: transform 0.3s ease, box-shadow 0.5s ease;
+		box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+		border-color:orange;
+        cursor: pointer;
+	  }
+	  
+	  .rollBt:hover{
+		border-color:#0056B3;
+		background: #0056B3;
+	  }
+	  
+	  .ptBuyBt:hover{
+		border-color:#FF8C00;
+		background: #FF8C00;
+	  }
+	  
+	  .btReroll {
+		border: none;
+		padding: 6px 6px;
+		vertical-align: middle;
+		overflow: hidden;
+		text-decoration: none;
+		text-align: center;
+		cursor: pointer;
+		white-space: nowrap;    
+		background-color: #f1f1f1;
+        border-radius: 3px;
+		transition: transform 0.3s ease, box-shadow 0.5s ease;
+	}
+	.btReroll:hover{
+		background:#dcdcdc;
+	}
+	
+	
+	 
+	 .hidden {
+		 display:none;
+	 }
