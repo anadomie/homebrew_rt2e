@@ -241,7 +241,7 @@ var naviMutations =
 		"Effect": "Your body is grossly bloated and your limbs thick with flesh. You gain 5 wounds and the Sturdy trait but may no longer run. Re-roll this mutation if you already have the Elongated Form or Withered Form mutations.",
 		"NameDe": "",
 		"EffectDe": "",
-		"Wounds": "+5";
+		"Wounds": "+5",
 		"RerollIfOther": ["05_withered","02_elongated"]
 		
 	},
