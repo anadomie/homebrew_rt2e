@@ -436,6 +436,10 @@ function validateSelections() {
     return Array.from(dropdowns).every(dropdown => dropdown.value !== "");
 }
 
+function validateHPandFate() {
+    return ((CharData.Fate > 0) && (CharData.HP > 0));
+}
+
 function generateAptitudeSelection() {
 	clearContentDivs();
 	CharData.Aptitudes = [];
@@ -590,6 +594,18 @@ function getTranslatedGear(input) {
 	return result;
 }
 
+function getTranslatedImplants(input) {
+	const result = [];
+
+	const filteredItems = Object.values(implants).filter(item => item.Type === input[0]);
+	
+	filteredItems.forEach(item => {
+		result.push(((currentLanguage === 'de') ? (item.NameDe) : (item.Name)));
+	});
+	
+	return result;
+}
+
 function getTranslatedTalents(input) {
 	const result = [];
 	const base = splitInputWithOptions(input);
@@ -690,6 +706,45 @@ function updateSkills(data){
     });
 }
 
+function updateMutations(data)
+{
+	console.log(data);
+	data.forEach(mutArray => {
+		
+        mutArray.forEach(value => {
+			choices.Mutations.push(value);	
+        });
+    });
+}
+
+function updateImplants(data){
+    data.forEach(implArray => {
+        implArray.forEach(value => {
+			let currimpl = [];
+			
+			if(Array.isArray(value) && value.length === 2)
+			{
+				currimpl = getTranslatedImplants(value);	
+			}
+			else
+			{
+				console.log(value);
+				console.log("Error");
+				CharData.Implants.push(["ERROR"])
+			}
+			
+			if(currimpl.length > 1)
+			{
+				console.log(currimpl);
+				choices.Implants.push({ value: currimpl, qualitiy: value[1] });
+			}
+			else{
+				CharData.Implants.push({ value: currimpl[0], qualitiy: value[1] });
+			}
+			
+        });
+    });
+}
 function updateGear(data){
     data.forEach(gearArray => {
         gearArray.forEach(value => {
@@ -1039,6 +1094,241 @@ function chooseSkills(){
 	container.appendChild(div);
 }
 
+function chooseImplantsAndMutations(){
+	
+	clearContentDivs();
+	CharData.Implants = [];
+	choices.Mutations = [];
+	
+	const hwT = hwAbilities[CharData.Homeworld];
+	const caT = careerOpts[CharData.Career];
+	const bgT = backgrounds[CharData.Background];
+	const rT  = roles[CharData.Role];
+	const brT = birthrights[CharData.Birthright].options[CharData.BRDetail];
+	const luT = lure[CharData.Lure].options[CharData.LureDetail];
+	const trT = trials[CharData.Trial].options[CharData.TrialDetail];
+
+	
+	updateImplants([
+			(("Cybernetics" in hwT)? hwT.Cybernetics : []),
+			(("Cybernetics" in caT)? caT.Cybernetics : []),
+			(("Cybernetics" in bgT)? bgT.Cybernetics : []),
+			(("Cybernetics" in rT )? rT.Cybernetics : []),
+			(("Cybernetics" in brT)? brT.Cybernetics : []),
+			(("Cybernetics" in luT)? luT.Cybernetics : []),
+			(("Cybernetics" in trT)? trT.Cybernetics : [])
+		]);
+		
+	updateMutations([
+		(("Mutations" in hwT)? hwT.Mutations : []),
+		(("Mutations" in caT)? caT.Mutations : []),
+		(("Mutations" in bgT)? bgT.Mutations : []),
+		(("Mutations" in rT )? rT.Mutations : []),
+		(("Mutations" in brT)? brT.Mutations : []),
+		(("Mutations" in luT)? luT.Mutations : []),
+		(("Mutations" in trT)? trT.Mutations : [])
+	]);
+	
+	const container = document.getElementById('charChoice');
+	
+	
+	var div = document.createElement('div');
+	div.classList.add('infoCard');
+	
+	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	container.appendChild(div);
+	
+
+	div = document.createElement('div');
+	
+	if(choices.Implants.length > 0 || CharData.Implants.length > 0)
+	{
+	
+		const table = document.createElement('table'); // Create the table
+		const tHead = document.createElement('tHead'); // Create the header
+		const htr = document.createElement('tr');
+		var th = document.createElement('th');
+		th.textContent = ((currentLanguage==='de') ? 'Implantate' : 'Cybernetics');
+		htr.appendChild(th);
+		th = document.createElement('th');
+		th.textContent = ((currentLanguage==='de') ? 'Beschreibung' : 'Description');
+		htr.appendChild(th);
+		tHead.appendChild(htr);
+		table.appendChild(tHead);
+		
+		
+		const tbody = document.createElement('tbody'); // Create the tbody
+
+		const currChoices = choices.Implants;
+		for (let i = 0; i < currChoices.length; i++) {
+			var tr = document.createElement('tr');
+			var td = document.createElement('td');
+			
+			td.classList.add('tdStat');
+			
+			const filteredChoices = currChoices[i].value;
+			console.log(filteredChoices);
+			if(filteredChoices.length === 1){
+				td.textContent = filteredChoices[0];
+			}else{
+				var dropDown = document.createElement('select');
+				dropDown.id = 'selImpl'+i.toString();
+				const placeholder = document.createElement('option');
+				placeholder.textContent = '---';
+				placeholder.value = "";
+				placeholder.disabled = true;
+				placeholder.selected = true;
+				dropDown.appendChild(placeholder);
+				
+				filteredChoices.forEach(implant => {
+				const option = document.createElement('option');
+				option.value = implant;
+				option.textContent = implant;
+				dropDown.appendChild(option);
+				});
+				
+				dropDown.addEventListener("change", (event) => {
+				  if(validateSelections()){
+					showNextBt();
+				  }
+				});
+				
+				td.appendChild(dropDown);
+			}
+			
+			tr.appendChild(td);
+			
+			td = document.createElement('td');
+			td.classList.add('tdDesc');
+			td.textContent = 'ToDo: here are short descriptions';
+			tr.appendChild(td);
+			
+			
+			tbody.appendChild(tr);
+		}
+		
+		const selImplants = CharData.Implants;
+		for (let i = 0; i < selImplants.length; i++) {
+			var tr = document.createElement('tr');
+			var td = document.createElement('td');
+			
+			td.classList.add('tdStat');
+			
+			const filteredChoices = selImplants[i];
+			
+			td.textContent = filteredChoices.value;
+			
+			tr.appendChild(td);
+			td = document.createElement('td');
+			
+			td.classList.add('tdDesc');
+			td.textContent = 'ToDo: here are short descriptions';
+			tr.appendChild(td);
+			
+			tbody.appendChild(tr);
+		}
+
+		table.appendChild(tbody); // Append tbody to the table
+		div.appendChild(table); // Append the table to the div
+	}
+	
+	if(choices.Mutations.length > 0)
+	{
+		
+	
+		let ptsDiv = document.createElement('div');
+		ptsDiv.classList.add("dataCardPtsSelect");
+		
+		ptsDiv.appendChild(document.createElement('br'));
+		
+		var el = document.createElement('h2');
+		el.textContent = ((currentLanguage==='de') ? 'Mutationen': 'Mutations');
+		ptsDiv.appendChild(el);
+		
+		ptsDiv.appendChild(document.createElement('br'));
+		ptsDiv.appendChild(document.createElement('br'));
+				
+		
+		const table = document.createElement('table'); // Create the table
+		const tHead = document.createElement('tHead'); // Create the header
+		const htr = document.createElement('tr');
+		var th = document.createElement('th');
+		th.textContent = 'Mutation';
+		htr.appendChild(th);
+		th = document.createElement('th');
+		th.textContent = ((currentLanguage==='de') ? 'Beschreibung' : 'Description');
+		htr.appendChild(th);
+		tHead.appendChild(htr);
+		table.appendChild(tHead);
+		
+		const tbody = document.createElement('tbody'); // Create the tbody
+		
+		
+		for(let x = 0; x < choices.Mutations.length; x++)
+		{
+			var tr = document.createElement('tr');
+			var td = document.createElement('td');
+			
+			td.classList.add('tdStat');
+			
+			td.id = "tdMutations"+x.toString();
+			
+			tr.appendChild(td);
+			td = document.createElement('td');
+			
+			td.classList.add('tdDesc');
+			td.id = "tdMutatDesc"+x.toString();
+			td.textContent = 'ToDo: here are short descriptions';
+			tr.appendChild(td);
+			
+			tbody.appendChild(tr);
+			
+			el = document.createElement("button");
+			el.classList.add("btRollBig");
+			el.id = "btMutations"+x.toString(); 
+			el.MutaRoll = choices.Mutations[x];
+			el.textContent = ((currentLanguage==='de')? "Rolle " : "roll ") + choices.Mutations[x];
+			el.MainTD = "tdMutations"+x.toString();
+			el.DecTD = "tdMutatDesc"+x.toString();
+			
+			el.addEventListener("click", (event) => {
+				  rollNewMutation(event.target.MainTD, event.target.DecTD, event.target.MutaRoll);
+				  if(CharData.Mutations.length == choices.Mutations.length){
+					  showNextBt();
+				  }
+				}, /*{ once: true }*/);
+				
+			ptsDiv.appendChild(el);
+			ptsDiv.appendChild(document.createElement('br'));
+			ptsDiv.appendChild(document.createElement('br'));
+
+		}
+		
+		table.appendChild(tbody);
+		ptsDiv.appendChild(table);
+		div.appendChild(ptsDiv);
+	}
+	
+	var nextDiv = document.createElement('div');
+	nextDiv.classList.add("dataCardNext");
+	
+	
+	const btNxt = document.createElement("button");
+	btNxt.classList.add("btNext","hidden");
+	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
+	btNxt.addEventListener("click", (event) => {
+		  console.log('ToDo');
+		});
+	
+	nextDiv.appendChild(btNxt);
+
+	div.appendChild(nextDiv);
+	
+		
+	div.classList.add('dataCard');
+	container.appendChild(div);
+}
+
 function chooseGear(){
 	clearContentDivs();
 	CharData.Gear = [];
@@ -1169,6 +1459,374 @@ function chooseGear(){
 	div.classList.add('dataCard');
 	container.appendChild(div);
 }
+
+function chooseHealthAndFate(){
+	clearContentDivs();
+	CharData.Fate = 0;
+	CharData.HP = 0;
+	
+	const container = document.getElementById('charChoice');
+	
+	var div = document.createElement('div');
+	div.classList.add('infoCard');
+	
+	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	container.appendChild(div);
+	
+	div = document.createElement('div');
+	
+	var nextDiv = document.createElement('div');
+	nextDiv.classList.add("dataCardPtsSelect");
+	
+	nextDiv.appendChild(document.createElement('br'));
+	
+	var el = document.createElement('h2');
+	el.textContent = ((currentLanguage==='de') ? 'Wunden': 'Wounds');
+	nextDiv.appendChild(el);
+	
+	el = document.createElement('span');
+	el.classList.add("rolled", "spWounds");
+	el.innerHTML = ((currentLanguage==='de') ? 'Basis Wunden:': 'Base Wounds:') + '<b>'+homeworlds[CharData.Homeworld].Wounds.substring(1, '+')+'</b>';
+	
+	nextDiv.appendChild(el);
+	nextDiv.appendChild(document.createElement('br'));
+	nextDiv.appendChild(document.createElement('br'));
+	
+	el = document.createElement("button");
+	el.classList.add("btRollBig");
+	el.id = "btWounds"; 
+	el.textContent = ((currentLanguage==='de')? "Rolle 1W5 Bonus-Wunden" : "roll 1d5 bonus-wounds");
+	el.addEventListener("click", (event) => {
+		  updateWounds();
+		  if(validateHPandFate()){
+			  showNextBt();
+		  }
+		}, { once: true });
+		
+	nextDiv.appendChild(el);
+	nextDiv.appendChild(document.createElement('br'));
+	nextDiv.appendChild(document.createElement('br'));
+	
+	el = document.createElement('span');
+	el.classList.add("rolled", "spWounds");
+	el.innerHTML = ((currentLanguage==='de') ? 'Gesamt Wunden:': 'Total Wounds:') + '<b id="totWounds"></b>';
+	nextDiv.appendChild(el);
+	
+	
+	
+	el = document.createElement('h2');
+	el.textContent = ((currentLanguage==='de') ? 'Schicksal': 'Fate');
+	nextDiv.appendChild(el);
+	
+	el = document.createElement('span');
+	el.classList.add("rolled", "spFate");
+	el.innerHTML = ((currentLanguage==='de') ? 'Basis Schicksal:': 'Base Fate:') + '<b>'+homeworlds[CharData.Homeworld].Fate[0].toString()+'</b>';
+	
+	nextDiv.appendChild(el);
+	nextDiv.appendChild(document.createElement('br'));
+	nextDiv.appendChild(document.createElement('br'));
+	
+	el = document.createElement("button");
+	el.classList.add("btRollBig");
+	el.id = "btFate"; 
+	el.textContent = ((currentLanguage==='de')? "Rolle 1W10. +1 Shicksal Wenn >= " : "roll 1d10. +1 Fate on >=")+homeworlds[CharData.Homeworld].Fate[1].toString();
+	el.addEventListener("click", (event) => {
+		  updateFate();
+		  if(validateHPandFate()){
+			  showNextBt();
+		  }
+		}, { once: true });
+		
+	nextDiv.appendChild(el);
+	nextDiv.appendChild(document.createElement('br'));
+	nextDiv.appendChild(document.createElement('br'));
+	
+	el = document.createElement('span');
+	el.classList.add("rolled", "spFate");
+	el.innerHTML = ((currentLanguage==='de') ? 'Gesamt Schicksal:': 'Total Fate:') + '<b id="totFate"></b>';
+	nextDiv.appendChild(el);
+	
+	div.appendChild(nextDiv);
+	
+	nextDiv = document.createElement('div');
+	
+	nextDiv.classList.add("dataCardNext");
+		
+	const btNxt = document.createElement("button");
+	btNxt.classList.add("btNext","hidden");
+	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
+	btNxt.addEventListener("click", (event) => {
+		  console.log('ToDo');
+		});
+	
+	nextDiv.appendChild(btNxt);
+
+	div.appendChild(nextDiv);
+	
+		
+	div.classList.add('dataCard');
+	
+	container.appendChild(div);
+}
+
+function updateFate(){
+	const baseFate = parseInt(homeworlds[CharData.Homeworld].Fate[0]);
+	const bonus = rollDice(10);
+	const totFate = baseFate + ((bonus >= homeworlds[CharData.Homeworld].Fate[1]) ?  1 : 0);
+	document.getElementById("btFate").textContent = ((currentLanguage==='de')? "Ergebnis:" : "rolled: ")+bonus.toString();
+	CharData.Fate  = totFate; 
+	document.getElementById("totFate").textContent = +CharData.Fate.toString()
+}
+function updateWounds(){
+	const baseHp = parseInt(homeworlds[CharData.Homeworld].Wounds.substring(1, '+'))
+	const bonus = rollDice(5);
+	document.getElementById("btWounds").textContent = ((currentLanguage==='de')? "Ergebnis:" : "rolled:")+bonus.toString();
+	CharData.HP = baseHp+bonus;
+	document.getElementById("totWounds").textContent = CharData.HP.toString()
+}
+
+function parseAndRollDice(diceString)
+{
+	const regex = /^([+-]?\d+)?(?:([+-]?\d+)d(\d+))([+-]\d+)?$/;
+    const match = diceString.match(regex);
+	let result = 0;
+	
+	if (!match) {
+		console.log(diceString);
+        throw new Error("Invalid dice string format");
+    }	
+	const preModifier = match[1] ? parseInt(match[1], 10) : 0; // Modifier before XdX
+    const numOfDice = match[2] ? parseInt(match[2], 10) : 1;   // Number of dice (default to 1)
+    const diceValue = parseInt(match[3], 10);                 // Value of dice
+    const postModifier = match[4] ? parseInt(match[4], 10) : 0; // Modifier after XdX
+	
+	let modifier = 0;
+    let modifierPosition = null;
+
+    if (preModifier) {
+        modifier = preModifier;
+        modifierPosition = "before";
+    }
+    if (postModifier) {
+        modifier = postModifier;
+        modifierPosition = "after";
+    }
+	
+	for(let i = 0; i < Math.abs(numOfDice); i++){
+		result = result + rollDice(diceValue);
+	}
+	
+	result = ((modifierPosition==='before') ? modifier + (result * Math.sign(numOfDice)) : result + modifier);
+	return ((result<1)? 1 : result);
+	
+}
+
+function rollNewMutation(mainTd, descTd, rollType)
+{
+	let i = 0;
+	
+	let result = ''
+	
+	do {  
+	  result = getMutationKeyByRoll(parseAndRollDice(rollType));
+	  i++;
+	} while (i < 50 && !CharData.Mutations.includes(result));
+	
+	CharData.Mutations.push(result);
+	document.getElementById(mainTd).textContent = ((currentLanguage==='de')? Mutations[result].NameDe : Mutations[result].Name);
+	document.getElementById(descTd).textContent = ((currentLanguage==='de')? Mutations[result].EffectDe : Mutations[result].Effect);
+	
+}
+
+function getMutationKeyByRoll(roll) {
+    let resultKey = null;
+    let lowestMinRoll = Infinity;
+    let highestMaxRoll = -Infinity;
+    let lowestKey = null;
+    let highestKey = null;
+
+    for (const [key, mutation] of Object.entries(Mutations)) {
+        const { MinRoll, MaxRoll } = mutation;
+
+        // Update lowest and highest keys
+        if (MinRoll < lowestMinRoll) {
+            lowestMinRoll = MinRoll;
+            lowestKey = key;
+        }
+        if (MaxRoll > highestMaxRoll) {
+            highestMaxRoll = MaxRoll;
+            highestKey = key;
+        }
+
+        // Check if roll is within range
+        if (roll >= MinRoll && roll <= MaxRoll) {
+            resultKey = key;
+        }
+    }
+
+    // Determine fallback if no match
+    if (resultKey === null) {
+        if (roll < lowestMinRoll) {
+            return lowestKey;
+        } else {
+            return highestKey;
+        }
+    }
+
+    return resultKey;
+}
+
+function updatePoints(data,rollDaa){
+	console.log();
+	data.forEach(dataArray => {
+		if(Array.isArray(dataArray) && dataArray.length === 2)
+		{
+			if(dataArray[1] === 'IP'){
+				console.log()
+				CharData.Insanity = CharData.Insanity + dataArray[0];
+			}else if(dataArray[1] ==='CP'){
+				CharData.Corruption = CharData.Corruption + dataArray[0];
+			}
+		}
+    });
+}
+
+function chooseInsanityAndCorruption(){
+	
+	clearContentDivs();
+	CharData.Insanity = 0;
+	CharData.Corruption= 0;
+	CharData.Malignancies= [];
+	
+	const hwT = hwAbilities[CharData.Homeworld];
+	const caT = careerOpts[CharData.Career];
+	const bgT = backgrounds[CharData.Background];
+	const rT  = roles[CharData.Role];
+	const brT = birthrights[CharData.Birthright].options[CharData.BRDetail];
+	const luT = lure[CharData.Lure].options[CharData.LureDetail];
+	const trT = trials[CharData.Trial].options[CharData.TrialDetail];
+
+	updatePoints([
+			(("PType" in hwT)? [hwT.Points,hwT.PType] : []),
+			(("PType" in caT)? [caT.Points,caT.PType] : []),
+			(("PType" in bgT)? [bgT.Points,bgT.PType] : []),
+			(("PType" in rT )? [rT.Points,rT.PType] : []),
+			(("PType" in brT)? [brT.Points,brT.PType] : []),
+			(("PType" in luT)? [luT.Points,luT.PType] : []),
+			(("PType" in trT)? [trT.Points,trT.PType] : [])
+		],  [
+			(("Corruption" in hwT)? [hwT.Corruption] : []),
+			(("Corruption" in caT)? [caT.Corruption] : []),
+			(("Corruption" in bgT)? [bgT.Corruption] : []),
+			(("Corruption" in rT )? [rT.Corruption] : []),
+			(("Corruption" in brT)? [brT.Corruption] : []),
+			(("Corruption" in luT)? [luT.Corruption] : []),
+			(("Corruption" in trT)? [trT.Corruption] : [])
+		]);
+	/*
+	const container = document.getElementById('charChoice');
+	
+	var div = document.createElement('div');
+	div.classList.add('infoCard');
+	
+	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	container.appendChild(div);
+	
+	div = document.createElement('div');
+	
+	var nextDiv = document.createElement('div');
+	nextDiv.classList.add("dataCardPtsSelect");
+	
+	nextDiv.appendChild(document.createElement('br'));
+	
+	var el = document.createElement('h2');
+	el.textContent = ((currentLanguage==='de') ? 'Wunden': 'Wounds');
+	nextDiv.appendChild(el);
+	
+	el = document.createElement('span');
+	el.classList.add("rolled", "spWounds");
+	el.innerHTML = ((currentLanguage==='de') ? 'Basis Wunden:': 'Base Wounds:') + '<b>'+homeworlds[CharData.Homeworld].Wounds.substring(1, '+')+'</b>';
+	
+	nextDiv.appendChild(el);
+	nextDiv.appendChild(document.createElement('br'));
+	nextDiv.appendChild(document.createElement('br'));
+	
+	el = document.createElement("button");
+	el.classList.add("btRollBig");
+	el.id = "btWounds"; 
+	el.textContent = ((currentLanguage==='de')? "Rolle 1W5 Bonus-Wunden" : "roll 1d5 bonus-wounds");
+	el.addEventListener("click", (event) => {
+		  updateWounds();
+		  if(validateHPandFate()){
+			  showNextBt();
+		  }
+		}, { once: true });
+		
+	nextDiv.appendChild(el);
+	nextDiv.appendChild(document.createElement('br'));
+	nextDiv.appendChild(document.createElement('br'));
+	
+	el = document.createElement('span');
+	el.classList.add("rolled", "spWounds");
+	el.innerHTML = ((currentLanguage==='de') ? 'Gesamt Wunden:': 'Total Wounds:') + '<b id="totWounds"></b>';
+	nextDiv.appendChild(el);
+	
+	
+	
+	el = document.createElement('h2');
+	el.textContent = ((currentLanguage==='de') ? 'Schicksal': 'Fate');
+	nextDiv.appendChild(el);
+	
+	el = document.createElement('span');
+	el.classList.add("rolled", "spFate");
+	el.innerHTML = ((currentLanguage==='de') ? 'Basis Schicksal:': 'Base Fate:') + '<b>'+homeworlds[CharData.Homeworld].Fate[0].toString()+'</b>';
+	
+	nextDiv.appendChild(el);
+	nextDiv.appendChild(document.createElement('br'));
+	nextDiv.appendChild(document.createElement('br'));
+	
+	el = document.createElement("button");
+	el.classList.add("btRollBig");
+	el.id = "btFate"; 
+	el.textContent = ((currentLanguage==='de')? "Rolle 1W10. +1 Shicksal Wenn >= " : "roll 1d10. +1 Fate on >=")+homeworlds[CharData.Homeworld].Fate[1].toString();
+	el.addEventListener("click", (event) => {
+		  updateFate();
+		  if(validateHPandFate()){
+			  showNextBt();
+		  }
+		}, { once: true });
+		
+	nextDiv.appendChild(el);
+	nextDiv.appendChild(document.createElement('br'));
+	nextDiv.appendChild(document.createElement('br'));
+	
+	el = document.createElement('span');
+	el.classList.add("rolled", "spFate");
+	el.innerHTML = ((currentLanguage==='de') ? 'Gesamt Schicksal:': 'Total Fate:') + '<b id="totFate"></b>';
+	nextDiv.appendChild(el);
+	
+	div.appendChild(nextDiv);
+	
+	nextDiv = document.createElement('div');
+	
+	nextDiv.classList.add("dataCardNext");
+		
+	const btNxt = document.createElement("button");
+	btNxt.classList.add("btNext","hidden");
+	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
+	btNxt.addEventListener("click", (event) => {
+		  console.log('ToDo');
+		});
+	
+	nextDiv.appendChild(btNxt);
+
+	div.appendChild(nextDiv);
+	
+		
+	div.classList.add('dataCard');
+	*/
+}
+
 
 function chooseMutationsAndImplants(){
 	clearContentDivs();
@@ -1665,7 +2323,7 @@ function populateCareers() {
 				<hr>
 				<p class="stats"><strong>${labels.Talents}</strong></br></br>${Ability.Talents.join('</br>')}</p>
 				<hr>
-				<p class="stats"><strong>${Ability.Name}</strong></br> ${Ability.Effect}</p>
+				<p class="stats"><strong>${Ability.Name}</strong></br></br> ${Ability.Effect}</p>
 			`;
 			container.appendChild(div);
 		}

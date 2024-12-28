@@ -19,7 +19,77 @@ var CharData =
 	"Stats":[],
 	"Talents":[],
 	"Skills":[],
-	"Gear":[]
+	"Gear":[],
+	"Fate":0,
+	"HP":0,
+	"Implants": [],
+	"Mutations": [],
+	"Insanity": 0,
+	"Corruption": 0,
+	"Malignancies" :[]
+}
+const implants = {
+	"bio_arm":
+	{
+		"Name":"Bionic Arm",
+		"Type": "bionic",
+		"NameDe": "Bionischer Arm"
+	},
+	"bio_leg":{
+		"Name":"Bionic Leg",
+		"Type": "bionic",
+		"NameDe": "Bionisches Bein"
+	},
+	"bio_resp":{
+		"Name":"Bionic Respiratory",
+		"Type": "bionic",
+		"NameDe": "Bionisches Atemsystem"
+	},
+	"bio_ear":{
+		"Name":"Bionic Ears",
+		"Type": "bionic",
+		"NameDe": "Bionische Ohren"
+	},
+	"bio_eyes":{
+		"Name":"Bionic Eyes",
+		"Type": "bionic",
+		"NameDe": "Bionische Augen"
+	},
+	"mech_ut":{
+		"Name":"Utility Mechadendrite",
+		"Type": "mech",
+		"NameDe": "Nutz-Mechadendrit"
+	},
+	"mech_medi":{
+		"Name":"Medicae Mechadendrite",
+		"Type": "mech",
+		"NameDe": "Medicae-Mechadendrit"
+	},
+	"mech_manip":{
+		"Name":"Manipulator Mechadendrite",
+		"Type": "mech",
+		"NameDe": "Manipulator-Mechadendrit"
+	},
+	"mech_optic":{
+		"Name":"Optical Mechadendrite",
+		"Type": "mech",
+		"NameDe": "Optischer Mechadendrit"
+	},
+	"mech_nozzle":{
+		"Name":"Utility Nozzle Mechadendrite",
+		"Type": "mech",
+		"NameDe": "Nutzdüsen-Mechadendrit"
+	},	
+	"mech_dat":{
+		"Name":"Data-Spike Mechadendrite",
+		"Type": "mech",
+		"NameDe": "Datenspieß-Mechadendrit"
+	},	
+	"mech_scanner":{
+		"Name":"Scanner Mechadendrite",
+		"Type": "mech",
+		"NameDe": "Scanner-Mechadendrit"
+	}
 }
 
 function compressObject(jsonObject) {
@@ -116,7 +186,9 @@ var choices ={
 	"Aptitudes":[],
 	"Talents":[],
 	"Skills":[],
-	"Gear":[]
+	"Gear":[],
+	"Implants": [],
+	"Mutations": []
 }
 
 var brLure = {
@@ -171,6 +243,181 @@ var GearGroups ={
 	"compact":{
 		"Name": "(Compact Uprade)",
         "NameDe": "(Kompakt Upgrade)"
+	}
+}
+
+var Mutations = 
+{
+	"01_hide":
+	{
+		"MinRoll":1,
+		"MaxRoll":6,
+		"Name": "Bestial Hide",
+		"Effect": "The character's skin becomes toughened with layers of thick scales or chitin, and he gains the Natural Armour (2) trait.",
+		"NameDe": "Tierische Haut",
+		"EffectDe": "Die Haut des Charakters wird durch dicke Schichten aus Schuppen oder Chitin gehärtet, und er erhält die Eigenschaft Natürliche Rüstung (2)."
+	},
+	"02_arms":
+	{
+		"MinRoll":7,
+		"MaxRoll":11,
+		"Name": "Unnatural Arms",
+		"Effect": "Twisted appendages (shrivelled arms, hooked talons, or fleshy tendrils) emerge from this character's spine or torso. He gains the Multiple Arms (CB) trait.",
+		"NameDe": "Unnatürliche Arme",
+		"EffectDe": "Verdrehte Anhängsel (geschrumpfte Arme, hakenartige Klauen oder fleischige Tentakel) wachsen aus der Wirbelsäule oder dem Torso dieses Charakters. Er erhält die Eigenschaft Mehrere Arme (CB)."
+	},
+	"03_orbs":
+	{
+		"MinRoll":12,
+		"MaxRoll":17,
+		"Name": "Sightless Orbs",
+		"Effect": "This character's eyes become sightless, cracked windows into a soul afflicted with a growing corruption. He gains Blind and Unnatural Senses (CBx10) traits.",
+		"NameDe": "Sichtlose Kugeln",
+		"EffectDe": "Die Augen dieses Charakters werden zu blinden, rissigen Fenstern in eine Seele, die von wachsender Verderbnis gezeichnet ist. Er erhält die Eigenschaften Blind und Unnatürliche Sinne (CB x 10)."
+	},
+	"04_brute":
+	{
+		"MinRoll":18,
+		"MaxRoll":25,
+		"Name": "Swollen Brute",
+		"Effect": "This character becomes bloated, his muscles expanding and his form becoming excessively corpulent or disturbingly muscular (or perhaps both). This character's Toughness and Strength characteristics are permanently increased by 10, but his Agility bonus is reduced by 1 for purposes of movement.",
+		"NameDe": "Geschwollener Koloss",
+		"EffectDe": "Der Charakter wird aufgebläht, seine Muskeln wachsen an und seine Gestalt wird übermäßig massig oder beängstigend muskulös (oder beides). Die Werte für Zähigkeit und Stärke dieses Charakters werden dauerhaft um 10 erhöht, aber sein Beweglichkeitsbonus wird für Bewegungszwecke um 1 reduziert."
+	},
+	"05_deathsight":
+	{
+		"MinRoll":16,
+		"MaxRoll":30,
+		"Name": "Deathsight",
+		"Effect": "This character's mind becomes twisted, his eyes showing him countless possible annihilations of anything or anyone he gazes upon for more than a few moments. Once per game session, this character may increase the damage of one attack he has made by his Corruption bonus. If he does so, he gains 1 Corruption point.",
+		"NameDe": "Todessicht",
+		"EffectDe": "Der Geist dieses Charakters wird verdreht, seine Augen zeigen ihm zahllose mögliche Zerstörungen von allem und jedem, auf den er länger als einen Moment blickt. Einmal pro Spielsitzung kann dieser Charakter den Schaden eines von ihm ausgeführten Angriffs um seinen Verderbnisbonus erhöhen. Tut er dies, erhält er 1 Verderbnispunkt."
+	},
+	"06_fleshmetal":
+	{
+		"MinRoll":31,
+		"MaxRoll":36,
+		"Name": "Cursed Fleshmetal",
+		"Effect": "This character's armour and cybernetic implants become fused with his flesh, and even regenerate. Removing any of these items requires a Challenging (+0) Medicae test; if the test fails, he suffers 1d5 Rending damage to a randomly selected limb that ignores Armour. He can make an Ordinary (+10) Toughness test to repair items merged with him, in the same manner as a Tech-Use test to repair the same equipment, but suffers 1 Corruption point.",
+		"NameDe": "Verfluchtes Fleischmetall",
+		"EffectDe": "Die Rüstung und cybernetischen Implantate dieses Charakters verschmelzen mit seinem Fleisch und regenerieren sich sogar. Das Entfernen dieser Gegenstände erfordert einen Herausfordernden (+0) Medicae-Test; bei einem Fehlschlag erleidet der Charakter 1W5 Schaden an einem zufällig gewählten Gliedmaß, der Rüstung ignoriert. Er kann einen Gewöhnlichen (+10) Zähigkeitstest durchführen, um Gegenstände, die mit ihm verschmolzen sind, in der gleichen Weise zu reparieren wie ein Tech-Test, jedoch erleidet er dabei 1 Verderbnispunkt."
+	},
+	"07_fangs":
+	{
+		"MinRoll":37,
+		"MaxRoll":43,
+		"Name": "Razor Fangs",
+		"Effect": "This character's teeth grow long, turning into tearing fangs. This character gains an unarmed attack that inflicts 1d5+CB Rending damage, pen 2. He permanently reduces his Fellowship characteristic by 1d5.",
+		"NameDe": "Reißzähne",
+		"EffectDe": "Die Zähne des Charakters wachsen und verwandeln sich in reißende Fänge. Der Charakter erhält einen unbewaffneten Angriff, der 1W5+CB Riss-Schaden mit Durchschlag 2 verursacht. Seine Charisma-Eigenschaft wird dauerhaft um 1W5 reduziert."
+	},
+	"08_legs":
+	{
+		"MinRoll":44,
+		"MaxRoll":49,
+		"Name": "Excessive Legs",
+		"Effect": "This character develops extra legs that support his form, suspending his upper torso above a centauroid lower body. This character gains the Quadruped trait with a number of extra legs equal half to his Corruption bonus (rounded up).",
+		"NameDe": "Überzählige Beine",
+		"EffectDe": "Dieser Charakter entwickelt zusätzliche Beine, die seine Gestalt stützen und seinen Oberkörper über einem centaurartigen Unterkörper tragen. Er erhält die Eigenschaft Vierbeinig mit einer Anzahl zusätzlicher Beine, die der Hälfte seines Verderbnisbonus (aufgerundet) entspricht."
+	},
+	"09_wings":
+	{
+		"MinRoll":50,
+		"MaxRoll":54,
+		"Name": "Wings",
+		"Effect": "Massive feathered or leathery wings erupt from this character's spine, and he gains the Flyer (CBx2) trait.",
+		"NameDe": "Flügel",
+		"EffectDe": "Massive gefiederte oder ledrige Flügel brechen aus der Wirbelsäule des Charakters hervor. Er erhält die Eigenschaft Flieger (CB x 2)."
+	},
+	"10_tail":
+	{
+		"MinRoll":55,
+		"MaxRoll":60,
+		"Name": "Serpentine Tail",
+		"Effect": "This character's legs wither while his spine elongates into a serpentine tail that supports his body. He gains the Crawler trait and gains an unarmed attack that can strike for 1d10 Impact damage, Pen 0.",
+		"NameDe": "Schlangenartiger Schwanz",
+		"EffectDe": "Die Beine dieses Charakters verkümmern, während sich seine Wirbelsäule zu einem schlangenartigen Schwanz verlängert, der seinen Körper stützt. Er erhält die Eigenschaft Kriecher und einen unbewaffneten Angriff, der 1W10 Wucht-Schaden mit Durchschlag 0 verursacht."
+	},
+	"11_blood":
+	{
+		"MinRoll":61,
+		"MaxRoll":69,
+		"Name": "Searing Blood",
+		"Effect": "This character's veins are filled with searing acids in place of blood, though somehow the corrosive effects do not burn his own flesh. Whenever he suffers Blood Loss, the foul liquid erupts and inflicts 1d5+CB Energy damage, Pen 0, to each other character within 1d5 metres.",
+		"NameDe": "Ätzendes Blut",
+		"EffectDe": "Die Adern dieses Charakters sind mit ätzenden Säuren gefüllt, die sein eigenes Fleisch jedoch nicht verbrennen. Wann immer er Blutverlust erleidet, spritzt die giftige Flüssigkeit heraus und verursacht 1W5+CB Energieschaden mit Durchschlag 0 an jedem anderen Charakter innerhalb von 1W5 Metern."
+	},
+	"12_curse":
+	{
+		"MinRoll":70,
+		"MaxRoll":77,
+		"Name": "Witch-Curse",
+		"Effect": "A small stigma in the shape of a maddening rune appears on this character's body, marking him as touched by Chaos. He gains the Psyker trait (or adds 1 to an existing psy rating) and freely learns any 1 psychic power that costs 100 xp or less. Whenever he attempts to use this power, he gains 1d5 Corruption points.",
+		"NameDe": "Hexenfluch",
+		"EffectDe": "Ein kleines Mal in Form einer wahnsinnigen Rune erscheint auf dem Körper dieses Charakters, was ihn als vom Chaos berührt kennzeichnet. Er erhält die Eigenschaft Psioniker (oder erhöht einen bestehenden Psi-Wert um 1) und erlernt frei eine beliebige psychische Kraft, die 100 XP oder weniger kostet. Jedes Mal, wenn er versucht, diese Kraft zu nutzen, erhält er 1W5 Verderbnispunkte."
+	},
+	"13_bblade":
+	{
+		"MinRoll":78,
+		"MaxRoll":84,
+		"Name": "Bone-Blades",
+		"Effect": "This character's bones grow long, twisted spurs that sprout painfully from his flesh on his command. This character gains an unarmed attack that inflicts 1d10+CB Rending damage, Pen 0. Whenever he makes an attack with this weapon, this character suffers Blood Loss unless he passes a Challenging (+0) Toughness test.",
+		"NameDe": "Knochenklingen",
+		"EffectDe": "Die Knochen dieses Charakters wachsen zu langen, verdrehten Sporen, die schmerzhaft aus seinem Fleisch sprießen, wenn er es befiehlt. Der Charakter erhält einen unbewaffneten Angriff, der 1W10+CB Riss-Schaden mit Durchschlag 0 verursacht. Wann immer er mit dieser Waffe angreift, erleidet er Blutverlust, es sei denn, er besteht einen Herausfordernden (+0) Zähigkeitstest."
+	},
+	"14_cannibal":
+	{
+		"MinRoll":85,
+		"MaxRoll":89,
+		"Name": "Cannibalistic Urge",
+		"Effect": "Blood and marrow become as wine and bread to this character, and normal food no longer sates the hunger of his soul. Once per game session, he can remove 1d5 damage by consuming human flesh. Each time he does so, he gains 1 Corruption point.",
+		"NameDe": "Kannibalistischer Drang",
+		"EffectDe": "Blut und Knochenmark werden diesem Charakter zu Wein und Brot, und normales Essen stillt den Hunger seiner Seele nicht mehr. Einmal pro Spielsitzung kann er durch den Verzehr von menschlichem Fleisch 1W5 Schaden entfernen. Jedes Mal, wenn er dies tut, erhält er 1 Verderbnispunkt."
+	},
+	"15_corrupted":
+	{
+		"MinRoll":90,
+		"MaxRoll":92,
+		"Name": "Corrupted Flesh",
+		"Effect": "Instead of blood, when this character's flesh is torn asunder, horrific insects, worms, or flitting creatures spill forth. Whenever he suffers damage, this character gains the Fear (1) trait for 1d5 rounds.",
+		"NameDe": "Verdorbenes Fleisch",
+		"EffectDe": "Statt Blut fließen bei Verletzungen dieses Charakters abscheuliche Insekten, Würmer oder flatternde Kreaturen aus seinem Körper. Wann immer er Schaden erleidet, erhält er für 1W5 Runden die Eigenschaft Furcht (1)."
+	},
+	"16_notdie":
+	{
+		"MinRoll":93,
+		"MaxRoll":94,
+		"Name": "It Will Not Die!",
+		"Effect": "This character is touched by the power of the Warp, and fortune twists to keep him alive regardless of the terrible wounds he suffers, as if it is the will of some dark being that resides beyond the veil of reality. He can no longer burn a Fate point to survive lethal injuries. Whenever this character would die, he instead survives by the narrowest margin as if he had burned a Fate point and gains 1d10+5 Corruption points.",
+		"NameDe": "Es wird nicht sterben!",
+		"EffectDe": "Dieser Charakter ist vom Warp berührt, und das Schicksal wendet sich so, dass er selbst die schlimmsten Wunden überlebt, als ob ein dunkles Wesen jenseits des Schleiers der Realität seinen Fortbestand will. Er kann keine Schicksalspunkte mehr verbrennen, um tödlichen Verletzungen zu entkommen. Wann immer er sterben würde, überlebt er stattdessen knapp, als hätte er einen Schicksalspunkt verbrannt, und erhält 1W10+5 Verderbnispunkte."
+	},
+	"17_gaze":
+	{
+		"MinRoll":95,
+		"MaxRoll":97,
+		"Name": "Warp Gaze",
+		"Effect": "Whatever this character looks upon burns with the fire of the Warp, and all who see his eyes despair. This character gainsa 20m ranged attack that strikes with 1d10+CB Energy damage and the Spray quality. Each time he uses this attack, he gains 1d5 Corruption points. Characters struck with this attack must make a Challenging (+0) Fear(1) test.",
+		"NameDe": "Warpblick",
+		"EffectDe": "Alles, worauf dieser Charakter blickt, verbrennt im Feuer des Warp, und alle, die seine Augen sehen, verzweifeln. Der Charakter erhält einen Fernkampfangriff mit 20m Reichweite, der 1W10+CB Energieschaden verursacht und die Eigenschaft Spray besitzt. Jedes Mal, wenn er diesen Angriff einsetzt, erhält er 1W5 Verderbnispunkte. Charaktere, die von diesem Angriff getroffen werden, müssen einen Herausfordernden (+0) Furcht(1)-Test bestehen."
+	},
+	"18_regen":
+	{
+		"MinRoll":98,
+		"MaxRoll":99,
+		"Name": "Warp Regeneration",
+		"Effect": "Corruption seethes through this character's flesh, sewing his body back together time and time again whether he wills it or not. Whenever this character suffers damage, he makes a Challenging (+0) Toughness test. If he succeeds, he gains the Regeneration (CB) trait for 1 round and gains 1d5 Corruption points.",
+		"NameDe": "Warp-Regeneration",
+		"EffectDe": "Verderbnis durchdringt das Fleisch dieses Charakters und fügt seinen Körper immer wieder zusammen, ob er es will oder nicht. Wann immer dieser Charakter Schaden erleidet, führt er einen Herausfordernden (+0) Zähigkeitstest durch. Wenn er besteht, erhält er für 1 Runde die Eigenschaft Regeneration (CB) und 1W5 Verderbnispunkte."
+	},
+	"19_warp":
+	{
+		"MinRoll":100,
+		"MaxRoll":100,
+		"Name": "The Warp Made Manifest",
+		"Effect": "This character becomes a Daemon-like creature, capable of reshaping reality itself at his whim. He gains the Daemonic (CB), Fear (2), From Beyond, and Warp Instability traits. He can also use his Willpower characteristic in place of any other characteristic for any test he is called upon to take.",
+		"NameDe": "Der Warp wird manifest",
+		"EffectDe": "Dieser Charakter wird zu einer dämonenähnlichen Kreatur, die in der Lage ist, die Realität nach Belieben zu formen. Er erhält die Eigenschaften Dämonisch (CB), Furcht (2), Von Jenseits und Warp-Instabilität. Außerdem kann er seine Willenskraft-Eigenschaft anstelle jeder anderen Eigenschaft für beliebige Tests einsetzen."
 	}
 }
 
@@ -321,7 +568,7 @@ var naviMutations =
 		"EffectDe": "",
 		"EffectIsAbilty": 1
 		
-	},
+	}
 }
 
 
@@ -1405,10 +1652,10 @@ var talents = {
         "Name": "Hatred",
         "NameDe": "Hass",
         "TalentGroups": {
-			"any": ["eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
+			"any": ["mutant","eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
 				"inquisition","nobility","rt","smuggler","pirates","ministorum","navi","daemon"],
 			"xenos": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid"],
-			"any_opp": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid","daemon","pirates","rt"],
+			"any_opp": ["mutant","eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid","daemon","pirates","rt"],
 			"any_dyn": ["admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
 				"inquisition","nobility","rt","smuggler","pirates","ministorum","navi"],
 		}
@@ -1523,7 +1770,7 @@ var talents = {
 			"any_vs_owner": ["mechanicus","admin","navy","ecc","ministorum","rt","noble"],
 			"xenos": ["eldar","dark_eldar","ork","tau", "kroot"],
 			"any_imp": ["admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf","inquisition","nobility","rt","smuggler","pirates","ministorum"],
-			"any": ["eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
+			"any": ["mutant","eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
 				"inquisition","nobility","rt","smuggler","pirates","ministorum"]
 		}
     },
@@ -1532,7 +1779,7 @@ var talents = {
         "Name": "Purity of Hatred",
         "NameDe": "Reinheit des Hasses",
         "TalentGroups": {
-			"any": ["eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
+			"any": ["mutant","eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
 				"inquisition","nobility","rt","smuggler","pirates","ministorum","navi","daemon"],
 			"xenos": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid"],
 			"any_opp": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid","daemon","pirates","rt"],
@@ -2274,8 +2521,7 @@ var hwAbilities = {
         "Effect": "An agri-world character starts with the Brutal Charge (2) trait.",
         "EffectDe": "Ein Charakter von einer Agrarwelt beginnt mit der Eigenschaft Brutaler Ansturm (2).",
         "Skills": [],
-        "Traits": [["brut_charge",""]],
-		"Corruption":""
+        "Traits": [["brut_charge",""]]
     },
     "cardinal": {
         "Name": "Sacred Upbringings",
@@ -2283,8 +2529,7 @@ var hwAbilities = {
         "Effect": "A Cardinal World character begins with one rank in the Common Lore (Ecclesiarchy) and Common Lore (Adepta Sororitas) skills, and in addition, starts with the Peer (Adeptus Sororitas) talent.",
         "EffectDe": "Ein Charakter von einer Kardinalswelt beginnt mit einem Rang in den Fertigkeiten Allgemeinwissen (Ekklesiarchie) und Allgemeinwissen (Adepta Sororitas) und zusätzlich mit dem Talent Umgang (Adepta Sororitas).",
         "Skills": [["c_lore","ecc"],["c_lore","ad_sor"]],
-        "Talents": [["peer","ad_sor"]],
-		"Corruption":""
+        "Talents": [["peer","ad_sor"]]
     },
     "cemetery": {
         "Name": "Absolute Faith in the Past",
@@ -2292,8 +2537,7 @@ var hwAbilities = {
         "Effect": "In addition to the normal uses of Fate points, once per encounter a Cemetery World character may spend a Fate point after he fails a Fear test to count as having passed it with 1 degree of success, but also gains 1 Insanity point.",
         "EffectDe": " Zusätzlich zu den normalen Verwendungen von Schicksalspunkten kann ein Charakter von einer Friedhofswelt einmal pro Begegnung einen Schicksalspunkt ausgeben, nachdem er einen Angsttest nicht bestanden hat, um ihn als mit 1 Erfolgspunkt bestanden zu zählen. Dabei erhält er jedoch 1 Wahnsinnspunkt.",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "daemon": {
         "Name": "Touched by the Warp",
@@ -2310,8 +2554,7 @@ var hwAbilities = {
         "Effect": "While a death world character is Surprised, non-Surprised attackers do not gain the normal +30 bonus to their Weapon Skill and Ballistic Skill tests when targeting this character.",
         "EffectDe": "Während ein Charakter von einer Todeswelt überrascht ist, erhalten nicht-überraschte Angreifer keinen normalen Bonus von +30 auf ihre Waffenfertigkeits- und Ballistikfertigkeitswürfe, wenn sie diesen Charakter angreifen.",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "explorator_fleet": {
         "Name": "Fit for Purpose",
@@ -2320,7 +2563,7 @@ var hwAbilities = {
         "EffectDe": "Ein Charakter aus einer Exploratorflotte behandelt seine Trag-, Hebe- und Schiebeschwellen so, als ob die Summe aus seiner SB und WB um zwei höher wäre, um seine maximalen Gewichtsgrenzen zu bestimmen.",
         "Skills": [],
         "Talents": [],
-		"Corruption":""
+		"Carry" : "+2"
     },
     "feral": {
         "Name": "The Old Ways",
@@ -2328,8 +2571,7 @@ var hwAbilities = {
         "Effect": "In the hands of a feral world character, any Low-Tech weapon loses the Primitive quality (if it had it) and gains the Proven (3) quality.",
         "EffectDe": "In den Händen eines Charakters von einer Wilden Welt verliert jede Niedrigtechnologie-Waffe die Eigenschaft Primitiv (falls sie diese hatte) und erhält stattdessen die Eigenschaft Erprobt (3).",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "feudal": {
         "Name": "At Home in Armor",
@@ -2337,8 +2579,7 @@ var hwAbilities = {
         "Effect": " A feudal world character ignores the maximum Agility value imposed by any armor he is wearing.",
         "EffectDe": "Ein Charakter von einer Feudalwelt ignoriert den maximalen Beweglichkeitswert, der durch die von ihm getragene Rüstung auferlegt wird.",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "forge": {
         "Name": "Omnissiah’s Chosen",
@@ -2346,8 +2587,7 @@ var hwAbilities = {
         "Effect": "A forge world character starts with either the Technical Knock or Weapon-Tech talent.",
         "EffectDe": "Ein Charakter von einer Schmiedewelt beginnt mit entweder dem Talent Technischer Schlag oder Waffen-Techniker.",
         "Skills": [],
-        "Talents": [["tech_knock|weapon_tech","@@"]],
-		"Corruption":""
+        "Talents": [["tech_knock|weapon_tech","@@"]]
     },
     "fortress": {
         "Name": "Neverending Enemies",
@@ -2355,8 +2595,7 @@ var hwAbilities = {
         "Effect": "Gain Hatred (Any) connected to whom the Fortress World was fighting against and this works also on Ballistic Skill, but only for you.",
         "EffectDe": "Erhalte die Eigenschaft Hass (Beliebig), die sich auf jene bezieht, gegen die die Festungswelt gekämpft hat. Diese Eigenschaft gilt auch für Ballistik-Fertigkeit, jedoch nur für dich.",
         "Skills": [],
-        "Talents": [["hatred","any_opp"]],
-		"Corruption":""
+        "Talents": [["hatred","any_opp"]]
     },
     "frontier": {
         "Name": "Rely on None but Yourself",
@@ -2364,8 +2603,7 @@ var hwAbilities = {
         "Effect": "A frontier world character gains a +20 bonus to Tech-Use tests when applying personal weapon modifications, and a +10 bonus when repairing damaged items.",
         "EffectDe": "Ein Charakter von einer Grenzwelt erhält einen Bonus von +20 auf Tech-Fertigkeitstests, wenn er persönliche Waffenmodifikationen vornimmt, und einen Bonus von +10, wenn er beschädigte Gegenstände repariert.",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "garden": {
         "Name": "Serenity of the Green",
@@ -2373,8 +2611,7 @@ var hwAbilities = {
         "Effect": "A garden world character halves the duration (rounded up) of any result from Shock and Mental Traumas, and can remove Insanity Points for 50xp per point rather than the normal 100xp.",
         "EffectDe": "Ein Charakter von einer Gartenwelt halbiert (aufgerundet) die Dauer aller Ergebnisse von Schock und Mentale Traumata und kann Wahnsinnspunkte für 50 EP pro Punkt anstelle der üblichen 100 EP entfernen.",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "highborn": {
         "Name": "Only the Highest Quality",
@@ -2382,8 +2619,7 @@ var hwAbilities = {
         "Effect": "Once per session during Acquisition the Highborn can reduce the penalty for Good/Best quality by 10.",
         "EffectDe": "Einmal pro Sitzung kann ein Hochgeborener während einer Erwerbung den Malus für Gute/Beste Qualität um 10 reduzieren.",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "hive": {
         "Name": "Teeming Masses in Metal Mountains",
@@ -2391,8 +2627,7 @@ var hwAbilities = {
         "Effect": "A hive world character ignores crowds for purposes of movement, treating them as open terrain. When in enclosed spaces, he also gains a +20 bonus to Navigate (Surface) tests.",
         "EffectDe": "Ein Charakter von einer Makropolwelt ignoriert Menschenmengen in Bezug auf Bewegung und behandelt sie als offenes Gelände. In geschlossenen Räumen erhält er außerdem einen Bonus von +20 auf Fertigkeitswürfe für Navigieren (Oberfläche).",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "imperial": {
         "Name": "Blessed Ignorance",
@@ -2400,8 +2635,7 @@ var hwAbilities = {
         "Effect": "Any time an Imperial World character would gain Corruption from Moral Threats, he reduces it by 1 (to a minimum of 1)",
         "EffectDe": "Jedes Mal, wenn ein Charakter von einer Imperialen Welt Verderbnis durch moralische Bedrohungen erhalten würde, reduziert er diese um 1 (auf ein Minimum von 1).",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "industrial": {
         "Name": "Accustomed to Labor",
@@ -2410,7 +2644,7 @@ var hwAbilities = {
         "EffectDe": "Ein Charakter von einer Industriewelt ignoriert die Effekte seiner ersten Stufe von Erschöpfung und zählt seinen Widerstandsbonus als um eins höher, um seine Trag-, Hebe- und Schiebegrenzen zu bestimmen.",
         "Skills": [],
         "Talents": [],
-		"Corruption":""
+		"Carry" : "+1"
     },
     "knight": {
         "Name": "Close and Personal",
@@ -2418,8 +2652,7 @@ var hwAbilities = {
         "Effect": "A Knight World character gains the Vengeful (9) quality to his ranged attacks at Point-Blank Range, or to his melee attacks with a Called Shot action.",
         "EffectDe": "Ein Charakter von einer Ritterwelt erhält die Eigenschaft Rachsüchtig (9) für seine Fernkampfangriffe auf Punkt-Blank-Entfernung oder für seine Nahkampfangriffe mit einer gezielten Aktion.",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "mining": {
         "Name": "Acclimated to Twisting Warrens",
@@ -2427,8 +2660,7 @@ var hwAbilities = {
         "Effect": "A Mining World characters start with either the Resistance (Cold), Resistance (Heat), or Resistance (Poisons) talent. Additionally, Mining Colony characters gain a +10 to Awareness and Navigation (Surface) tests when underground.",
         "EffectDe": "Ein Charakter von einer Bergbauwelt beginnt mit dem Talent Widerstand (Kälte), Widerstand (Hitze) oder Widerstand (Gifte). Zusätzlich erhalten Charaktere aus einer Bergbaukolonie einen Bonus von +10 auf Wahrnehmung und Navigieren (Oberfläche), wenn sie sich unter der Erde befinden.",
         "Skills": [],
-        "Talents": [["res","cold|heat|poisons"]],
-		"Corruption":""
+        "Talents": [["res","cold|heat|poisons"]]
     },
     "penal": {
         "Name": "Finger on the Pulse",
@@ -2436,8 +2668,7 @@ var hwAbilities = {
         "Effect": "One survives a penal colony by instinctively knowing who is in charge and who is a threat. A penal colony character begins with one Rank in the Common Lore (Underworld) and Scrutiny skills, and starts with the Peer (Criminal Cartels) talent.",
         "EffectDe": "Man überlebt eine Strafkolonie, indem man instinktiv erkennt, wer das Sagen hat und wer eine Bedrohung darstellt. Ein Charakter aus einer Strafkolonie beginnt mit einem Rang in den Fertigkeiten Allgemeinwissen (Unterwelt) und Beobachtung sowie mit dem Talent Umgang (Kriminelle Kartelle)",
         "Skills": [["c_lore","underworld"],["scrutiny",""]],
-        "Talents": [["peer","cartel"]],
-		"Corruption":""
+        "Talents": [["peer","cartel"]]
     },
     "pleasure": {
         "Name": "Everything in Excess",
@@ -2445,8 +2676,7 @@ var hwAbilities = {
         "Effect": "If a Pleasure World character uses more than one dose of a given drug in a 24 hour period they must make an Ordinary (+10) Toughness test as per the rules for excessive drug use, however this character never receives the normal cumulative -10 penalty for each additional dose. If the test is failed the drug still has no useful effect for the next 24 hours.",
         "EffectDe": "Wenn ein Charakter von einer Vergnügungswelt innerhalb von 24 Stunden mehr als eine Dosis eines bestimmten Medikaments verwendet, muss er gemäß den Regeln für übermäßigen Drogenkonsum einen gewöhnlichen (+10) Widerstandswurf ablegen. Allerdings erhält dieser Charakter nie den üblichen kumulativen Malus von -10 für jede zusätzliche Dosis. Falls der Test misslingt, hat die Droge dennoch keine nützliche Wirkung für die nächsten 24 Stunden.",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "quarantine": {
         "Name": "Secretive by Nature",
@@ -2454,8 +2684,7 @@ var hwAbilities = {
         "Effect": "Those who manage to leave a quarantine world learn how to keep secrets. Whenever the Dynasty’s Reputation would decrease, it decreases by 2 less (to a minimum reduction of 1).",
         "EffectDe": "Diejenigen, die es schaffen, eine Quarantänewelt zu verlassen, lernen, Geheimnisse zu bewahren. Wann immer der Ruf der Dynastie sinken würde, verringert er sich um 2 weniger (auf ein Minimum von 1).",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "research": {
         "Name": "Pursuit of Data",
@@ -2463,8 +2692,7 @@ var hwAbilities = {
         "Effect": "Whenever a research station character reaches Rank 2 (Trained) in a Scholastic Lore skill, he also gains Rank 1 (Known) in one related or identical Forbidden Lore skill specialization of his choice. The GM is the final arbiter of whether the two specializations are related.",
         "EffectDe": "Immer wenn ein Charakter von einer Forschungsstation Rang 2 (Geschult) in einer Fertigkeit aus der Kategorie Gelehrtenwissen erreicht, erhält er außerdem Rang 1 (Bekannt) in einer verwandten oder identischen Spezialisierung der Fertigkeit Verbotenes Wissen seiner Wahl. Der Spielleiter hat das letzte Wort darüber, ob die beiden Spezialisierungen als verwandt gelten.",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "shrine": {
         "Name": "Faith in the Creed",
@@ -2472,8 +2700,7 @@ var hwAbilities = {
         "Effect": "Whenever a shrine world character spends a Fate Point, he rolls 1d10. On a result of 1, the character’s total number of Fate points is not reduced.",
         "EffectDe": "Immer wenn ein Charakter von einer Pilgerwelt einen Schicksalspunkt ausgibt, würfelt er 1W10. Bei einem Ergebnis von 1 wird die Gesamtanzahl seiner Schicksalspunkte nicht reduziert.",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     },
     "void": {
         "Name": "Child of the Dark",
@@ -2481,8 +2708,7 @@ var hwAbilities = {
         "Effect": "A voidborn character starts with the Strong Minded talent, and gains a +30 bonus to tests for moving in a zero gravity environment.",
         "EffectDe": "Ein Charakter, der im Weltraum geboren wurde, beginnt mit dem Talent Willensstark und erhält einen Bonus von +30 auf Tests für Bewegungen in einer Schwerelosigkeitsumgebung.",
         "Skills": [],
-        "Talents": [["strong_minded",""]],
-		"Corruption":""
+        "Talents": [["strong_minded",""]]
     },
     "voidstation": {
         "Name": "Nobody Else to Talk To",
@@ -2490,8 +2716,7 @@ var hwAbilities = {
         "Effect": "Gain Peer (Any) connected to who owned the station and additional +10 to all Fellowship tests when dealing with that group.",
         "EffectDe": "Erhalte Umgang (Beliebig), bezogen auf die Besitzer der Station, sowie einen zusätzlichen Bonus von +10 auf alle Fertigkeitswürfe für Charisma, wenn du mit dieser Gruppe interagierst.",
         "Skills": [],
-        "Talents": [["peer","any_vs_owner"]],
-		"Corruption":""
+        "Talents": [["peer","any_vs_owner"]]
     },
     "war": {
         "Name": "Survival of the Deadliest",
@@ -2499,8 +2724,7 @@ var hwAbilities = {
         "Effect": "When making a standard attack, a War World character may modify his Hit Location result by increasing or decreasing the attack result up to his Agility Bonus.",
         "EffectDe": "Wenn ein Charakter von einer Kriegswelt einen Standardangriff durchführt, kann er sein Trefferzonen-Ergebnis anpassen, indem er das Angriffsergebnis um bis zu seinen Beweglichkeitsbonus erhöht oder verringert.",
         "Skills": [],
-        "Talents": [],
-		"Corruption":""
+        "Talents": []
     }
 }
 
@@ -2681,6 +2905,7 @@ var careerOpts = {
 		"AbilityEffect": "Gain two (2) Common quality cybernetics at the start of the game (can increase quality of one of them by spending 200xp for Good or 400xp for Best).",
 		"ANameDe": "Explorator-Cybernetik",
 		"AEffectDe": "Erhalte zu Beginn des Spiels zwei (2) kybernetische Implantate von gewöhnlicher Qualität. Die Qualität eines dieser Implantate kann durch Ausgeben von 200 EP auf Gute Qualität oder 400 EP auf Beste Qualität erhöht werden.",
+		"Cybernetics": [["mech",""],["mech",""]]
     },
     "miss": {
         "Skills": [["c_lore","imp_creed"],["c_lore","ecc"],["s_lore","imp_creed"],["f_lore","heresy"],["linguistics","h_goth"]],
@@ -2693,6 +2918,7 @@ var careerOpts = {
     "navi": {
         "Skills": [["f_lore","navi"],["s_lore","astromancy"],["trade","astrograph"],["linguistics","h_goth"]],
 		"Talents": [["w_training","sp|primitive"]],
+		"Traits": ["navigator"],
 		"AbilityName": "Power Limit",
 		"AbilityEffect": "Lidless Stare Navigator Power ignores the limit. The Navigator can have a specified number of powers in his arsenal. He can have up to half his Willpower bonus (rounded up) Master level Navigator Powers, Willpower Bonus of Adept level Navigator Powers and Willpower Bonus plus two Novice level Navigator Powers. He can delevel a Power to gain an empty spot. If he can’t delevel (due to no space in Adept or Novice powers), he can remove it entirely. He can regain the powers by again climbing the ladder by spending the experience again.  You count as having Psy Rating equal to quarter of number of Navigator Power Talents (rounded down) bought to a maximum of 8 and a minimum of 1",
 		"ANameDe": "Power Limit",
@@ -2853,7 +3079,8 @@ var backgrounds = {
         "AName": "Starting Malignancy",
         "ANameDe": "Anfängliches Verderbnis",
         "ADesc": "An Exorcised character starts with one Malignancy",
-        "ADescDe": "Ein Exorzierter-Charakter beginnt mit einem Verderbnis."
+        "ADescDe": "Ein Exorzierter-Charakter beginnt mit einem Verderbnis.",
+		"Malignancy": 1
     },
     "galaxia": {
         "Apts": [
@@ -2922,7 +3149,7 @@ var backgrounds = {
         "Skills": [["deceive|inquiry","@@"],["f_lore","fl_any"], ["medicae|security","@@"],
 			["techuse",""], ["trade","tr_any"]],
         "Talents": [["w_training","sp"]],
-		"Special": ["Mechanicus Implants"],
+		"Cybernetics": ["mech",""],
         "Gear": [["sp_stub_revo","",1], ["gr_web","",2],["tl_combi","",1],["a_flak_cloak","",1],["gr_fil_plug","",1]],
         "AName": "Master of Hidden Lores",
         "ANameDe": "Meister der Verborgenen Lehren",
@@ -2941,7 +3168,7 @@ var backgrounds = {
         "Skills": [["awareness|operate","@@any"],["c_lore","mechanicus"], ["logic",""],["security",""],
 			["techuse",""]],
         "Talents": [["mechadendrite","utility"],["w_training","sp"]],
-		"Special": ["Mechanicus Implants"],
+		"Cybernetics": [["mech",""]],
         "Gear": [["sp_auto_gun|sp_h_can","@@",1],["tl_servoskull","utility",1], ["a_b_imperial","",1],["cons_sacred","",2]],
         "AName": "Replace the Weak Flesh",
         "ANameDe": "Das schwache Fleisch ersetzen",
@@ -3028,15 +3255,17 @@ var backgrounds = {
         "IMAGE": "mutant.png",
         "NAME": "Mutant",
         "NAME_DE": "Mutant",
-        "Skills": [["acrobatics|sl_o_hand","@@"],["c_lore","underworld"], ["deceive",""],
-			["dodge",""],["stealth",""]],
+        "Skills": [["acrobatics|athletics","@@"],["awareness",""], ["deceive|intimidate","@@"],
+			["survival",""],["f_lore","mutant"]],
         "Talents": [["w_training","chain"],["w_training","las|sp"]],
         "Gear": [["sp_auto_pstl|las_pistol","@@",1], ["m_ch_swrd","",1], ["a_b_bglove|a_flak_vest","@@",1], ["tl_inject","",1], 
 			["cons_obscura|cons_slaught","@@",2]],
-        "AName": "Never Quit",
-        "ANameDe": "Niemals aufgeben",
-        "ADesc": "An Outcast character counts his Toughness bonus as two higher for purposes of determining Fatigue. ",
-        "ADescDe": "Ein Charakter der Ausgestoßenen zählt seinen Zähigkeitsbonus um zwei höher, wenn es um die Bestimmung von Erschöpfung geht."
+        "AName": "Twisted Flesh",
+        "ANameDe": "Verdrehte Gestalt",
+        "ADesc": "A Mutant character can always choose to fail any test associated with resisting malignancy or mutation. Whenever he would gain a malignancy, he may gain a random mutation instead. You start with a random Mutation",
+        "ADescDe": "Ein Mutant kann sich jederzeit entscheiden, jeden Test, der mit dem Widerstand gegen Verderbnis oder Mutationen zusammenhängt, absichtlich zu scheitern. Wann immer er eine Verderbnis erleiden würde, kann er stattdessen eine zufällige Mutation erhalten. Er beginnt mit einer zufälligen Mutation.",
+		"Traits": ["amphibious|darksight|natweapons|sonarsense|sturdy|toxic|unnat_ag|unnat_s|unnat_t"],
+		"Mutations":["5d10"],
     },
     "navis": {
         "Apts": [
@@ -3126,8 +3355,8 @@ var backgrounds = {
 			["cons_obscura","",1]],
         "AName": "Granted Authority",
         "ANameDe": "Gewährte Autorität",
-        "ADesc": "When using the Influence mechanic of Profit Factor against military-oriented groups, the character gains additional Degrees of Success equal to half his Fellowship Bonus (rounded up)",
-        "ADescDe": "Beim Einsatz der Einfluss-Mechanik des Profitfaktors gegenüber militärisch orientierten Gruppen erhält der Charakter zusätzliche Erfolgsgrade in Höhe der Hälfte seines Einflussbonus (aufgerundet)."
+        "ADesc": "When using Profit Factor against military-oriented groups, the character gains additional Degrees of Success equal to half his Fellowship Bonus (rounded up)",
+        "ADescDe": "Beim Einsatz des Profitfaktors gegenüber militärisch orientierten Gruppen erhält der Charakter zusätzliche Erfolgsgrade in Höhe der Hälfte seines Einflussbonus (aufgerundet)."
     },
     "pirate_fleet": {
         "Apts": [
@@ -3179,7 +3408,7 @@ var backgrounds = {
 			["linguistics","tech_lingo"]],
         "Talents": [["w_training","primitive"],["w_training","sp"]],
         "Gear": [["a_b_imperial","",1],["sp_auto_gun|m_pr_sword&sp_auto_pstl","@@",1]],
-		"Special": [["bionic_replacment","good"]],
+		"Cybernetics": [["bionic","good"]],
         "AName": "Eternal Vigilance",
         "ANameDe": "Ewige Wachsamkeit",
         "ADesc": "When attacking, the Skitarii Character can replace any results of 1 or 2 on damage rolls with his Intelligence Bonus instead.",
@@ -4471,7 +4700,7 @@ var lure =
 				"DescDe":"Deine seltsamen Mutationen verleihen dir mehr Fähigkeiten als gewöhnlichen Menschen. Dies war für jemanden von Nutzen.",
 				"Talents":[["neverdie",""]],
 				"Skills":[["f_lore","mutant"]],
-				"Mutation":"1d69",
+				"Mutation":["1d69"],
 				"Points":5,
 				"PType":"CP"
 			},
@@ -4835,7 +5064,7 @@ var trials = {
 				"ANameDe":"Grünschnabel",
 				"ADescDe":"Trotz aller Bemühungen wird der Charakter als Emporkömmling wahrgenommen, der versucht, das fragile Gleichgewicht der Einflüsse im Imperium zu stören. Der Charakter erhält einen Malus von -10 auf alle sozialen Interaktionsproben gegenüber höhergestellten Personen.",
 				"Points":5,
-				"PType":"IP|CP"
+				"PType":"CP"
 			},
 			"rivals":{
 				"Name":"Rivals",
@@ -4849,7 +5078,7 @@ var trials = {
 				"ANameDe":"Dynastischer Rivale",
 				"ADescDe":"Der Charakter hat einen sehr einflussreichen Rivalen, vielleicht eine andere Dynastie, die immer versucht, ihn auszustechen. Egal, was der Charakter unternimmt, dieser Rivale taucht in den günstigsten Momenten auf, um die besten Geschäfte zu machen oder als Sieger hervorzugehen. Dies grenzt an eine Blutfehde, und der Charakter muss vorsichtig sein, wie er Vergeltung übt.",
 				"Points":5,
-				"PType":"IP|CP"
+				"PType":"IP"
 			},
 			"honor":{
 				"Name":"Honor Above All",
@@ -4863,7 +5092,7 @@ var trials = {
 				"ANameDe":"Keine Beleidigung dulden",
 				"ADescDe":"Der Charakter lässt sich leicht in seiner Ehre kränken und legt seine Vorstellung von Ehre auch auf andere. Wenn jemand schlecht über sie spricht, fühlt er sich zutiefst beleidigt. Der Charakter zieht sich von einer Herausforderung an seine Ehre nicht zurück und wird alles tun, sogar das Leben des Beleidigers nehmen. Dies könnte ihn in einen frühen Tod führen, wenn er das Leben einer Person nimmt, die er nicht hätte töten sollen, oder ein Duell annimmt, das er nicht gewinnen kann.",
 				"Points":5,
-				"PType":"IP|CP"
+				"PType":"IP"
 			},
 			"bloodfeud":{
 				"Name":"Blood Feud",
@@ -4877,7 +5106,7 @@ var trials = {
 				"ANameDe":"Höchste Fehde",
 				"ADescDe":"Wann hat es angefangen? Das spielt keine Rolle. Wichtig ist, dass es bis heute andauert. Der Rivale ist viel mächtiger und einflussreicher als der Charakter – vielleicht keine Dynastie, sondern ein Inquisitor. Er wird immer versuchen, Tod oder Zerstörung über den Charakter zu bringen, ohne dafür direkt verantwortlich zu sein. Vielleicht schickt er einen selbstzerstörenden Attentäter, tötet ein Familienmitglied des Charakters, während dieser nicht da ist, oder – schlimmer noch – pflanzt Samen der Zerstörung auf der Heimatwelt des Charakters, sodass sie bei seiner Rückkehr entweder von Tyraniden, Orks überrannt oder durch ein Exterminatus ausgelöscht wurde.",
 				"Points":5,
-				"PType":"IP|CP"
+				"PType":"CP"
 			}
 		}
 	},
