@@ -1,5 +1,6 @@
 let currentLanguage = 'en';
 let currentMenu = 0;
+
 	  
 function setLanguage(language) {
 	currentLanguage = language;
@@ -426,14 +427,16 @@ function populateHomeworlds() {
 
 function validateSelections() {
     const dropdowns = document.querySelectorAll("select");
+	
+	const btChoice = document.querySelectorAll(".choice");
 
     // If no dropdowns exist, return true
-    if (dropdowns.length === 0) {
+    if (dropdowns.length === 0 && btChoice.length ===0) {
         return true;
     }
 
     // Check that every dropdown has a non-empty value
-    return Array.from(dropdowns).every(dropdown => dropdown.value !== "");
+    return ((Array.from(dropdowns).every(dropdown => dropdown.value !== "")) && (btChoice.length ===0));
 }
 
 function validateHPandFate() {
@@ -457,65 +460,92 @@ function generateAptitudeSelection() {
 	var div = document.createElement('div');
 	div.classList.add('infoCard');
 	
-	div.innerHTML = `${((currentLanguage==='de') ? aptitudesTexts.InfoTextDe : aptitudesTexts.InfoText)}`;
+	div.innerHTML = `<div class="infotext">${((currentLanguage==='de') ? aptitudesTexts.InfoTextDe : aptitudesTexts.InfoText)}</div>`;
 	container.appendChild(div);
 	
 	div = document.createElement('div');
 		
 	div.classList.add('dataCard');
 	
-	const tab = document.createElement('table');
+	const tab = document.createElement('table'); // Create the table
+	tab.classList.add("twctab");
+	const tHead = document.createElement('tHead'); // Create the header
+	const htr = document.createElement('tr');
+	var th = document.createElement('th');
+	th.textContent = ((currentLanguage==='de') ? 'Begabungen' : 'Aptitudes');
+	htr.appendChild(th);
+	th = document.createElement('th');
+	th.textContent = ((currentLanguage==='de') ? 'Beschreibung' : 'Description');
+	htr.appendChild(th);
+	tHead.appendChild(htr);
+	tab.appendChild(tHead);
+	
 	const tbody = document.createElement('tbody'); // Create the tbody
 
 	for (let i = 0; i < choices.Aptitudes.length; i++) {
 		var tr = document.createElement('tr');
 		var td = document.createElement('td');
-		
+		td.classList.add("tdStat");
 		const apts = choices.Aptitudes[i].split('|');
-		const aptFiltered = apts.filter(key => !CharData.Aptitudes.some(obj => obj.value === key));
+		let aptFiltered = apts.filter(key => !CharData.Aptitudes.some(obj => obj.value === key));
+		
 		
 		if(aptFiltered.length === 0){
 			aptFiltered = Object.keys(Apts).filter(
 					key => !(CharData.Aptitudes.some(obj => obj.value === key) && key.length <= 3)
 				);
 		}
-		if(aptFiltered.length === 1){
-			td.textContent = getTranslatedApts(aptFiltered[0]);
-		}else{
-			var dropDown = document.createElement('select');
-			dropDown.id = 'selApt'+i.toString();
-			const placeholder = document.createElement('option');
-			placeholder.textContent = '---';
-			placeholder.value = "";
-			placeholder.disabled = true;
-			placeholder.selected = true;
-			dropDown.appendChild(placeholder);
-			
-			aptFiltered.forEach(aptitude => {
-			const option = document.createElement('option');
-			option.value = aptitude;
-			option.textContent = getTranslatedApts(aptitude);
-			dropDown.appendChild(option);
-			});
-			
-			dropDown.addEventListener("change", (event) => {
-			  if(validateSelections()){
-				showNextBt();
-			  }
-			});
-			
-			td.appendChild(dropDown);
-		}
+		
+		var dropDown = document.createElement('select');
+		dropDown.id = 'selApt'+i.toString();
+		dropDown.classList.add('selectA');
+		dropDown.LabelId = "tdApt_"+i.toString();
+		const placeholder = document.createElement('option');
+		placeholder.textContent = '---';
+		placeholder.value = "";
+		placeholder.disabled = true;
+		placeholder.selected = true;
+		dropDown.appendChild(placeholder);
+		
+		aptFiltered.forEach(aptitude => {
+		const option = document.createElement('option');
+		option.value = aptitude;
+		option.textContent = getTranslatedApts(aptitude);
+		dropDown.appendChild(option);
+		});
+		
+		dropDown.addEventListener("change", (event) => {
+		  if(Apts[event.target.value])
+		  {
+			  var lblTxt = ((currentLanguage==='de') ? Apts[event.target.value].ShortDescDe : Apts[event.target.value].ShortDesc);
+			  document.getElementById(event.target.LabelId).textContent = lblTxt;
+		  }
+		  if(validateSelections()){
+			showNextBt();
+		  }
+		});
+		
+		td.appendChild(dropDown);
 
+		
+		tr.appendChild(td);
+		td = document.createElement('td');
+		td.classList.add('tdDescLong');
+		td.id = "tdApt_"+i.toString();
 		tr.appendChild(td);
 		tbody.appendChild(tr);
 	}
 	for (let i = 0; i < CharData.Aptitudes.length; i++) {
 		var tr = document.createElement('tr');
 		var td = document.createElement('td');
+		td.classList.add("tdStat");
 		
 		td.textContent = getTranslatedApts(CharData.Aptitudes[i].value,currentLanguage);
 		
+		tr.appendChild(td);
+		td = document.createElement('td');
+		td.classList.add('tdDescLong');
+		td.textContent = ((currentLanguage==='de') ? Apts[CharData.Aptitudes[i].value].ShortDescDe : Apts[CharData.Aptitudes[i].value].ShortDesc);
 		tr.appendChild(td);
 		tbody.appendChild(tr);
 	}
@@ -546,7 +576,17 @@ function generateAptitudeSelection() {
 }
 
 function setSelectedAptitudes(){
-	console.log('ToDo');
+	const selections = document.getElementsByClassName("selectA");
+	Array.from(selections).forEach(item => {
+		const existingEntry = CharData.Aptitudes.find(entry => entry.value === item.value);
+		if (existingEntry) {
+			// If it exists, increment the amount
+			existingEntry.amount += 1;
+		} else {
+			// If it doesn't exist, add a new entry with amount 1
+			CharData.Aptitudes.push({ value: item.value, amount: 1 });
+		}
+	});
 }
 
 function getTranslatedSkills(input) {
@@ -554,42 +594,55 @@ function getTranslatedSkills(input) {
 	const base = splitInputWithOptions(input);
 
 	for(let i = 0; i < base.length; i++){
-		let resString = ((currentLanguage === 'de') ? (skills[base[i][0]].NameDe) : (skills[base[i][0]].Name));
-		if(base[i][1] !== "")
+		const skillId = base[i][0];
+		const grpId = base[i][1];
+		let resString = ((currentLanguage === 'de') ? (skills[skillId].NameDe) : (skills[skillId].Name));
+		
+		if(grpId !== "")
 		{
-			if(base[i][1] in skills[base[i][0]].SkillGroups){
-				const currGrp = skills[base[i][0]].SkillGroups[base[i][1]];
+			if(grpId in skills[skillId].SkillGroups){
+				const currGrp = skills[skillId].SkillGroups[grpId];
 				currGrp.forEach(item => {
 					const res = resString+"("+((currentLanguage === 'de') ? (groups[item].NameDe) : (groups[item].Name))+")";
-					result.push(res);
+					result.push({id: skillId, grp_id: item, value: res});
 				});
 			}
 			else{
-					resString+="("+((currentLanguage === 'de') ? (groups[base[i][1]].NameDe) : (groups[base[i][1]].Name))+")";
-					result.push(resString);
+					let grp_transl = grpId
+						.split('&') // Split the string into parts
+						.map(SPLIT => (currentLanguage === 'de' ? groups[SPLIT].NameDe : groups[SPLIT].Name)) // Translate each part
+						.join(' & '); // Join the translated parts with " and "
+				
+					resString+="("+grp_transl+")";
+					result.push({id: skillId, grp_id: grpId, value: resString});
 			}
-			
 		}else {
-		result.push(resString);
+			result.push({id: skillId, grp_id:"", value: resString});
 		}
 	}
 	return result;
 }
 
 function getTranslatedGear(input) {
+	
 	const result = [];
 	const base = splitInputWithOptions([input[0],input[1]]);
 
 	for(let i = 0; i < base.length; i++){
-		let resString = ((currentLanguage === 'de') ? (Gear[base[i][0]].NameDe) : (Gear[base[i][0]].Name));
-		if(base[i][1] !== "")
+		const gearId = base[i][0];
+		const grpId = base[i][1];
+		const qty = ((input.length > 3) ? input[2+i] : input[2]);
+		
+		let resString = gearId
+						.split('&') // Split the string into parts
+						.map(SPLIT => (currentLanguage === 'de' ? Gear[SPLIT].NameDe : Gear[SPLIT].Name)) // Translate each part
+						.join(' & '); // Join the translated parts with " and "		
+		if(grpId !== "")
 		{
 			resString+=((currentLanguage === 'de') ? (GearGroups[base[i][1]].NameDe) : (GearGroups[base[i][1]].Name));
-			result.push(resString);
 		}
-		else {
-		result.push(resString);
-		}
+		
+		result.push({id: gearId, grp_id:grpId, value: resString, qty: qty});
 	}
 	return result;
 }
@@ -597,10 +650,13 @@ function getTranslatedGear(input) {
 function getTranslatedImplants(input) {
 	const result = [];
 
-	const filteredItems = Object.values(implants).filter(item => item.Type === input[0]);
+	const filteredItems = Object.entries(implants)
+							.filter(([key, item]) => item.Type === input[0]) // Filter by the Type property
+							.map(([key, item]) => ({ key, ...item }));
 	
 	filteredItems.forEach(item => {
-		result.push(((currentLanguage === 'de') ? (item.NameDe) : (item.Name)));
+		
+		result.push({id: item.key , value: ((currentLanguage === 'de') ? (item.NameDe) : (item.Name)), });
 	});
 	
 	return result;
@@ -609,25 +665,32 @@ function getTranslatedImplants(input) {
 function getTranslatedTalents(input) {
 	const result = [];
 	const base = splitInputWithOptions(input);
-
 	for(let i = 0; i < base.length; i++){
-		let resString = ((currentLanguage === 'de') ? (talents[base[i][0]].NameDe) : (talents[base[i][0]].Name));
-		if(base[i][1] !== "")
+		let talendId = base[i][0];
+		let resString = ((currentLanguage === 'de') ? (talents[talendId].NameDe) : (talents[talendId].Name));
+		let grp_id = base[i][1];
+		
+		if(grp_id !== "")
 		{
-			if(base[i][1] in talents[base[i][0]].TalentGroups){
-				const currGrp = talents[base[i][0]].TalentGroups[base[i][1]];
+			if(grp_id in talents[talendId].TalentGroups){
+				const currGrp = talents[talendId].TalentGroups[grp_id];
 				currGrp.forEach(item => {
 					const res = resString+"("+((currentLanguage === 'de') ? (groups[item].NameDe) : (groups[item].Name))+")";
-					result.push(res);
+					result.push({id: talendId, grp_id: item, value: res});
 				});
 			}
 			else{
-					resString+="("+((currentLanguage === 'de') ? (groups[base[i][1]].NameDe) : (groups[base[i][1]].Name))+")";
-					result.push(resString);
+					let grp_transl = grp_id
+						.split('&') // Split the string into parts
+						.map(SPLIT => (currentLanguage === 'de' ? groups[SPLIT].NameDe : groups[SPLIT].Name)) // Translate each part
+						.join(' & '); // Join the translated parts with " and "
+				
+					resString+="("+grp_transl+")";
+					result.push({id: talendId, grp_id: grp_id, value: resString});
 			}
 			
 		}else {
-		result.push(resString);
+			result.push({id: talendId, grp_id:"", value: resString});
 		}
 	}
 	return result;
@@ -645,7 +708,7 @@ function splitInputWithOptions(input) {
     // Split the first string if it contains "|"
     if (firstString.includes("|")) {
         firstParts = firstString.split("|");
-		if (!secondParts.includes("@@")) {
+		if (!secondString.includes("@@")) {
 			throw new Error("Insufficient options for Talent group");
 		}
 		secondParts = secondString.split("@@");
@@ -685,7 +748,7 @@ function updateSkills(data){
 			}else
 			{
 				console.log("Error");
-				CharData.Talents.push(["ERROR"])
+				CharData.Skills.push(["ERROR"])
 			}
 			
 			if(currSkills.length > 1)
@@ -693,22 +756,41 @@ function updateSkills(data){
 				choices.Skills.push(currSkills);
 			}
 			else{
-				const existingEntry = CharData.Skills.find(entry => entry.value === currSkills[0]);
+				const existingEntry = CharData.Skills.find(entry => entry.value.value === currSkills[0].value);
 				if (existingEntry) {
 					existingEntry.amount += 1;
 				} else {
 					CharData.Skills.push({ value: currSkills[0], amount: 1 });
 				}
-				
 			}
-			
         });
     });
 }
 
+function updateTraits(data)
+{
+	data.forEach(traitArray => {
+        traitArray.forEach(value => {
+			let currTrait = [];
+			
+			value.split('|').forEach(item => {
+				currTrait.push({value: ((currentLanguage==='de') ? traits[item].NameDe : traits[item].Name), id: item});
+			});
+			
+			if(currTrait.length > 1){
+				choices.Traits.push(currTrait);
+			}else{
+				CharData.Traits.push(currTrait[0]);
+			}
+			
+        });
+    });
+	
+	
+}
+
 function updateMutations(data)
 {
-	console.log(data);
 	data.forEach(mutArray => {
 		
         mutArray.forEach(value => {
@@ -728,18 +810,20 @@ function updateImplants(data){
 			}
 			else
 			{
-				console.log(value);
 				console.log("Error");
 				CharData.Implants.push(["ERROR"])
 			}
 			
+			currimpl.forEach(item => {
+				item["quality"] = value[1];
+			})
+			
 			if(currimpl.length > 1)
 			{
-				console.log(currimpl);
-				choices.Implants.push({ value: currimpl, qualitiy: value[1] });
+				choices.Implants.push({ value: currimpl});
 			}
 			else{
-				CharData.Implants.push({ value: currimpl[0], qualitiy: value[1] });
+				CharData.Implants.push(currimpl[0]);
 			}
 			
         });
@@ -791,7 +875,7 @@ function updateTalents(data) {
 				choices.Talents.push(currTalents);
 			}
 			else{
-				const existingEntry = CharData.Talents.find(entry => entry.value === currTalents[0]);
+				const existingEntry = CharData.Talents.find(entry => entry.value.value === currTalents[0].value);
 				if (existingEntry) {
 					existingEntry.amount += 1;
 				} else {
@@ -802,6 +886,60 @@ function updateTalents(data) {
 			
         });
     });
+}
+
+function setSelectedImpMutTrait(){
+	const selections = document.getElementsByClassName("selTrait");
+	Array.from(selections).forEach(item => {
+		CharData.Traits.push(item.value);
+	});
+	
+	const selImplants = document.getElementsByClassName("selImpl");
+	Array.from(selImplants).forEach(item => {
+		CharData.Implants.push(JSON.parse(item.value));
+	});
+	
+}
+
+function setSelectedGear(){
+	const selections = document.getElementsByClassName("selGear");
+	Array.from(selections).forEach(item => {
+		const jObj = JSON.parse(item.value);
+		
+		CharData.Gear.push({ value: jObj, amount: 1 });
+	});
+}
+
+function setSelectedSkills(){
+	const selections = document.getElementsByClassName("selSkill");
+	Array.from(selections).forEach(item => {
+		const jObj = JSON.parse(item.value);
+		
+		const existingEntry = CharData.Skills.find(entry => entry.value.value === jObj.value);
+		if (existingEntry) {
+			// If it exists, increment the amount
+			existingEntry.amount += 1;
+		} else {
+			// If it doesn't exist, add a new entry with amount 1
+			CharData.Skills.push({ value: jObj, amount: 1 });
+		}
+	});
+}
+
+function setSelectedTalents(){
+	const selections = document.getElementsByClassName("selTal");
+	Array.from(selections).forEach(item => {
+		const jObj = JSON.parse(item.value);
+		
+		const existingEntry = CharData.Talents.find(entry => entry.value.value === jObj.value);
+		if (existingEntry) {
+			// If it exists, increment the amount
+			existingEntry.amount += 1;
+		} else {
+			// If it doesn't exist, add a new entry with amount 1
+			CharData.Talents.push({ value: jObj, amount: 1 });
+		}
+	});
 }
 
 function chooseTalents(){
@@ -836,15 +974,17 @@ function chooseTalents(){
 	var div = document.createElement('div');
 	div.classList.add('infoCard');
 	
-	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	div.innerHTML = `<div class="infotext">${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}</div>`;
 	container.appendChild(div);
 	
 	div = document.createElement('div');
 	
-	const table = document.createElement('table'); // Create the table
+	const table = document.createElement('table'); // Create the table // Create the table
+	table.classList.add("twctab");
 	const tHead = document.createElement('tHead'); // Create the header
 	const htr = document.createElement('tr');
 	var th = document.createElement('th');
+	th.classList.add("thTalent");
 	th.textContent = 'Talent';
 	htr.appendChild(th);
 	th = document.createElement('th');
@@ -861,15 +1001,17 @@ function chooseTalents(){
 		var tr = document.createElement('tr');
 		var td = document.createElement('td');
 		
-		td.classList.add('tdStat');
+		td.classList.add('tdTalent');
 		
 		const filteredChoices = currChoices[i];
 		
 		if(filteredChoices.length === 1){
-			td.textContent = filteredChoices[0];
+			td.textContent = filteredChoices[0].value;
 		}else{
 			var dropDown = document.createElement('select');
 			dropDown.id = 'selTal'+i.toString();
+			dropDown.classList.add('selTal');
+			dropDown.lblId = 'tdDesc'+i.toString();
 			const placeholder = document.createElement('option');
 			placeholder.textContent = '---';
 			placeholder.value = "";
@@ -879,15 +1021,18 @@ function chooseTalents(){
 			
 			filteredChoices.forEach(tal => {
 			const option = document.createElement('option');
-			option.value = tal;
-			option.textContent = tal;
+			option.value = JSON.stringify(tal);
+			option.textContent = tal.value;
 			dropDown.appendChild(option);
 			});
 			
 			dropDown.addEventListener("change", (event) => {
-			  if(validateSelections()){
-				showNextBt();
-			  }
+				const x = JSON.parse(event.target.value);
+				const lbl = ((currentLanguage==='de') ? talents[x.id].ShortDescDe : talents[x.id].ShortDesc);
+				document.getElementById(event.target.lblId).textContent = lbl;
+				if(validateSelections()){
+					showNextBt();
+				}
 			});
 			
 			td.appendChild(dropDown);
@@ -896,8 +1041,8 @@ function chooseTalents(){
 		tr.appendChild(td);
 		
 		td = document.createElement('td');
-		td.classList.add('tdDesc');
-		td.textContent = 'ToDo: here are short descriptions';
+		td.classList.add('tdDescLong');
+		td.id = 'tdDesc'+i.toString();
 		tr.appendChild(td);
 		
 		
@@ -909,17 +1054,17 @@ function chooseTalents(){
 		var tr = document.createElement('tr');
 		var td = document.createElement('td');
 		
-		td.classList.add('tdStat');
+		td.classList.add('tdTalent');
 		
 		const filteredChoices = selTalents[i];
 		
-		td.textContent = filteredChoices.value;
+		td.textContent = filteredChoices.value.value;
 		
 		tr.appendChild(td);
 		td = document.createElement('td');
 		
-		td.classList.add('tdDesc');
-		td.textContent = 'ToDo: here are short descriptions';
+		td.classList.add('tdDescLong');
+		td.textContent = ((currentLanguage==='de') ? talents[filteredChoices.value.id].ShortDescDe : talents[filteredChoices.value.id].ShortDesc);
 		tr.appendChild(td);
 		
 		tbody.appendChild(tr);
@@ -937,6 +1082,7 @@ function chooseTalents(){
 	btNxt.classList.add("btNext","hidden");
 	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
 	btNxt.addEventListener("click", (event) => {
+		  setSelectedTalents();
 		  chooseSkills();
 		});
 	
@@ -947,6 +1093,11 @@ function chooseTalents(){
 		
 	div.classList.add('dataCard');
 	container.appendChild(div);
+	
+	if(validateSelections())
+	{
+		showNextBt();
+	}
 }
 
 function chooseSkills(){
@@ -981,12 +1132,13 @@ function chooseSkills(){
 	var div = document.createElement('div');
 	div.classList.add('infoCard');
 	
-	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	div.innerHTML = `<div class="infotext">${((currentLanguage==='de') ? skillsTexts.InfoTextDe : skillsTexts.InfoText)}</div>`;
 	container.appendChild(div);
 	
 	div = document.createElement('div');
 	
 	const table = document.createElement('table'); // Create the table
+	table.classList.add("twctab");
 	const tHead = document.createElement('tHead'); // Create the header
 	const htr = document.createElement('tr');
 	var th = document.createElement('th');
@@ -1006,43 +1158,44 @@ function chooseSkills(){
 		var tr = document.createElement('tr');
 		var td = document.createElement('td');
 		
-		td.classList.add('tdStat');
+		td.classList.add('tdSkill');
 		
 		const filteredChoices = currChoices[i];
 		
-		if(filteredChoices.length === 1){
-			td.textContent = filteredChoices[0];
-		}else{
-			var dropDown = document.createElement('select');
-			dropDown.id = 'selSkill'+i.toString();
-			const placeholder = document.createElement('option');
-			placeholder.textContent = '---';
-			placeholder.value = "";
-			placeholder.disabled = true;
-			placeholder.selected = true;
-			dropDown.appendChild(placeholder);
-			
-			filteredChoices.forEach(skill => {
-			const option = document.createElement('option');
-			option.value = skill;
-			option.textContent = skill;
-			dropDown.appendChild(option);
-			});
-			
-			dropDown.addEventListener("change", (event) => {
-			  if(validateSelections()){
-				showNextBt();
-			  }
-			});
-			
-			td.appendChild(dropDown);
-		}
+		var dropDown = document.createElement('select');
+		dropDown.id = 'selSkill'+i.toString();
+		dropDown.classList.add("selSkill");
+		const placeholder = document.createElement('option');
+		placeholder.textContent = '---';
+		placeholder.value = "";
+		placeholder.disabled = true;
+		placeholder.selected = true;
+		dropDown.appendChild(placeholder);
+		dropDown.lblId = 'tdSkillDesc' + i.toString();
 		
+		filteredChoices.forEach(skill => {
+		const option = document.createElement('option');
+		option.value = JSON.stringify(skill);
+		option.textContent = skill.value;
+		dropDown.appendChild(option);
+		});
+
+		dropDown.addEventListener("change", (event) => {
+			const x = JSON.parse(event.target.value);
+			const lbl = ((currentLanguage==='de') ? skills[x.id].ShortDescDe : skills[x.id].ShortDesc);
+			document.getElementById(event.target.lblId).textContent = lbl;
+			if(validateSelections()){
+				showNextBt();
+			}
+		});
+
+		td.appendChild(dropDown);
 		tr.appendChild(td);
 		
 		td = document.createElement('td');
-		td.classList.add('tdDesc');
-		td.textContent = 'ToDo: here are short descriptions';
+		td.id = 'tdSkillDesc' + i.toString();
+		td.classList.add('tdDescLong');
+		td.textContent = '';
 		tr.appendChild(td);
 		
 		
@@ -1054,17 +1207,17 @@ function chooseSkills(){
 		var tr = document.createElement('tr');
 		var td = document.createElement('td');
 		
-		td.classList.add('tdStat');
+		td.classList.add('tdSkill');
 		
 		const filteredChoices = selSkills[i];
 		
-		td.textContent = filteredChoices.value;
+		td.textContent = filteredChoices.value.value;
 		
 		tr.appendChild(td);
 		td = document.createElement('td');
 		
-		td.classList.add('tdDesc');
-		td.textContent = 'ToDo: here are short descriptions';
+		td.classList.add('tdDescLong');
+		td.textContent = ((currentLanguage==='de') ? skills[filteredChoices.value.id].ShortDescDe : skills[filteredChoices.value.id].ShortDesc);
 		tr.appendChild(td);
 		
 		tbody.appendChild(tr);
@@ -1082,7 +1235,8 @@ function chooseSkills(){
 	btNxt.classList.add("btNext","hidden");
 	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
 	btNxt.addEventListener("click", (event) => {
-		  chooseGear();
+			setSelectedSkills();
+			chooseGear();
 		});
 	
 	nextDiv.appendChild(btNxt);
@@ -1092,13 +1246,22 @@ function chooseSkills(){
 		
 	div.classList.add('dataCard');
 	container.appendChild(div);
+	
+	if(validateSelections())
+	{
+		showNextBt();
+	}
 }
 
-function chooseImplantsAndMutations(){
+function chooseImplantsMutationsAndTraits(){
 	
 	clearContentDivs();
 	CharData.Implants = [];
+	CharData.Mutations = [];
+	CharData.Traits = [];
 	choices.Mutations = [];
+	choices.Implants = [];
+	choices.Traits = [];
 	
 	const hwT = hwAbilities[CharData.Homeworld];
 	const caT = careerOpts[CharData.Career];
@@ -1116,8 +1279,10 @@ function chooseImplantsAndMutations(){
 			(("Cybernetics" in rT )? rT.Cybernetics : []),
 			(("Cybernetics" in brT)? brT.Cybernetics : []),
 			(("Cybernetics" in luT)? luT.Cybernetics : []),
-			(("Cybernetics" in trT)? trT.Cybernetics : [])
+			(("Cybernetics" in trT)? trT.Cybernetics : []),
+			(("SImplant" in luT)? luT.SImplant : [])
 		]);
+	
 		
 	updateMutations([
 		(("Mutations" in hwT)? hwT.Mutations : []),
@@ -1129,13 +1294,23 @@ function chooseImplantsAndMutations(){
 		(("Mutations" in trT)? trT.Mutations : [])
 	]);
 	
+	updateTraits([
+		(("Traits" in hwT)? hwT.Traits : []),
+		(("Traits" in caT)? caT.Traits : []),
+		(("Traits" in bgT)? bgT.Traits : []),
+		(("Traits" in rT )? rT.Traits : []),
+		(("Traits" in brT)? brT.Traits : []),
+		(("Traits" in luT)? luT.Traits : []),
+		(("Traits" in trT)? trT.Traits : [])
+	]);
+	
 	const container = document.getElementById('charChoice');
 	
 	
 	var div = document.createElement('div');
 	div.classList.add('infoCard');
 	
-	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	div.innerHTML = `<div class="infotext">${((currentLanguage==='de') ? implMutaTraits.InfoTextDe : implMutaTraits.InfoText)}</div>`;
 	container.appendChild(div);
 	
 
@@ -1143,8 +1318,19 @@ function chooseImplantsAndMutations(){
 	
 	if(choices.Implants.length > 0 || CharData.Implants.length > 0)
 	{
+		let ptsDiv = document.createElement('div');
+		ptsDiv.classList.add("dataCardPtsSelect");
+		
+		ptsDiv.appendChild(document.createElement('br'));
+		
+		var el = document.createElement('h2');
+		el.textContent = ((currentLanguage==='de') ? 'Implantate': 'Cybernetics');
+		ptsDiv.appendChild(el);
+		
+		div.appendChild(ptsDiv);
 	
-		const table = document.createElement('table'); // Create the table
+		const table = document.createElement('table'); // Create the table // Create the table
+		table.classList.add("twctab");
 		const tHead = document.createElement('tHead'); // Create the header
 		const htr = document.createElement('tr');
 		var th = document.createElement('th');
@@ -1167,40 +1353,41 @@ function chooseImplantsAndMutations(){
 			td.classList.add('tdStat');
 			
 			const filteredChoices = currChoices[i].value;
-			console.log(filteredChoices);
 			if(filteredChoices.length === 1){
 				td.textContent = filteredChoices[0];
 			}else{
 				var dropDown = document.createElement('select');
 				dropDown.id = 'selImpl'+i.toString();
+				dropDown.classList.add('selImpl');
 				const placeholder = document.createElement('option');
 				placeholder.textContent = '---';
 				placeholder.value = "";
 				placeholder.disabled = true;
 				placeholder.selected = true;
 				dropDown.appendChild(placeholder);
-				
+				dropDown.lblId = 'tdImpl'+i.toString();
 				filteredChoices.forEach(implant => {
 				const option = document.createElement('option');
-				option.value = implant;
-				option.textContent = implant;
+				option.value = JSON.stringify(implant);
+				option.textContent = implant.value;
 				dropDown.appendChild(option);
-				});
-				
+				});				
 				dropDown.addEventListener("change", (event) => {
-				  if(validateSelections()){
-					showNextBt();
-				  }
-				});
-				
+					const x = JSON.parse(event.target.value);
+					const lbl = ((currentLanguage==='de') ? implants[x.id].ShortDescDe : implants[x.id].ShortDesc);
+					document.getElementById(event.target.lblId).textContent = lbl;
+					if(validateSelections()){
+						showNextBt();
+					}
+				});				
 				td.appendChild(dropDown);
 			}
 			
-			tr.appendChild(td);
-			
+			tr.appendChild(td);			
 			td = document.createElement('td');
-			td.classList.add('tdDesc');
-			td.textContent = 'ToDo: here are short descriptions';
+			td.classList.add('tdDescLong');
+			td.id = 'tdImpl'+i.toString();
+			td.textContent = '';
 			tr.appendChild(td);
 			
 			
@@ -1221,8 +1408,8 @@ function chooseImplantsAndMutations(){
 			tr.appendChild(td);
 			td = document.createElement('td');
 			
-			td.classList.add('tdDesc');
-			td.textContent = 'ToDo: here are short descriptions';
+			td.classList.add('tdDescLong');
+			td.textContent = ((currentLanguage ==='de') ? implants[filteredChoices.id].ShortDescDe : implants[filteredChoices.id].ShortDesc);
 			tr.appendChild(td);
 			
 			tbody.appendChild(tr);
@@ -1234,8 +1421,6 @@ function chooseImplantsAndMutations(){
 	
 	if(choices.Mutations.length > 0)
 	{
-		
-	
 		let ptsDiv = document.createElement('div');
 		ptsDiv.classList.add("dataCardPtsSelect");
 		
@@ -1249,7 +1434,8 @@ function chooseImplantsAndMutations(){
 		ptsDiv.appendChild(document.createElement('br'));
 				
 		
-		const table = document.createElement('table'); // Create the table
+		const table = document.createElement('table'); // Create the table // Create the table
+		table.classList.add("twctab");
 		const tHead = document.createElement('tHead'); // Create the header
 		const htr = document.createElement('tr');
 		var th = document.createElement('th');
@@ -1273,40 +1459,144 @@ function chooseImplantsAndMutations(){
 			
 			td.id = "tdMutations"+x.toString();
 			
-			tr.appendChild(td);
-			td = document.createElement('td');
-			
-			td.classList.add('tdDesc');
-			td.id = "tdMutatDesc"+x.toString();
-			td.textContent = 'ToDo: here are short descriptions';
-			tr.appendChild(td);
-			
-			tbody.appendChild(tr);
-			
 			el = document.createElement("button");
-			el.classList.add("btRollBig");
-			el.id = "btMutations"+x.toString(); 
+			el.classList.add("btRollBig","choice");
+			el.id = "btMutations"+x.toString();
 			el.MutaRoll = choices.Mutations[x];
 			el.textContent = ((currentLanguage==='de')? "Rolle " : "roll ") + choices.Mutations[x];
 			el.MainTD = "tdMutations"+x.toString();
 			el.DecTD = "tdMutatDesc"+x.toString();
 			
 			el.addEventListener("click", (event) => {
+				event.target.classList.add("clicked");
 				  rollNewMutation(event.target.MainTD, event.target.DecTD, event.target.MutaRoll);
-				  if(CharData.Mutations.length == choices.Mutations.length){
-					  showNextBt();
+				  event.target.classList.remove("choice");
+				  if(validateSelections()){
+				    showNextBt();
 				  }
-				}, /*{ once: true }*/);
+				}, { once: true });
 				
-			ptsDiv.appendChild(el);
-			ptsDiv.appendChild(document.createElement('br'));
-			ptsDiv.appendChild(document.createElement('br'));
+			td.appendChild(el);
+			
+			tr.appendChild(td);
+			td = document.createElement('td');
+			
+			td.classList.add('tdDesc');
+			td.id = "tdMutatDesc"+x.toString();
+			td.textContent = '';
+			tr.appendChild(td);
+			
+			tbody.appendChild(tr);
+			
 
 		}
 		
 		table.appendChild(tbody);
 		ptsDiv.appendChild(table);
 		div.appendChild(ptsDiv);
+	}
+	
+	if(choices.Traits.length > 0 ||CharData.Traits.length > 0)
+	{
+		let ptsDiv = document.createElement('div');
+		ptsDiv.classList.add("dataCardPtsSelect");
+		
+		ptsDiv.appendChild(document.createElement('br'));
+		
+		var el = document.createElement('h2');
+		el.textContent = ((currentLanguage==='de') ? 'Eigenschaften': 'Traits');
+		ptsDiv.appendChild(el);
+		
+		div.appendChild(ptsDiv);
+	
+		const table = document.createElement('table'); // Create the table // Create the table
+		table.classList.add("twctab");
+		const tHead = document.createElement('tHead'); // Create the header
+		const htr = document.createElement('tr');
+		var th = document.createElement('th');
+		th.textContent = ((currentLanguage==='de') ? 'Eigenschaft' : 'Trait');
+		htr.appendChild(th);
+		th = document.createElement('th');
+		th.textContent = ((currentLanguage==='de') ? 'Beschreibung' : 'Description');
+		htr.appendChild(th);
+		tHead.appendChild(htr);
+		table.appendChild(tHead);
+		
+		
+		const tbody = document.createElement('tbody'); // Create the tbody
+
+		const currChoices = choices.Traits;
+		for (let i = 0; i < currChoices.length; i++) {
+			var tr = document.createElement('tr');
+			var td = document.createElement('td');
+			
+			td.classList.add('tdStat');
+			
+			const filteredChoices = currChoices[i];
+
+			if(filteredChoices.length === 1){
+				td.textContent = filteredChoices[0];
+			}else{
+				var dropDown = document.createElement('select');
+				dropDown.id = 'selTrait'+i.toString();
+				dropDown.classList.add('selTrait');
+				const placeholder = document.createElement('option');
+				placeholder.textContent = '---';
+				placeholder.value = "";
+				placeholder.disabled = true;
+				placeholder.selected = true;
+				dropDown.appendChild(placeholder);
+				dropDown.lblId = 'tdTrait'+i.toString();
+				filteredChoices.forEach(trait => {
+				const option = document.createElement('option');
+				option.value = trait.id;
+				option.textContent = trait.value;
+				dropDown.appendChild(option);
+				});				
+				dropDown.addEventListener("change", (event) => {
+					const lbl = ((currentLanguage==='de') ? traits[event.target.value].DescDe : traits[event.target.value].Desc);
+					document.getElementById(event.target.lblId).textContent = lbl;
+					if(validateSelections()){
+						showNextBt();
+					}
+				});				
+				td.appendChild(dropDown);
+			}
+			
+			tr.appendChild(td);			
+			td = document.createElement('td');
+			td.classList.add('tdDescLong');
+			td.id = 'tdTrait'+i.toString();
+			td.textContent = '';
+			tr.appendChild(td);
+			
+			
+			tbody.appendChild(tr);
+		}
+		
+		const selTraits = CharData.Traits;
+		for (let i = 0; i < selTraits.length; i++) {
+			var tr = document.createElement('tr');
+			var td = document.createElement('td');
+			
+			td.classList.add('tdStat');
+			
+			const filteredChoices = selTraits[i];
+			
+			td.textContent = filteredChoices.value;
+			
+			tr.appendChild(td);
+			td = document.createElement('td');
+			
+			td.classList.add('tdDescLong');
+			td.textContent = ((currentLanguage ==='de') ? traits[filteredChoices.id].DescDe : traits[filteredChoices.id].tDesc);
+			tr.appendChild(td);
+			
+			tbody.appendChild(tr);
+		}
+
+		table.appendChild(tbody); // Append tbody to the table
+		div.appendChild(table); // Append the table to the div
 	}
 	
 	var nextDiv = document.createElement('div');
@@ -1317,7 +1607,8 @@ function chooseImplantsAndMutations(){
 	btNxt.classList.add("btNext","hidden");
 	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
 	btNxt.addEventListener("click", (event) => {
-		  console.log('ToDo');
+		  setSelectedImpMutTrait();
+		  chooseInsanityAndCorruption();
 		});
 	
 	nextDiv.appendChild(btNxt);
@@ -1336,23 +1627,21 @@ function chooseGear(){
 	
 	const bgT = backgrounds[CharData.Background];
 
-	
 	updateGear([(("Gear" in bgT)? bgT.Gear : [])
 		]);
-	
-	
 	
 	const container = document.getElementById('charChoice');
 	
 	var div = document.createElement('div');
 	div.classList.add('infoCard');
 	
-	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	div.innerHTML = `<div class="infotext">${((currentLanguage==='de') ? gearTexts.InfoTextDe : gearTexts.InfoText)}</div>`;
 	container.appendChild(div);
 	
 	div = document.createElement('div');
 	
-	const table = document.createElement('table'); // Create the table
+	const table = document.createElement('table'); // Create the table // Create the table
+	table.classList.add("twctab");
 	const tHead = document.createElement('tHead'); // Create the header
 	const htr = document.createElement('tr');
 	var th = document.createElement('th');
@@ -1377,10 +1666,12 @@ function chooseGear(){
 		const filteredChoices = currChoices[i];
 		
 		if(filteredChoices.length === 1){
-			td.textContent = filteredChoices[0];
+			td.textContent = filteredChoices[0].Value;
 		}else{
 			var dropDown = document.createElement('select');
 			dropDown.id = 'selGear'+i.toString();
+			dropDown.classList.add('selGear');
+			dropDown.lblId = 'lbselGear'+i.toString();
 			const placeholder = document.createElement('option');
 			placeholder.textContent = '---';
 			placeholder.value = "";
@@ -1390,12 +1681,19 @@ function chooseGear(){
 			
 			filteredChoices.forEach(gear => {
 			const option = document.createElement('option');
-			option.value = gear;
-			option.textContent = gear;
-			dropDown.appendChild(option);
-			});
+				option.value = JSON.stringify(gear);
+				option.textContent = gear.value;
+				dropDown.appendChild(option);
+			});	
 			
 			dropDown.addEventListener("change", (event) => {
+				const x = JSON.parse(event.target.value);
+				const lbl = x.id
+					.split('&') // Split the string into individual items
+					.map(item => ((currentLanguage==='de') ? Gear[item].ShortDescDe : Gear[item].ShortDesc)) // Translate each item
+					.join(' || '); // Join the translated items with ' || '
+				document.getElementById(event.target.lblId).textContent = lbl;
+				
 			  if(validateSelections()){
 				showNextBt();
 			  }
@@ -1407,8 +1705,8 @@ function chooseGear(){
 		tr.appendChild(td);
 		
 		td = document.createElement('td');
-		td.classList.add('tdDesc');
-		td.textContent = 'ToDo: here are short descriptions';
+		td.classList.add('tdDescLong');
+		td.id = 'lbselGear'+i.toString();
 		tr.appendChild(td);
 		
 		
@@ -1423,14 +1721,19 @@ function chooseGear(){
 		td.classList.add('tdStat');
 		
 		const filteredChoices = selGear[i];
-		
-		td.textContent = filteredChoices.value;
+
+		td.textContent = filteredChoices.value.value;
 		
 		tr.appendChild(td);
 		td = document.createElement('td');
+
 		
-		td.classList.add('tdDesc');
-		td.textContent = 'ToDo: here are short descriptions';
+		td.textContent = filteredChoices.value.id
+			.split('&') // Split the string into individual items
+			.map(item => ((currentLanguage==='de') ? Gear[item].ShortDescDe : Gear[item].ShortDesc)) // Translate each item
+			.join(' || '); // Join the translated items with ' || '
+		td.classList.add('tdDescLong');
+		
 		tr.appendChild(td);
 		
 		tbody.appendChild(tr);
@@ -1448,7 +1751,8 @@ function chooseGear(){
 	btNxt.classList.add("btNext","hidden");
 	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
 	btNxt.addEventListener("click", (event) => {
-		  console.log('ToDo');
+			setSelectedGear();
+			chooseImplantsMutationsAndTraits();
 		});
 	
 	nextDiv.appendChild(btNxt);
@@ -1458,6 +1762,10 @@ function chooseGear(){
 		
 	div.classList.add('dataCard');
 	container.appendChild(div);
+	
+	if(validateSelections()){
+		showNextBt();
+	}
 }
 
 function chooseHealthAndFate(){
@@ -1498,6 +1806,7 @@ function chooseHealthAndFate(){
 	el.textContent = ((currentLanguage==='de')? "Rolle 1W5 Bonus-Wunden" : "roll 1d5 bonus-wounds");
 	el.addEventListener("click", (event) => {
 		  updateWounds();
+		  event.target.classList.add("clicked");
 		  if(validateHPandFate()){
 			  showNextBt();
 		  }
@@ -1532,6 +1841,7 @@ function chooseHealthAndFate(){
 	el.textContent = ((currentLanguage==='de')? "Rolle 1W10. +1 Shicksal Wenn >= " : "roll 1d10. +1 Fate on >=")+homeworlds[CharData.Homeworld].Fate[1].toString();
 	el.addEventListener("click", (event) => {
 		  updateFate();
+		  event.target.classList.add("clicked");
 		  if(validateHPandFate()){
 			  showNextBt();
 		  }
@@ -1569,6 +1879,13 @@ function chooseHealthAndFate(){
 	container.appendChild(div);
 }
 
+function updateCorruption(data)
+{
+	const corruption = parseAndRollDice(data);
+	CharData.Corruption = CharData.Corruption + corruption;
+	return corruption;
+}
+
 function updateFate(){
 	const baseFate = parseInt(homeworlds[CharData.Homeworld].Fate[0]);
 	const bonus = rollDice(10);
@@ -1592,7 +1909,6 @@ function parseAndRollDice(diceString)
 	let result = 0;
 	
 	if (!match) {
-		console.log(diceString);
         throw new Error("Invalid dice string format");
     }	
 	const preModifier = match[1] ? parseInt(match[1], 10) : 0; // Modifier before XdX
@@ -1630,7 +1946,7 @@ function rollNewMutation(mainTd, descTd, rollType)
 	do {  
 	  result = getMutationKeyByRoll(parseAndRollDice(rollType));
 	  i++;
-	} while (i < 50 && !CharData.Mutations.includes(result));
+	} while (i < 50 && CharData.Mutations.includes(result));
 	
 	CharData.Mutations.push(result);
 	document.getElementById(mainTd).textContent = ((currentLanguage==='de')? Mutations[result].NameDe : Mutations[result].Name);
@@ -1638,10 +1954,72 @@ function rollNewMutation(mainTd, descTd, rollType)
 	
 }
 
+function rollMalignancy()
+{
+	let i = 0;
+	let result = ''
+	
+	do {  
+	  result = getMalignancyKeyByRoll(parseAndRollDice("1d100"));
+	  i++;
+	} while (i < 50 && (CharData.Malignancies.includes(result)));
+	
+	CharData.Malignancies.push(result);
+	return result;
+}
+
+function rollMalignancyTest()
+{
+	const wpObject = CharData.Stats.find(item => item.value === "WP");
+	const WPTotal = wpObject.base + wpObject.brBonus + wpObject.moBonus + wpObject.rolledValues;
+	
+	const dRes = rollDice(100);
+
+	return [(dRes <= WPTotal), dRes];
+}
+
+function getMalignancyKeyByRoll(roll) {
+    let resultKey = null;
+    let lowestMinRoll = 1;
+    let highestMaxRoll = 1;
+    let lowestKey = null;
+    let highestKey = null;
+
+    for (const [key, malignancy] of Object.entries(Malignancies)) {
+        const { from, to } = malignancy;
+
+        // Update lowest and highest keys
+        if (from < lowestMinRoll) {
+            lowestMinRoll = from;
+            lowestKey = key;
+        }
+        if (to > highestMaxRoll) {
+            highestMaxRoll = to;
+            highestKey = key;
+        }
+
+        // Check if roll is within range
+        if (roll >= from && roll <= to) {
+            resultKey = key;
+        }
+    }
+
+    // Determine fallback if no match
+    if (resultKey === null) {
+        if (roll < lowestMinRoll) {
+            return lowestKey;
+        } else {
+            return highestKey;
+        }
+    }
+
+    return resultKey;
+}
+
 function getMutationKeyByRoll(roll) {
     let resultKey = null;
-    let lowestMinRoll = Infinity;
-    let highestMaxRoll = -Infinity;
+    let lowestMinRoll = 1;
+    let highestMaxRoll = 1;
     let lowestKey = null;
     let highestKey = null;
 
@@ -1676,19 +2054,225 @@ function getMutationKeyByRoll(roll) {
     return resultKey;
 }
 
-function updatePoints(data,rollDaa){
-	console.log();
+function updatePoints(data,rollData){
 	data.forEach(dataArray => {
 		if(Array.isArray(dataArray) && dataArray.length === 2)
 		{
 			if(dataArray[1] === 'IP'){
-				console.log()
 				CharData.Insanity = CharData.Insanity + dataArray[0];
 			}else if(dataArray[1] ==='CP'){
 				CharData.Corruption = CharData.Corruption + dataArray[0];
 			}
 		}
+	});
+    
+	rollData.forEach(dataArray => {
+		if(Array.isArray(dataArray))
+		{
+			dataArray.forEach(entry => {
+				choices.Corruption.push(entry);
+			});
+		}
+		
     });
+}
+
+function updateTraumaAndMalig(){
+	
+	let noOfDisorders = 0;
+	let noOfMalignancies = 0;
+	
+	const hwT = hwAbilities[CharData.Homeworld];
+	const caT = careerOpts[CharData.Career];
+	const bgT = backgrounds[CharData.Background];
+	const rT  = roles[CharData.Role];
+	const brT = birthrights[CharData.Birthright].options[CharData.BRDetail];
+	const luT = lure[CharData.Lure].options[CharData.LureDetail];
+	const trT = trials[CharData.Trial].options[CharData.TrialDetail];
+	
+	noOfDisorders = (("Disorder" in hwT)? hwt.Disorder : 0)+
+		(("Disorder" in caT)? caT.Disorder : 0)+
+		(("Disorder" in bgT)? bgT.Disorder : 0)+
+		(("Disorder" in rT )?  rT.Disorder : 0)+
+		(("Disorder" in brT)? brT.Disorder : 0)+
+		(("Disorder" in luT)? luT.Disorder : 0)+
+		(("Disorder" in trT)? trT.Disorder : 0)+
+		Math.floor(CharData.Insanity / 30)
+	
+		
+	noOfMalignancies = (("Malignancy" in hwT)? hwt.Malignancy : 0)+
+		(("Malignancy" in caT)? caT.Malignancy : 0)+
+		(("Malignancy" in bgT)? bgT.Malignancy : 0)+
+		(("Malignancy" in rT )?  rT.Malignancy : 0)+
+		(("Malignancy" in brT)? brT.Malignancy : 0)+
+		(("Malignancy" in luT)? luT.Malignancy : 0)+
+		(("Malignancy" in trT)? trT.Malignancy : 0);
+	
+	choices.Malignancies = noOfMalignancies;
+	choices.MalignanciyTests = Math.floor(CharData.Corruption / 10);
+	choices.Disorders = noOfDisorders;
+}
+
+function chooseTraumaAndMalig(){
+	clearContentDivs();
+	CharData.Malignancies= [];
+	CharData.Traumas= [];
+	choices.Malignancies = 0;
+	choices.Traumas= 0;
+	choices.MalignanciyTests = 0;
+	
+	updateTraumaAndMalig();
+	
+	const container = document.getElementById('charChoice');
+	
+	var div = document.createElement('div');
+	div.classList.add('infoCard');
+	
+	div.innerHTML = `<div class="infotext">${((currentLanguage==='de') ? disordersText.InfoTextDe : disordersText.InfoText)}</div>`;
+	container.appendChild(div);
+	
+	div = document.createElement('div');
+	
+	var nextDiv = document.createElement('div');
+	nextDiv.classList.add("dataCardPtsSelect");
+	
+	nextDiv.appendChild(document.createElement('br'));
+	
+	
+	
+	if(choices.Disorders > 0)
+	{
+		let el = document.createElement('h2');
+		
+		el.textContent = ((currentLanguage==='de') ? 'Psychische Störungen': 'Mental Disorders');
+		nextDiv.appendChild(el);
+		nextDiv.appendChild(document.createElement('br'));
+		el = document.createElement('p');
+		el.classList.add("spDisorder");
+		el.textContent = ((currentLanguage==='de') ? 'Du startest das spiel mit '+choices.Disorders.toString()+ ' Psychischen Störungen. Dies müssen mit dem GM ausgemacht werden.' : 'You start the game with ') + choices.Disorders.toString()+ ' mental disorders. Consult with the DM.';
+		nextDiv.appendChild(el);
+		nextDiv.appendChild(document.createElement('br'));
+	}
+	
+	if(choices.Malignancies > 0 || choices.MalignanciyTests > 0)
+	{
+		let el = document.createElement('h2');
+		el.textContent = ((currentLanguage==='de') ? 'Verderbniserscheinung': 'Malignancies');
+		nextDiv.appendChild(el);
+		nextDiv.appendChild(document.createElement('br'));
+		nextDiv.appendChild(document.createElement('br'));
+	}
+	
+	for(let i = 0; i < choices.Malignancies; i++)
+	{
+		let el = document.createElement("button");
+		el.classList.add("btRollMalig");
+		el.id = "btMalig"+i.toString(); 
+		el.textContent = ((currentLanguage==='de')? "Rolle Malignität" : "roll Malignancy");
+		el.txtId = "txtMalig"+i.toString();
+		el.addEventListener("click", (event) => {
+			  const result = rollMalignancy();
+			  event.target.classList.add("clicked");
+			  event.target.textContent = ((currentLanguage==='de')? "ToDo" : "ToDo");
+			  event.target.classList.add("btRolled");
+			  if(false){
+				  //ToDo
+				  showNextBt();
+			  }
+			  
+			}, { once: true });
+			
+		nextDiv.appendChild(el);
+		nextDiv.appendChild(document.createElement('br'));
+		el = document.createElement("p");
+		el.classList.add("resMalig");
+		let resTxt = document.createElement('b');
+		resTxt.id = "txtMalig"+i.toString();
+		el.appendChild(resTxt);
+		nextDiv.appendChild(el);
+		nextDiv.appendChild(document.createElement('br'));
+		nextDiv.appendChild(document.createElement('br'));
+	}
+	
+	for(let i = 0; i < choices.MalignanciyTests; i++)
+	{
+		let mTDiv = document.createElement("div");
+		mTDiv.classList.add("divmtest");
+		el = document.createElement("button");
+		el.classList.add("btRollMalig","choice");
+		el.id = "btMaligTest"+i.toString(); 
+		el.textContent = ((currentLanguage==='de')? "Rolle Malignitäten Test" : "roll Malignancies-Test");
+		el.fBtId = "btMaligFtest"+i.toString();
+		el.addEventListener("click", (event) => {
+			const result = rollMalignancyTest();
+			event.target.classList.add("clicked");
+			event.target.classList.remove("choice");
+			event.target.textContent = ((currentLanguage==='de')? "Ergebnis: " : "result:  ")+result[1].toString() + ' | '+
+				((currentLanguage==='de')? ((result[0])? "Bestanden" : 'Nicht Bestanden') : ((result[0])? "passed" : 'failed'));
+			if(!result[0])
+			{
+				document.getElementById(event.target.fBtId).classList.remove("hidden","clicked");
+				document.getElementById(event.target.fBtId).classList.add("choice");
+			} else {
+				if(validateSelections())
+				{
+					showNextBt();
+				}
+			}
+			  
+		}, { once: true });
+			
+		mTDiv.appendChild(el);
+		
+		el = document.createElement("button");
+		el.classList.add("btRollMalig","hidden","clicked");
+		el.id = "btMaligFtest"+i.toString(); 
+		el.textContent = ((currentLanguage==='de')? "Rolle Verderbniserscheinung" : "roll Malignancies");
+		el.txtId = "txtMaligFtest"+i.toString();
+		el.txtId = "txtMaligFtest"+i.toString();
+		el.addEventListener("click", (event) => {
+			const result = rollMalignancy();
+			event.target.classList.add("clicked");
+			event.target.classList.remove("choice");
+			event.target.textContent = ((currentLanguage==='de')? Malignancies[result].NameDe : Malignancies[result].Name);
+			document.getElementById(event.target.txtId).textContent = ((currentLanguage==='de') ? Malignancies[result].EffectDe : Malignancies[result].Effect);
+			if(validateSelections())
+			{
+				showNextBt();
+			}
+			  
+			}, { once: true });
+			
+		mTDiv.appendChild(el);
+		
+		el = document.createElement("p");
+		el.classList.add("txtMaligFtest");
+		el.id = "txtMaligFtest"+i.toString();
+		mTDiv.appendChild(el);
+		mTDiv.appendChild(document.createElement('br'));
+		nextDiv.appendChild(mTDiv);
+	}
+		
+	div.appendChild(nextDiv);
+	
+	nextDiv = document.createElement('div');
+	
+	nextDiv.classList.add("dataCardNext");
+		
+	const btNxt = document.createElement("button");
+	btNxt.classList.add("btNext","hidden");
+	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
+	btNxt.addEventListener("click", (event) => {
+		  console.log('ToDo');
+		});
+	
+	nextDiv.appendChild(btNxt);
+
+	div.appendChild(nextDiv);
+	
+		
+	div.classList.add('dataCard');
+	container.appendChild(div);
 }
 
 function chooseInsanityAndCorruption(){
@@ -1696,7 +2280,7 @@ function chooseInsanityAndCorruption(){
 	clearContentDivs();
 	CharData.Insanity = 0;
 	CharData.Corruption= 0;
-	CharData.Malignancies= [];
+	choices.Corruption= [];
 	
 	const hwT = hwAbilities[CharData.Homeworld];
 	const caT = careerOpts[CharData.Career];
@@ -1723,13 +2307,13 @@ function chooseInsanityAndCorruption(){
 			(("Corruption" in luT)? [luT.Corruption] : []),
 			(("Corruption" in trT)? [trT.Corruption] : [])
 		]);
-	/*
+	
 	const container = document.getElementById('charChoice');
 	
 	var div = document.createElement('div');
 	div.classList.add('infoCard');
 	
-	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	div.innerHTML = `<div class="infotext">${((currentLanguage==='de') ? ipCptexts.InfoTextDe : ipCptexts.InfoText)}</div>`;
 	container.appendChild(div);
 	
 	div = document.createElement('div');
@@ -1740,69 +2324,72 @@ function chooseInsanityAndCorruption(){
 	nextDiv.appendChild(document.createElement('br'));
 	
 	var el = document.createElement('h2');
-	el.textContent = ((currentLanguage==='de') ? 'Wunden': 'Wounds');
+	el.textContent = ((currentLanguage==='de') ? 'Wahnsinnspunkte': 'Insanity Points');
 	nextDiv.appendChild(el);
 	
 	el = document.createElement('span');
-	el.classList.add("rolled", "spWounds");
-	el.innerHTML = ((currentLanguage==='de') ? 'Basis Wunden:': 'Base Wounds:') + '<b>'+homeworlds[CharData.Homeworld].Wounds.substring(1, '+')+'</b>';
+	el.classList.add("rolled", "spInsanity");
+	el.innerHTML = ((currentLanguage==='de') ? 'Basis Wahnsinnspunkte:': 'Base Insanity Points:') + '<b>'+CharData.Insanity.toString()+'</b>';
 	
-	nextDiv.appendChild(el);
-	nextDiv.appendChild(document.createElement('br'));
-	nextDiv.appendChild(document.createElement('br'));
-	
-	el = document.createElement("button");
-	el.classList.add("btRollBig");
-	el.id = "btWounds"; 
-	el.textContent = ((currentLanguage==='de')? "Rolle 1W5 Bonus-Wunden" : "roll 1d5 bonus-wounds");
-	el.addEventListener("click", (event) => {
-		  updateWounds();
-		  if(validateHPandFate()){
-			  showNextBt();
-		  }
-		}, { once: true });
-		
 	nextDiv.appendChild(el);
 	nextDiv.appendChild(document.createElement('br'));
 	nextDiv.appendChild(document.createElement('br'));
 	
 	el = document.createElement('span');
-	el.classList.add("rolled", "spWounds");
-	el.innerHTML = ((currentLanguage==='de') ? 'Gesamt Wunden:': 'Total Wounds:') + '<b id="totWounds"></b>';
+	el.classList.add("rolled", "spInsanity");
+	el.innerHTML = ((currentLanguage==='de') ? 'Gesamt Wahnsinnspunkte:': 'Total Insanity Points:') + '<b id="totInsanity">'+CharData.Insanity.toString()+'</b>';
 	nextDiv.appendChild(el);
 	
 	
 	
 	el = document.createElement('h2');
-	el.textContent = ((currentLanguage==='de') ? 'Schicksal': 'Fate');
+	el.textContent = ((currentLanguage==='de') ? 'Korruptions Punkte': 'Corruption Points');
 	nextDiv.appendChild(el);
 	
 	el = document.createElement('span');
-	el.classList.add("rolled", "spFate");
-	el.innerHTML = ((currentLanguage==='de') ? 'Basis Schicksal:': 'Base Fate:') + '<b>'+homeworlds[CharData.Homeworld].Fate[0].toString()+'</b>';
+	el.classList.add("rolled", "spInsanity");
+	el.innerHTML = ((currentLanguage==='de') ? 'Basis Korruptions Punkte:': 'Base Corruption Points:') + '<b>'+CharData.Corruption.toString()+'</b>';
 	
 	nextDiv.appendChild(el);
 	nextDiv.appendChild(document.createElement('br'));
 	nextDiv.appendChild(document.createElement('br'));
 	
-	el = document.createElement("button");
-	el.classList.add("btRollBig");
-	el.id = "btFate"; 
-	el.textContent = ((currentLanguage==='de')? "Rolle 1W10. +1 Shicksal Wenn >= " : "roll 1d10. +1 Fate on >=")+homeworlds[CharData.Homeworld].Fate[1].toString();
-	el.addEventListener("click", (event) => {
-		  updateFate();
-		  if(validateHPandFate()){
-			  showNextBt();
-		  }
-		}, { once: true });
-		
-	nextDiv.appendChild(el);
-	nextDiv.appendChild(document.createElement('br'));
-	nextDiv.appendChild(document.createElement('br'));
+	choices.Corruption.forEach((value, index) =>
+		{
+			el = document.createElement("button");
+			el.classList.add("btRollBig", "btMargin","choice");
+			el.id = "btCorruption"+index.toString(); 
+			el.textContent = ((currentLanguage==='de')? "Rolle " : "roll ")+value;
+			el.RollData = value;
+			el.addEventListener("click", (event) => {
+				event.target.classList.add("clicked");
+				event.target.classList.remove("choice");
+				const result = updateCorruption(event.target.RollData);
+				event.target.textContent = ((currentLanguage==='de')? "Ergebnis: " : "result:  ")+result.toString();;
+				document.getElementById("totCorruption").textContent = CharData.Corruption;
+				if(validateSelections())
+				{
+					showNextBt();
+				}
+				  
+			}, { once: true });
+				
+			nextDiv.appendChild(el);
+			nextDiv.appendChild(document.createElement('br'));
+			nextDiv.appendChild(document.createElement('br'));
+		}
+	);
+	
 	
 	el = document.createElement('span');
-	el.classList.add("rolled", "spFate");
-	el.innerHTML = ((currentLanguage==='de') ? 'Gesamt Schicksal:': 'Total Fate:') + '<b id="totFate"></b>';
+	el.classList.add("rolled", "spInsanity");
+	if(choices.Corruption.length === 0){
+		el.innerHTML = ((currentLanguage==='de') ? 'Gesamt Korruptions Punkte:': 'Total Corruption Points:') + '<b id="totCorruption">'+CharData.Corruption.toString()+'</b>';
+	}
+	else {
+		el.innerHTML = ((currentLanguage==='de') ? 'Gesamt Korruptions Punkte:': 'Total Corruption Points:') + '<b id="totCorruption"></b>';
+	}
+	
 	nextDiv.appendChild(el);
 	
 	div.appendChild(nextDiv);
@@ -1815,7 +2402,7 @@ function chooseInsanityAndCorruption(){
 	btNxt.classList.add("btNext","hidden");
 	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
 	btNxt.addEventListener("click", (event) => {
-		  console.log('ToDo');
+		  chooseTraumaAndMalig();
 		});
 	
 	nextDiv.appendChild(btNxt);
@@ -1824,140 +2411,15 @@ function chooseInsanityAndCorruption(){
 	
 		
 	div.classList.add('dataCard');
-	*/
+	container.appendChild(div);	
+	
+	if(validateSelections())
+	{
+		showNextBt();
+	}
 }
 
 
-function chooseMutationsAndImplants(){
-	clearContentDivs();
-	CharData.Gear = [];
-	choices.Gear = [];
-	
-	const bgT = backgrounds[CharData.Background];
-
-	
-	updateGear([(("Gear" in bgT)? bgT.Gear : [])
-		]);
-	
-	
-	
-	const container = document.getElementById('charChoice');
-	
-	var div = document.createElement('div');
-	div.classList.add('infoCard');
-	
-	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
-	container.appendChild(div);
-	
-	div = document.createElement('div');
-	
-	const table = document.createElement('table'); // Create the table
-	const tHead = document.createElement('tHead'); // Create the header
-	const htr = document.createElement('tr');
-	var th = document.createElement('th');
-	th.textContent = ((currentLanguage==='de')? 'Ausrüstung' : 'Gear');
-	htr.appendChild(th);
-	th = document.createElement('th');
-	th.textContent = ((currentLanguage==='de') ? 'Beschreibung' : 'Description');
-	htr.appendChild(th);
-	tHead.appendChild(htr);
-	table.appendChild(tHead);
-	
-	
-	const tbody = document.createElement('tbody'); // Create the tbody
-
-	const currChoices = choices.Gear;
-	for (let i = 0; i < currChoices.length; i++) {
-		var tr = document.createElement('tr');
-		var td = document.createElement('td');
-		
-		td.classList.add('tdStat');
-		
-		const filteredChoices = currChoices[i];
-		
-		if(filteredChoices.length === 1){
-			td.textContent = filteredChoices[0];
-		}else{
-			var dropDown = document.createElement('select');
-			dropDown.id = 'selGear'+i.toString();
-			const placeholder = document.createElement('option');
-			placeholder.textContent = '---';
-			placeholder.value = "";
-			placeholder.disabled = true;
-			placeholder.selected = true;
-			dropDown.appendChild(placeholder);
-			
-			filteredChoices.forEach(gear => {
-			const option = document.createElement('option');
-			option.value = gear;
-			option.textContent = gear;
-			dropDown.appendChild(option);
-			});
-			
-			dropDown.addEventListener("change", (event) => {
-			  if(validateSelections()){
-				showNextBt();
-			  }
-			});
-			
-			td.appendChild(dropDown);
-		}
-		
-		tr.appendChild(td);
-		
-		td = document.createElement('td');
-		td.classList.add('tdDesc');
-		td.textContent = 'ToDo: here are short descriptions';
-		tr.appendChild(td);
-		
-		
-		tbody.appendChild(tr);
-	}
-	
-	const selGear = CharData.Gear;
-	for (let i = 0; i < selGear.length; i++) {
-		var tr = document.createElement('tr');
-		var td = document.createElement('td');
-		
-		td.classList.add('tdStat');
-		
-		const filteredChoices = selGear[i];
-		
-		td.textContent = filteredChoices.value;
-		
-		tr.appendChild(td);
-		td = document.createElement('td');
-		
-		td.classList.add('tdDesc');
-		td.textContent = 'ToDo: here are short descriptions';
-		tr.appendChild(td);
-		
-		tbody.appendChild(tr);
-	}
-
-	table.appendChild(tbody); // Append tbody to the table
-	div.appendChild(table); // Append the table to the div
-
-	
-	var nextDiv = document.createElement('div');
-	nextDiv.classList.add("dataCardNext");
-	
-	
-	const btNxt = document.createElement("button");
-	btNxt.classList.add("btNext","hidden");
-	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
-	btNxt.addEventListener("click", (event) => {
-		  console.log('ToDo');
-		});
-	
-	nextDiv.appendChild(btNxt);
-
-	div.appendChild(nextDiv);
-	
-		
-	div.classList.add('dataCard');
-	container.appendChild(div);
-}
 
 function rollDice(sides) {
         return Math.floor(Math.random() * sides) + 1;
@@ -2024,7 +2486,9 @@ function refreshTotals(index){
 	}else{
 		hideNextBt();
 	}
+	
 	document.querySelectorAll(".prRest").forEach(entry => entry.textContent=freePts);
+
 }
 
 function getFreeStatPoints(){
@@ -2055,8 +2519,9 @@ function generateStatSelection() {
 	var div = document.createElement('div');
 	div.classList.add('infoCard');
 	
-	div.innerHTML = `
+	div.innerHTML = `<div class="infotext">
 		${((currentLanguage==='de') ? characteristicsTexts.InfoTextDe : characteristicsTexts.InfoText)}
+		</div>
 		<div class="infoCardBts" id="infoCardBts">
 		<hr>
 		<button class="rollBt" id="btRoll" onclick="rollStats()">${((currentLanguage === 'de') ? characteristicsTexts.rollBtTextDe : characteristicsTexts.rollBtText)}</button>
@@ -2069,7 +2534,8 @@ function generateStatSelection() {
 	
 	div = document.createElement('div');
 	
-	const table = document.createElement('table'); // Create the table
+	const table = document.createElement('table'); // Create the table // Create the table
+	table.classList.add("twctab");
 	const tHead = document.createElement('tHead'); // Create the header
 	const htr = document.createElement('tr');
 	var th = document.createElement('th');
@@ -2082,7 +2548,7 @@ function generateStatSelection() {
 	th.textContent = 'Bonus';
 	htr.appendChild(th);
 	th = document.createElement('th');
-	th.textContent = ((currentLanguage==='de') ? 'Increase' : 'Vergabe');
+	th.textContent = ((currentLanguage==='de') ? 'Vergabe' : 'Increase');
 	htr.appendChild(th);
 	th = document.createElement('th');
 	htr.appendChild(th);
@@ -2188,6 +2654,7 @@ function generateStatSelection() {
 		  document.querySelectorAll(classes).forEach(entry => entry.textContent = "+"+CharData.Stats[event.target.ArrIndex].rolledValues.toString());
 		  refreshTotals(event.target.ArrIndex);
 		  hideRerolls();
+		  showNextBt();
 		});
 		td.appendChild(bt);
 		tr.appendChild(td);
@@ -2255,6 +2722,18 @@ function updateAptitudes(data) {
 			}
         });
     });
+	//for all duplicates: Push Character choice.
+	CharData.Aptitudes.filter(entry => entry.amount > 1).forEach(entry => {
+		const resultString = Object.keys(Apts)
+			.filter(key => key.length <= 3)
+			.join('|');
+			
+		for(let i = 1; i < entry.amount; i++){
+			choices.Aptitudes.push(resultString);
+		}
+		entry.amount =1;
+	});
+	
 }
 
 function populateCareers() {

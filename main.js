@@ -18,6 +18,7 @@ var CharData =
 	"Aptitudes":[],
 	"Stats":[],
 	"Talents":[],
+	"Traits":[],
 	"Skills":[],
 	"Gear":[],
 	"Fate":0,
@@ -26,71 +27,10 @@ var CharData =
 	"Mutations": [],
 	"Insanity": 0,
 	"Corruption": 0,
-	"Malignancies" :[]
+	"Malignancies" :[],
+	"Disorders" :[]
 }
-const implants = {
-	"bio_arm":
-	{
-		"Name":"Bionic Arm",
-		"Type": "bionic",
-		"NameDe": "Bionischer Arm"
-	},
-	"bio_leg":{
-		"Name":"Bionic Leg",
-		"Type": "bionic",
-		"NameDe": "Bionisches Bein"
-	},
-	"bio_resp":{
-		"Name":"Bionic Respiratory",
-		"Type": "bionic",
-		"NameDe": "Bionisches Atemsystem"
-	},
-	"bio_ear":{
-		"Name":"Bionic Ears",
-		"Type": "bionic",
-		"NameDe": "Bionische Ohren"
-	},
-	"bio_eyes":{
-		"Name":"Bionic Eyes",
-		"Type": "bionic",
-		"NameDe": "Bionische Augen"
-	},
-	"mech_ut":{
-		"Name":"Utility Mechadendrite",
-		"Type": "mech",
-		"NameDe": "Nutz-Mechadendrit"
-	},
-	"mech_medi":{
-		"Name":"Medicae Mechadendrite",
-		"Type": "mech",
-		"NameDe": "Medicae-Mechadendrit"
-	},
-	"mech_manip":{
-		"Name":"Manipulator Mechadendrite",
-		"Type": "mech",
-		"NameDe": "Manipulator-Mechadendrit"
-	},
-	"mech_optic":{
-		"Name":"Optical Mechadendrite",
-		"Type": "mech",
-		"NameDe": "Optischer Mechadendrit"
-	},
-	"mech_nozzle":{
-		"Name":"Utility Nozzle Mechadendrite",
-		"Type": "mech",
-		"NameDe": "Nutzdüsen-Mechadendrit"
-	},	
-	"mech_dat":{
-		"Name":"Data-Spike Mechadendrite",
-		"Type": "mech",
-		"NameDe": "Datenspieß-Mechadendrit"
-	},	
-	"mech_scanner":{
-		"Name":"Scanner Mechadendrite",
-		"Type": "mech",
-		"NameDe": "Scanner-Mechadendrit"
-	}
-}
+
 
 function compressObject(jsonObject) {
     try {
@@ -164,22 +104,175 @@ var characteristicsTexts =
 	"ptBuyBtTextDe":"Punkte System verwenden",
 }
 
-var aptitudesTexts = 
+
+var disordersText = 
 {
-	"InfoText":`<p>Your aptitudes will determine experience costs for skills, characteristics and talents.</br>Aptitudes are given based on your career, homeworld, background, and role.</br>For some aptitudes you will be given a choice of two, please select one.</p>`,
-	"InfoTextDe":`<p>Deine Begabungen bestimmen die Erfahrungskosten für Fertigkeiten, Charateristika und Talente.</br>Begabungen werden basierend auf deiner Klasse, der Heimatwelt, dem Hintergrund und der Rolle vergeben.</br>Für einige Begabungen hast du die Wahl zwischen zwei Optionen, bitte wähle eine aus.</p>
+	"InfoText":`<h3>Malignancies:</h3>
+        <ul>
+            <li>Represent the subtle physical or mental corruption caused by exposure to Chaos or the Warp.</li>
+            <li>Often minor but unsettling effects (e.g., paranoia, unnatural appetites).</li>
+            <li>Triggered when a character gains too many Corruption Points and fails a test.</li>
+            <li>Over time, can lead to full-blown mutations.</li>
+        </ul>
+        <h3>Mental Disorders:</h3>
+        <ul>
+            <li>Result from accumulating too many Insanity Points.</li>
+            <li>Include phobias, compulsions, or psychoses that affect behavior and gameplay.</li>
+            <li>Gained after failing Willpower tests at specific Insanity thresholds.</li>
+            <li>Can become permanent if not treated.</li>
+        </ul>`,
+	"InfoTextDe":`<h3>Malignitäten:</h3>
+        <ul>
+            <li>Repräsentieren die subtile physische oder geistige Verderbnis durch Chaos oder den Warp.</li>
+            <li>Oft geringfügige, aber verstörende Effekte (z. B. Paranoia, unnatürliche Gelüste).</li>
+            <li>Werden ausgelöst, wenn ein Charakter zu viele Verderbnispunkte sammelt und einen Test nicht besteht.</li>
+            <li>Können sich mit der Zeit zu vollwertigen Mutationen entwickeln.</li>
+        </ul>
+        <h3>Geistesstörungen</h3>
+        <ul>
+            <li>Entstehen durch das Ansammeln von zu vielen Wahnsinnspunkten.</li>
+            <li>Umfassen Phobien, Zwänge oder Psychosen, die Verhalten und Spiel beeinflussen.</li>
+            <li>Werden nach misslungenen Willenskraft-Tests bei bestimmten Wahnsinnsschwellenwerten erworben.</li>
+            <li>Können dauerhaft werden, wenn sie nicht behandelt werden.</li>
+        </ul>`
+}
+
+var ipCptexts = 
+{
+	"InfoText":`<h3>Insanity Points (IP):</h3>
+        <ul>
+            <li>Represent the mental strain caused by traumatic or horrifying experiences.</li>
+            <li>Accumulating too many IP can lead to mental disorders or permanent insanity.</li>
+            <li>At specific thresholds characters must take a Willpower test to avoid gaining a mental disorder.</li>
+            <li>Disorders can range from phobias to full-blown psychosis, affecting gameplay and roleplaying.</li>
+        </ul>
+        <h3>Corruption Points (CP):</h3>
+        <ul>
+            <li>Reflect exposure to the Warp, Chaos, or morally corrupt acts.</li>
+            <li>As CP increase, the character may develop mutations or Malignancies.</li>
+            <li>At certain thresholds characters must take a Willpower test to avoid mutations.</li>
+            <li>Reaching 100 CP means the character is irrevocably corrupted and removed from play.</li>
+        </ul>`,
+	"InfoTextDe":`<h3>Wahnsinnspunkte (WP):</h3>
+        <ul>
+            <li>Repräsentieren die geistige Belastung durch traumatische oder erschreckende Erlebnisse.</li>
+            <li>Zu viele WP können zu geistigen Störungen oder dauerhafter Verrücktheit führen.</li>
+            <li>Bei bestimmten Schwellenwerten muss ein Willenskraft-Test abgelegt werden, um eine Störung zu vermeiden.</li>
+            <li>Störungen können von Phobien bis hin zu schwerer Psychose reichen und das Spiel beeinflussen.</li>
+        </ul>
+        <h3>Verderbnispunkte (VP):</h3>
+        <ul>
+            <li>Spiegeln die Aussetzung gegenüber dem Warp, Chaos oder moralischer Verderbtheit wider.</li>
+            <li>Mit steigenden VP können Mutationen oder Malignitäten auftreten.</li>
+            <li>Bei bestimmten Schwellenwerten muss ein Willenskraft-Test abgelegt werden, um Mutationen zu vermeiden.</li>
+            <li>Bei 100 VP wird der Charakter unwiderruflich korrumpiert und aus dem Spiel entfernt.</li>
+        </ul>`
+}
+
+const aptitudesTexts = 
+{
+	"InfoText":`<p>Your aptitudes will determine experience costs for skills, characteristics and talents.</br></br></br>Aptitudes are given based on your career, homeworld, background, and role.</br></br></br>For some aptitudes you will be given a choice of two, please select one.</p>`,
+	"InfoTextDe":`<p>Deine Begabungen bestimmen die Erfahrungskosten für Fertigkeiten, Charateristika und Talente.</br></br></br>Begabungen werden basierend auf deiner Klasse, der Heimatwelt, dem Hintergrund und der Rolle vergeben.</br></br></br>Für einige Begabungen hast du die Wahl zwischen zwei Optionen, bitte wähle eine aus.</p>
 `
 }
 
 var talentsTexts = 
 {
-	"InfoText":`<p>Talents are unique abilities that enhance your character’s skills or grant powerful effects.
-				They can be purchased later using experience points, with their cost depending on your selected aptitudes.
-				Choose wisely to shape your character's strengths and define their path.</p>`,
-	"InfoTextDe":`<p>Talente sind einzigartige Fähigkeiten, die die Fertigkeiten deines Charakters verbessern oder mächtige Effekte gewähren.
-				Sie können später mit Erfahrungspunkten erworben werden, wobei die Kosten von den gewählten Begabungen abhängen.
-				Wähle mit Bedacht, um die Stärken deines Charakters zu formen und seinen Weg zu bestimmen.</p>
-`
+	"InfoText":`<p>Talents represent unique abilities, special training, or extraordinary traits your character possesses. They enhance your character's effectiveness in combat, skill use, or roleplaying situations.</p>
+		</br></br>
+		<b>How to Obtain or Talents:</b>
+		<ol>
+			<li>Initial Talents<b>:</b> During character creation, your character starts with specific talents based on their homeworld, background, and role.</li>
+			<li>Acquiring Talents<b>:</b> New talents can be purchased during gameplay using experience points (XP). The cost depends on your character's Aptitudes.</li>
+		</ol>`,
+	"InfoTextDe":`<p>Talente repräsentieren einzigartige Fähigkeiten, spezielle Ausbildung oder außergewöhnliche Eigenschaften, die dein Charakter besitzt. Sie verbessern die Effektivität deines Charakters im Kampf, bei Fertigkeiten oder in Rollenspielsituationen.</p>
+		</br></br>
+		<b>How to Obtain Talentss:</b>
+		<ol>
+			<li><b>Anfängliche Talente:</b> Zu Beginn der Charaktererstellung erhält dein Charakter spezifische Talente, die durch Herkunft, Hintergrund und Rolle bestimmt werden.</li>
+			<li><b>Erwerb von Talenten:</b> Neue Talente können im Spielverlauf mit Erfahrungspunkten (EP) gekauft werden. Die Kosten hängen von den Neigungen (Aptitudes) des Charakters ab.</li>
+		</ol>`,
+}
+
+var implMutaTraits = 
+{
+	"InfoText":`<p>Cybernetics, Mutations, and Traits represent physical modifications, genetic deviations, or innate characteristics that shape your character’s abilities and limitations.</p>
+	</br></br>
+	<b>Implants</b>
+	<ol>
+		<li><b>Acquisition:</b> Characters may start with cybernetics based on their background or acquire them during gameplay, often requiring a Tech-Use test or specialized equipment.</li>
+		<li><b>Functionality:</b> Cybernetics provide specific bonuses or abilities (e.g., improved vision, increased strength). Quality levels (Poor, Common, Good, Best) affect performance and drawbacks.</li>
+	</ol>
+	<b>Mutations</b>
+	<ol>
+		<li><b>Definition:</b> Physical or mental deformities caused by exposure to the Warp or corruption.</li>
+		<li><b>Effects:</b> Mutations may provide both benefits and drawbacks, often marking the character as tainted. Severe mutations can impact gameplay significantly.</li>
+	</ol>
+	<b>Traits</b>
+	<ol>
+		<li><b>Definition:</b> Innate features granted by your character's species, homeworld, or background.</li>
+		<li><b>Effects:</b> Traits grant bonuses, unique abilities, or resistances (e.g., natural armor, psychic resistance).</li>
+	</ol>`,
+	"InfoTextDe":`<p>Implantate, Mutationen und Eigenschaften repräsentieren körperliche Modifikationen, genetische Abweichungen oder angeborene Merkmale, die die Fähigkeiten und Einschränkungen deines Charakters prägen.</p>
+	</br></br>
+	<b>Implantate</b>
+	<ol>
+		<li><b>Erwerb:</b> Charaktere können Implantate basierend auf ihrem Hintergrund besitzen oder im Spielverlauf erwerben, oft durch Technik-Tests oder spezialisierte Ausrüstung.</li>
+		<li><b>Funktion:</b> Implantate bieten spezifische Boni oder Fähigkeiten (z. B. verbesserte Sicht, erhöhte Stärke). Die Qualität (Schlecht, Gewöhnlich, Gut, Beste) beeinflusst Leistung und Nachteile.</li>
+	</ol>
+	<b>Mutationen</b>
+	<ol>
+		<li><b>Definition:</b> Körperliche oder geistige Veränderungen durch den Warp oder Verderbnis.</li>
+		<li><b>Effekte:</b> Mutationen bringen sowohl Vorteile als auch Nachteile und kennzeichnen den Charakter oft als verdorben. Schwere Mutationen können das Spiel erheblich beeinflussen.</li>
+	</ol>
+	<b>Eigenschaften</b>
+	<ol>
+		<li><b>Definition:</b> Angeborene Merkmale, die durch die Spezies, Herkunft oder den Hintergrund des Charakters gewährt werden.</li>
+		<li><b>Effekte:</b> Eigenschaften gewähren Boni, einzigartige Fähigkeiten oder Widerstände (z. B. natürliche Rüstung, psionische Resistenz).</li>
+	</ol>`,
+}
+
+var skillsTexts = 
+{
+	"InfoText":`<p>Skills represent a character’s knowledge, training, and expertise in various areas, ranging from combat techniques to scholarly pursuits. They are used to determine success in tasks requiring specific abilities, such as shooting, persuading, or piloting.</p>
+	</br></br>
+	<b>How to Obtain or Upgrade Skills:</b>
+	<ol>
+		<li><b>Character Creation Choices:</b> The initial set of skills your character has is determined by the choices you make during character creation, such as homeworld, background, and role. These represent their foundational knowledge and training.</li>
+		<li><b>Initial Purchase:</b> After character creation, additional skills can be purchased using experience points (XP). These reflect the character’s personal focus and specialization.</li>
+		<li><b>Skill Levels:</b> Skills have levels (e.g., Known, Trained, +10, +20). Higher levels grant bonuses to related tests.</li>
+		<li><b>Advancement:</b> During gameplay, skills can be upgraded by spending XP if they align with the character’s Aptitudes. Skills without matching Aptitudes cost more to upgrade.</li>
+		<li><b>Untrained Use:</b> If a skill is untrained, it may still be used but usually with penalties or limited effectiveness (except Specialist skills, which often require training).</li>
+	</ol>`,
+	"InfoTextDe":`<p>Fertigkeiten repräsentieren das Wissen, die Ausbildung und das Können eines Charakters in verschiedenen Bereichen, von Kampftechniken bis hin zu wissenschaftlichen Disziplinen. Sie bestimmen den Erfolg bei Aufgaben, die spezifische Fähigkeiten erfordern, wie Schießen, Überzeugen oder Steuern.</p>
+	<b>Wie man Fertigkeiten erwirbt oder verbessert:</b>
+	<ol>
+		<li><b>Wahl während der Charaktererstellung:</b>  Die anfänglichen Fertigkeiten deines Charakters werden durch die Entscheidungen während der Charaktererstellung bestimmt, wie Herkunft, Hintergrund und Rolle. Diese spiegeln das grundlegende Wissen und die Ausbildung des Charakters wider.</li>
+		<li><b>Erwerb zu Beginn:</b> Nach der Charaktererstellung können zusätzliche Fertigkeiten mit Erfahrungspunkten (EP) gekauft werden. Diese repräsentieren die persönliche Spezialisierung des Charakters.</li>
+		<li><b>Fertigkeitsstufen:</b> Fertigkeiten haben Stufen (z. B. Bekannt, Geübt, +10, +20). Höhere Stufen verleihen Boni auf entsprechende Tests.</li>
+		<li><b>Aufstieg:</b> Im Spiel können Fertigkeiten durch EP verbessert werden, wenn sie zu den Neigungen (Aptitudes) des Charakters passen. Fertigkeiten ohne passende Neigungen kosten mehr.</li>
+		<li><b>Ungeschulte Nutzung:</b> Ungeschulte Fertigkeiten können oft mit Abzügen oder eingeschränkter Effektivität genutzt werden (außer Spezialfertigkeiten, die normalerweise Training erfordern).</li>
+	</ol>`,
+}
+
+
+var gearTexts = 
+{
+	"InfoText":`<p>Gear represents the tools, weapons, armor, and other equipment your character carries. It is essential for survival, combat, and accomplishing various tasks during your adventures.</p>
+	</br></br>
+	<b>How to Obtain or Upgrade Skills:</b>
+	<ol>
+		<li><b>CAcquisition in Play:</b> Gear can be acquired during gameplay through trading, scavenging, or rewards. Requisition tests using Profit Factor determine success.</li>
+		<li><b>Upgrades:</b> Some gear, such as weapons and armor, can be upgraded or enhanced to improve their functionality or add special qualities. This may require a skilled craftsman, a Tech-Use test, or special resources.</li>
+		<li><b>Customization:</b> SGear can often be tailored to fit specific needs, like attaching mods to weapons or enhancing protective equipment.
+		</li>
+	</ol>`,
+	"InfoTextDe":`<p>Ausrüstung umfasst die Werkzeuge, Waffen, Rüstungen und andere Gegenstände, die dein Charakter bei sich trägt. Sie ist essenziell für das Überleben, den Kampf und die Erfüllung von Aufgaben während deiner Abenteuer.</b>
+	<ol>
+		<li><b>Erwerb im Spiel:</b>  usrüstung kann im Spiel durch Handel, Plünderung oder Belohnungen erworben werden. Erfolg wird durch Anforderungstests mit Profitfaktor bestimmt.</li>
+		<li><b>Verbesserungen:</b> Einige Ausrüstungsgegenstände, wie Waffen und Rüstungen, können verbessert oder aufgerüstet werden, um ihre Funktionalität oder besondere Eigenschaften zu erhöhen. Dies kann einen erfahrenen Handwerker, einen Technik-Test oder spezielle Ressourcen erfordern.</li>
+		<li><b>Anpassung:</b> Ausrüstung kann oft an spezifische Bedürfnisse angepasst werden, z. B. durch das Anbringen von Mods an Waffen oder das Verstärken von Schutzkleidung.</li>
+	</ol>`,
 }
 
 var choices ={
@@ -188,7 +281,13 @@ var choices ={
 	"Skills":[],
 	"Gear":[],
 	"Implants": [],
-	"Mutations": []
+	"Mutations": [],
+	"Talents": [],
+	"Traits":[],
+	"Corruption": [],
+	"Malignancies": 0,
+	"MalignanciyTests": 0,
+	"Disorders": 0
 }
 
 var brLure = {
@@ -246,677 +345,127 @@ var GearGroups ={
 	}
 }
 
-var Mutations = 
-{
-	"01_hide":
-	{
-		"MinRoll":1,
-		"MaxRoll":6,
-		"Name": "Bestial Hide",
-		"Effect": "The character's skin becomes toughened with layers of thick scales or chitin, and he gains the Natural Armour (2) trait.",
-		"NameDe": "Tierische Haut",
-		"EffectDe": "Die Haut des Charakters wird durch dicke Schichten aus Schuppen oder Chitin gehärtet, und er erhält die Eigenschaft Natürliche Rüstung (2)."
-	},
-	"02_arms":
-	{
-		"MinRoll":7,
-		"MaxRoll":11,
-		"Name": "Unnatural Arms",
-		"Effect": "Twisted appendages (shrivelled arms, hooked talons, or fleshy tendrils) emerge from this character's spine or torso. He gains the Multiple Arms (CB) trait.",
-		"NameDe": "Unnatürliche Arme",
-		"EffectDe": "Verdrehte Anhängsel (geschrumpfte Arme, hakenartige Klauen oder fleischige Tentakel) wachsen aus der Wirbelsäule oder dem Torso dieses Charakters. Er erhält die Eigenschaft Mehrere Arme (CB)."
-	},
-	"03_orbs":
-	{
-		"MinRoll":12,
-		"MaxRoll":17,
-		"Name": "Sightless Orbs",
-		"Effect": "This character's eyes become sightless, cracked windows into a soul afflicted with a growing corruption. He gains Blind and Unnatural Senses (CBx10) traits.",
-		"NameDe": "Sichtlose Kugeln",
-		"EffectDe": "Die Augen dieses Charakters werden zu blinden, rissigen Fenstern in eine Seele, die von wachsender Verderbnis gezeichnet ist. Er erhält die Eigenschaften Blind und Unnatürliche Sinne (CB x 10)."
-	},
-	"04_brute":
-	{
-		"MinRoll":18,
-		"MaxRoll":25,
-		"Name": "Swollen Brute",
-		"Effect": "This character becomes bloated, his muscles expanding and his form becoming excessively corpulent or disturbingly muscular (or perhaps both). This character's Toughness and Strength characteristics are permanently increased by 10, but his Agility bonus is reduced by 1 for purposes of movement.",
-		"NameDe": "Geschwollener Koloss",
-		"EffectDe": "Der Charakter wird aufgebläht, seine Muskeln wachsen an und seine Gestalt wird übermäßig massig oder beängstigend muskulös (oder beides). Die Werte für Zähigkeit und Stärke dieses Charakters werden dauerhaft um 10 erhöht, aber sein Beweglichkeitsbonus wird für Bewegungszwecke um 1 reduziert."
-	},
-	"05_deathsight":
-	{
-		"MinRoll":16,
-		"MaxRoll":30,
-		"Name": "Deathsight",
-		"Effect": "This character's mind becomes twisted, his eyes showing him countless possible annihilations of anything or anyone he gazes upon for more than a few moments. Once per game session, this character may increase the damage of one attack he has made by his Corruption bonus. If he does so, he gains 1 Corruption point.",
-		"NameDe": "Todessicht",
-		"EffectDe": "Der Geist dieses Charakters wird verdreht, seine Augen zeigen ihm zahllose mögliche Zerstörungen von allem und jedem, auf den er länger als einen Moment blickt. Einmal pro Spielsitzung kann dieser Charakter den Schaden eines von ihm ausgeführten Angriffs um seinen Verderbnisbonus erhöhen. Tut er dies, erhält er 1 Verderbnispunkt."
-	},
-	"06_fleshmetal":
-	{
-		"MinRoll":31,
-		"MaxRoll":36,
-		"Name": "Cursed Fleshmetal",
-		"Effect": "This character's armour and cybernetic implants become fused with his flesh, and even regenerate. Removing any of these items requires a Challenging (+0) Medicae test; if the test fails, he suffers 1d5 Rending damage to a randomly selected limb that ignores Armour. He can make an Ordinary (+10) Toughness test to repair items merged with him, in the same manner as a Tech-Use test to repair the same equipment, but suffers 1 Corruption point.",
-		"NameDe": "Verfluchtes Fleischmetall",
-		"EffectDe": "Die Rüstung und cybernetischen Implantate dieses Charakters verschmelzen mit seinem Fleisch und regenerieren sich sogar. Das Entfernen dieser Gegenstände erfordert einen Herausfordernden (+0) Medicae-Test; bei einem Fehlschlag erleidet der Charakter 1W5 Schaden an einem zufällig gewählten Gliedmaß, der Rüstung ignoriert. Er kann einen Gewöhnlichen (+10) Zähigkeitstest durchführen, um Gegenstände, die mit ihm verschmolzen sind, in der gleichen Weise zu reparieren wie ein Tech-Test, jedoch erleidet er dabei 1 Verderbnispunkt."
-	},
-	"07_fangs":
-	{
-		"MinRoll":37,
-		"MaxRoll":43,
-		"Name": "Razor Fangs",
-		"Effect": "This character's teeth grow long, turning into tearing fangs. This character gains an unarmed attack that inflicts 1d5+CB Rending damage, pen 2. He permanently reduces his Fellowship characteristic by 1d5.",
-		"NameDe": "Reißzähne",
-		"EffectDe": "Die Zähne des Charakters wachsen und verwandeln sich in reißende Fänge. Der Charakter erhält einen unbewaffneten Angriff, der 1W5+CB Riss-Schaden mit Durchschlag 2 verursacht. Seine Charisma-Eigenschaft wird dauerhaft um 1W5 reduziert."
-	},
-	"08_legs":
-	{
-		"MinRoll":44,
-		"MaxRoll":49,
-		"Name": "Excessive Legs",
-		"Effect": "This character develops extra legs that support his form, suspending his upper torso above a centauroid lower body. This character gains the Quadruped trait with a number of extra legs equal half to his Corruption bonus (rounded up).",
-		"NameDe": "Überzählige Beine",
-		"EffectDe": "Dieser Charakter entwickelt zusätzliche Beine, die seine Gestalt stützen und seinen Oberkörper über einem centaurartigen Unterkörper tragen. Er erhält die Eigenschaft Vierbeinig mit einer Anzahl zusätzlicher Beine, die der Hälfte seines Verderbnisbonus (aufgerundet) entspricht."
-	},
-	"09_wings":
-	{
-		"MinRoll":50,
-		"MaxRoll":54,
-		"Name": "Wings",
-		"Effect": "Massive feathered or leathery wings erupt from this character's spine, and he gains the Flyer (CBx2) trait.",
-		"NameDe": "Flügel",
-		"EffectDe": "Massive gefiederte oder ledrige Flügel brechen aus der Wirbelsäule des Charakters hervor. Er erhält die Eigenschaft Flieger (CB x 2)."
-	},
-	"10_tail":
-	{
-		"MinRoll":55,
-		"MaxRoll":60,
-		"Name": "Serpentine Tail",
-		"Effect": "This character's legs wither while his spine elongates into a serpentine tail that supports his body. He gains the Crawler trait and gains an unarmed attack that can strike for 1d10 Impact damage, Pen 0.",
-		"NameDe": "Schlangenartiger Schwanz",
-		"EffectDe": "Die Beine dieses Charakters verkümmern, während sich seine Wirbelsäule zu einem schlangenartigen Schwanz verlängert, der seinen Körper stützt. Er erhält die Eigenschaft Kriecher und einen unbewaffneten Angriff, der 1W10 Wucht-Schaden mit Durchschlag 0 verursacht."
-	},
-	"11_blood":
-	{
-		"MinRoll":61,
-		"MaxRoll":69,
-		"Name": "Searing Blood",
-		"Effect": "This character's veins are filled with searing acids in place of blood, though somehow the corrosive effects do not burn his own flesh. Whenever he suffers Blood Loss, the foul liquid erupts and inflicts 1d5+CB Energy damage, Pen 0, to each other character within 1d5 metres.",
-		"NameDe": "Ätzendes Blut",
-		"EffectDe": "Die Adern dieses Charakters sind mit ätzenden Säuren gefüllt, die sein eigenes Fleisch jedoch nicht verbrennen. Wann immer er Blutverlust erleidet, spritzt die giftige Flüssigkeit heraus und verursacht 1W5+CB Energieschaden mit Durchschlag 0 an jedem anderen Charakter innerhalb von 1W5 Metern."
-	},
-	"12_curse":
-	{
-		"MinRoll":70,
-		"MaxRoll":77,
-		"Name": "Witch-Curse",
-		"Effect": "A small stigma in the shape of a maddening rune appears on this character's body, marking him as touched by Chaos. He gains the Psyker trait (or adds 1 to an existing psy rating) and freely learns any 1 psychic power that costs 100 xp or less. Whenever he attempts to use this power, he gains 1d5 Corruption points.",
-		"NameDe": "Hexenfluch",
-		"EffectDe": "Ein kleines Mal in Form einer wahnsinnigen Rune erscheint auf dem Körper dieses Charakters, was ihn als vom Chaos berührt kennzeichnet. Er erhält die Eigenschaft Psioniker (oder erhöht einen bestehenden Psi-Wert um 1) und erlernt frei eine beliebige psychische Kraft, die 100 XP oder weniger kostet. Jedes Mal, wenn er versucht, diese Kraft zu nutzen, erhält er 1W5 Verderbnispunkte."
-	},
-	"13_bblade":
-	{
-		"MinRoll":78,
-		"MaxRoll":84,
-		"Name": "Bone-Blades",
-		"Effect": "This character's bones grow long, twisted spurs that sprout painfully from his flesh on his command. This character gains an unarmed attack that inflicts 1d10+CB Rending damage, Pen 0. Whenever he makes an attack with this weapon, this character suffers Blood Loss unless he passes a Challenging (+0) Toughness test.",
-		"NameDe": "Knochenklingen",
-		"EffectDe": "Die Knochen dieses Charakters wachsen zu langen, verdrehten Sporen, die schmerzhaft aus seinem Fleisch sprießen, wenn er es befiehlt. Der Charakter erhält einen unbewaffneten Angriff, der 1W10+CB Riss-Schaden mit Durchschlag 0 verursacht. Wann immer er mit dieser Waffe angreift, erleidet er Blutverlust, es sei denn, er besteht einen Herausfordernden (+0) Zähigkeitstest."
-	},
-	"14_cannibal":
-	{
-		"MinRoll":85,
-		"MaxRoll":89,
-		"Name": "Cannibalistic Urge",
-		"Effect": "Blood and marrow become as wine and bread to this character, and normal food no longer sates the hunger of his soul. Once per game session, he can remove 1d5 damage by consuming human flesh. Each time he does so, he gains 1 Corruption point.",
-		"NameDe": "Kannibalistischer Drang",
-		"EffectDe": "Blut und Knochenmark werden diesem Charakter zu Wein und Brot, und normales Essen stillt den Hunger seiner Seele nicht mehr. Einmal pro Spielsitzung kann er durch den Verzehr von menschlichem Fleisch 1W5 Schaden entfernen. Jedes Mal, wenn er dies tut, erhält er 1 Verderbnispunkt."
-	},
-	"15_corrupted":
-	{
-		"MinRoll":90,
-		"MaxRoll":92,
-		"Name": "Corrupted Flesh",
-		"Effect": "Instead of blood, when this character's flesh is torn asunder, horrific insects, worms, or flitting creatures spill forth. Whenever he suffers damage, this character gains the Fear (1) trait for 1d5 rounds.",
-		"NameDe": "Verdorbenes Fleisch",
-		"EffectDe": "Statt Blut fließen bei Verletzungen dieses Charakters abscheuliche Insekten, Würmer oder flatternde Kreaturen aus seinem Körper. Wann immer er Schaden erleidet, erhält er für 1W5 Runden die Eigenschaft Furcht (1)."
-	},
-	"16_notdie":
-	{
-		"MinRoll":93,
-		"MaxRoll":94,
-		"Name": "It Will Not Die!",
-		"Effect": "This character is touched by the power of the Warp, and fortune twists to keep him alive regardless of the terrible wounds he suffers, as if it is the will of some dark being that resides beyond the veil of reality. He can no longer burn a Fate point to survive lethal injuries. Whenever this character would die, he instead survives by the narrowest margin as if he had burned a Fate point and gains 1d10+5 Corruption points.",
-		"NameDe": "Es wird nicht sterben!",
-		"EffectDe": "Dieser Charakter ist vom Warp berührt, und das Schicksal wendet sich so, dass er selbst die schlimmsten Wunden überlebt, als ob ein dunkles Wesen jenseits des Schleiers der Realität seinen Fortbestand will. Er kann keine Schicksalspunkte mehr verbrennen, um tödlichen Verletzungen zu entkommen. Wann immer er sterben würde, überlebt er stattdessen knapp, als hätte er einen Schicksalspunkt verbrannt, und erhält 1W10+5 Verderbnispunkte."
-	},
-	"17_gaze":
-	{
-		"MinRoll":95,
-		"MaxRoll":97,
-		"Name": "Warp Gaze",
-		"Effect": "Whatever this character looks upon burns with the fire of the Warp, and all who see his eyes despair. This character gainsa 20m ranged attack that strikes with 1d10+CB Energy damage and the Spray quality. Each time he uses this attack, he gains 1d5 Corruption points. Characters struck with this attack must make a Challenging (+0) Fear(1) test.",
-		"NameDe": "Warpblick",
-		"EffectDe": "Alles, worauf dieser Charakter blickt, verbrennt im Feuer des Warp, und alle, die seine Augen sehen, verzweifeln. Der Charakter erhält einen Fernkampfangriff mit 20m Reichweite, der 1W10+CB Energieschaden verursacht und die Eigenschaft Spray besitzt. Jedes Mal, wenn er diesen Angriff einsetzt, erhält er 1W5 Verderbnispunkte. Charaktere, die von diesem Angriff getroffen werden, müssen einen Herausfordernden (+0) Furcht(1)-Test bestehen."
-	},
-	"18_regen":
-	{
-		"MinRoll":98,
-		"MaxRoll":99,
-		"Name": "Warp Regeneration",
-		"Effect": "Corruption seethes through this character's flesh, sewing his body back together time and time again whether he wills it or not. Whenever this character suffers damage, he makes a Challenging (+0) Toughness test. If he succeeds, he gains the Regeneration (CB) trait for 1 round and gains 1d5 Corruption points.",
-		"NameDe": "Warp-Regeneration",
-		"EffectDe": "Verderbnis durchdringt das Fleisch dieses Charakters und fügt seinen Körper immer wieder zusammen, ob er es will oder nicht. Wann immer dieser Charakter Schaden erleidet, führt er einen Herausfordernden (+0) Zähigkeitstest durch. Wenn er besteht, erhält er für 1 Runde die Eigenschaft Regeneration (CB) und 1W5 Verderbnispunkte."
-	},
-	"19_warp":
-	{
-		"MinRoll":100,
-		"MaxRoll":100,
-		"Name": "The Warp Made Manifest",
-		"Effect": "This character becomes a Daemon-like creature, capable of reshaping reality itself at his whim. He gains the Daemonic (CB), Fear (2), From Beyond, and Warp Instability traits. He can also use his Willpower characteristic in place of any other characteristic for any test he is called upon to take.",
-		"NameDe": "Der Warp wird manifest",
-		"EffectDe": "Dieser Charakter wird zu einer dämonenähnlichen Kreatur, die in der Lage ist, die Realität nach Belieben zu formen. Er erhält die Eigenschaften Dämonisch (CB), Furcht (2), Von Jenseits und Warp-Instabilität. Außerdem kann er seine Willenskraft-Eigenschaft anstelle jeder anderen Eigenschaft für beliebige Tests einsetzen."
-	}
-}
-
-var naviMutations = 
-{
-	"01_limbs":
-	{
-		"MinRoll":1,
-		"MaxRoll":15,
-		"Name": "Strangely Jointed Limbs",
-		"Effect": "Your limbs have extra joints that articulate differently to a normal human. You gain the Acrobatics Skill as a trained. If you already possess the		Acrobatics Skill, you gain an additional rank in it instead.",
-		"NameDe": "",
-		"EffectDe": "",
-		"Skills":[["acrobatics",""]]
-		
-	},
-	"02_elongated":
-	{
-		"MinRoll":16,
-		"MaxRoll":30,
-		"Name": "Elongated Form",
-		"Effect": "You are extremely tall and painfully thin, and lose -1d5 Toughness permanently. Re-roll this mutation if you already have the Bloated Form mutation.",
-		"NameDe": "",
-		"EffectDe": "",
-		"Stats" : [["T","-1d5"]],
-		"RerollIfOther": ["06_bloat"]
-		
-	},
-	"03_pale":
-	{
-		"MinRoll":31,
-		"MaxRoll":45,
-		"Name": "Pale and Hairless Flesh",
-		"Effect": "Your skin is pale, marbled with veins and completely without hair.",
-		"NameDe": "",
-		"EffectDe": ""
-		
-	},
-	"04_eyes":
-	{
-		"MinRoll":46,
-		"MaxRoll":55,
-		"Name": "Eyes as Dark as the Void",
-		"Effect": "Your eyes are completely black and without iris; you gain the Dark Sight Trait.",
-		"NameDe": "",
-		"EffectDe": "",
-		"Traits" : ["darksight"]
-		
-	},
-	"05_withered":
-	{
-		"MinRoll":56,
-		"MaxRoll":60,
-		"Name": "Withered Form",
-		"Effect": "Your body is withered, your flesh hanging loosely from your bones. You reduce your Strength Characteristic by 10 permanently and halve your movement rates (to a minimum of 1). Re-roll this mutation if you already have the Bloated Form mutation.",
-		"NameDe": "",
-		"EffectDe": "",
-		"Stats" : [["T","-10"]],
-		"MovementIsHalfed" : 1,
-		"RerollIfOther": ["06_bloat"]
-		
-	},
-	"06_bloat":
-	{
-		"MinRoll":61,
-		"MaxRoll":65,
-		"Name": "Bloated Form",
-		"Effect": "Your body is grossly bloated and your limbs thick with flesh. You gain 5 wounds and the Sturdy trait but may no longer run. Re-roll this mutation if you already have the Elongated Form or Withered Form mutations.",
-		"NameDe": "",
-		"EffectDe": "",
-		"Wounds": "+5",
-		"RerollIfOther": ["05_withered","02_elongated"]
-		
-	},
-	"07_memb":
-	{
-		"MinRoll":66,
-		"MaxRoll":70,
-		"Name": "Membranous Growth",
-		"Effect": "You have membranes of skin between your limbs and digits and your skin sags in folds from your flesh; you suffer -5 Fellowship permanently",
-		"NameDe": "",
-		"EffectDe": "",
-		"Stats" : [["Fel","-5"]]
-		
-	},
-	"09_inhuman":
-	{
-		"MinRoll":71,
-		"MaxRoll":75,
-		"Name": "Inhuman Visage",
-		"Effect": "Your face is devoid of human features, your nose is nothing but a pair of slits, your ears are small holes, your eyes are unblinking. You gain the Fear (1) Trait.",
-		"NameDe": "",
-		"EffectDe": "",
-		"Traits": ["fear"]
-		
-	},
-	"10_talons":
-	{
-		"MinRoll":76,
-		"MaxRoll":80,
-		"Name": "Fingers like Talons",
-		"Effect": "The bones of your fingers have grown and hardened into talons. You gain the Natural Weapons Trait.",
-		"NameDe": "",
-		"EffectDe": "",
-		"Traits": ["nat_weapon"]
-		
-	},
-	"11_teeth":
-	{
-		"MinRoll":81,
-		"MaxRoll":85,
-		"Name": "Teeth as Sharp as Needles",
-		"Effect": "Your mouth is filled with hundreds of fine, pointed teeth. You gain the Natural Weapons Trait and suffer -1d5 Fellowship.",
-		"NameDe": "",
-		"EffectDe": "",
-		"Traits": ["nat_weapon"],
-		"Stats" : [["Fel","-1d5"]]
-		
-	},
-	"12_disturbing":
-	{
-		"MinRoll":86,
-		"MaxRoll":90,
-		"Name": "Disturbing Grace",
-		"Effect": "You move with a fluid, sinuous grace that is somewhat unpleasant and unnatural in its quality. You gain the Unnatural Agility (2) Trait.",
-		"NameDe": "",
-		"EffectDe": "",
-		"Traits": ["agility"]
-		
-	},
-	"13_vitality":
-	{
-		"MinRoll":91,
-		"MaxRoll":95,
-		"Name": "Strange Vitality",
-		"Effect": "You possess a vitality and resilience that is at odds with your physical form; wounds bleed translucent fluid and close quickly, bones knit together after being horrifically broken. You gain the Regeneration (1) Trait.",
-		"NameDe": "",
-		"EffectDe": "",
-		"Traits": ["regeneration"]
-	},
-	"14_unnat":
-	{
-		"MinRoll":96,
-		"MaxRoll":100,
-		"Name": "Unnatural Presence",
-		"Effect": "In your presence living things feel strange unpleasant sensations, a cloying touch to their skin, a keening whine in their ears and a metallic tang in their mouth. All your tests that involve positive social interaction are at –10, whilst all those that involve intimidation or inducing fear are at +10.",
-		"NameDe": "",
-		"EffectDe": "",
-		"EffectIsAbilty": 1
-		
-	}
-}
-
-
-var Gear ={
-    "a_b_bglove": {
-        "Name": "Armoured Bodyglove",
-        "NameDe": "Gepanzerter Ganzkörperanzug"
-    },
-    "a_b_h_leather": {
-        "Name": "Heavy Leathers",
-        "NameDe": "Schweres Leder"
-    },
-    "a_b_imperial": {
-        "Name": "Imperial Robes",
-        "NameDe": "Imperiale Roben"
-    },
-    "a_car_chest": {
-        "Name": "Carapace Chestplate",
-        "NameDe": "Karabiner-Brustplatte"
-    },
-    "a_car_hrlm_chest": {
-        "Name": "Heirloom Carapace Chestplate",
-        "NameDe": "Erbstück-Karabiner-Brustplatte"
-    },
-    "a_car_li_enf": {
-        "Name": "Enforcer Light Carapace",
-        "NameDe": "Leichte Karabinerrüstung der Vollstrecker"
-    },
-    "a_car_tempest": {
-        "Name": "Militarum Tempestus Carapace",
-        "NameDe": "Karabinerrüstung des Militarum Tempestus"
-    },
-    "a_flak_cloak": {
-        "Name": "Flak Cloak",
-        "NameDe": "Splittermantel"
-    },
-    "a_flak_coat": {
-        "Name": "Flak Coat",
-        "NameDe": "Splittermantel"
-    },
-    "a_flak_guard": {
-        "Name": "Imperial Guard Flak Armour",
-        "NameDe": "Splitterrüstung der Imperialen Armee"
-    },
-    "a_flak_vest": {
-        "Name": "Flak Vest",
-        "NameDe": "Splitterweste"
-    },
-    "a_mesh_cloak": {
-        "Name": "Mesh Cloak",
-        "NameDe": "Gewebeumhang"
-    },
-    "cons_ama": {
-        "Name": "Amasec",
-        "NameDe": "Amasec"
-    },
-    "cons_lho": {
-        "Name": "Lho-Sticks",
-        "NameDe": "Lho-Stäbchen"
-    },
-    "cons_obscura": {
-        "Name": "Obscura",
-        "NameDe": "Obscura"
-    },
-    "cons_sacred": {
-        "Name": "Sacred Unguents",
-        "NameDe": "Heilige Salben"
-    },
-    "cons_slaught": {
-        "Name": "Slaught",
-        "NameDe": "Slaught"
-    },
-    "cons_stimm": {
-        "Name": "Stimm",
-        "NameDe": "Stimm"
-    },
-    "cons_tranq": {
-        "Name": "Tranq",
-        "NameDe": "Beruhigungsmittel"
-    },
-    "f_hand": {
-        "Name": "Hand Flamer",
-        "NameDe": "Handflammenwerfer"
-    },
-    "gr_aqpend": {
-        "Name": "Aquila Pendant",
-        "NameDe": "Aquila-Anhänger"
-    },
-    "gr_fil_plug": {
-        "Name": "Filtration Plugs",
-        "NameDe": "Filterstopfen"
-    },
-    "gr_rebbreath": {
-        "Name": "Rebreather",
-        "NameDe": "Atemwiederaufbereiter"
-    },
-    "gr_voidsuit": {
-        "Name": "Synskin",
-        "NameDe": "Synhaut"
-    },
-    "gr_web": {
-        "Name": "Web Grenade",
-        "NameDe": "Netzgranate"
-    },
-    "las_hrlm_pistol": {
-        "Name": "Heirloom Laspistol",
-        "NameDe": "Erbstück-Laserpistole"
-    },
-    "las_hs_gun": {
-        "Name": "Hot-shot Lasgun",
-        "NameDe": "Hochenergie-Lasergewehr"
-    },
-    "las_hs_pistol": {
-        "Name": "Hot-shot Laspistol",
-        "NameDe": "Hochenergie-Laserpistole"
-    },
-    "las_lock": {
-        "Name": "Laslock",
-        "NameDe": "Laslock "
-    },
-    "las_normal": {
-        "Name": "Lasgun",
-        "NameDe": "Lasergewehr"
-    },
-    "las_pistol": {
-        "Name": "Laspistol",
-        "NameDe": "Laserpistole"
-    },
-    "m_ch_blade": {
-        "Name": "Chainblade",
-        "NameDe": "Klingenkettenwaffe"
-    },
-    "m_ch_hrlm_swrd": {
-        "Name": "Heirloom Chainsword",
-        "NameDe": "Erbstück-Kettenschwert"
-    },
-    "m_ch_swrd": {
-        "Name": "Chainsword",
-        "NameDe": "Kettenschwert"
-    },
-    "m_pr_cstaff": {
-        "Name": "Ceremonial Staff",
-        "NameDe": "Zeremonieller Stab"
-    },
-    "m_pr_csword": {
-        "Name": "Ceremonial Sword",
-        "NameDe": "Zeremonielles Schwert"
-    },
-    "m_pr_improv": {
-        "Name": "Improvised",
-        "NameDe": "Improvisierte Waffe"
-    },
-    "m_pr_knife": {
-        "Name": "Knife",
-        "NameDe": ""
-    },
-    "m_pr_staff": {
-        "Name": "Staff",
-        "NameDe": "Messer"
-    },
-    "m_pr_sword": {
-        "Name": "Sword",
-        "NameDe": "Schwert"
-    },
-    "m_pr_warhammer": {
-        "Name": "Warhammer",
-        "NameDe": "Kriegshammer"
-    },
-    "m_pr_whip": {
-        "Name": "Whip",
-        "NameDe": "Peitsche"
-    },
-    "m_sh_maul": {
-        "Name": "Shock Maul",
-        "NameDe": "Elektroschlagstock"
-    },
-    "m_sh_whip": {
-        "Name": "Shock Whip",
-        "NameDe": "Elektropeitsche"
-    },
-    "sp_auto_gun": {
-        "Name": "Autogun",
-        "NameDe": "Autogewehr"
-    },
-    "sp_auto_pstl": {
-        "Name": "Autopistol",
-        "NameDe": "Autopistole"
-    },
-    "sp_c_shotgun": {
-        "Name": "Shotgun (Combat)",
-        "NameDe": "Kampfschrotflinte"
-    },
-    "sp_h_can": {
-        "Name": "Hand Cannon",
-        "NameDe": "Handkanone"
-    },
-    "sp_shotgun": {
-        "Name": "Shotgun",
-        "NameDe": "Schrotflinte"
-    },
-    "sp_stub_auto": {
-        "Name": "Stub Automatic",
-        "NameDe": "Maschinenkarabiner (Automatik)"
-    },
-    "sp_stub_revo": {
-        "Name": "Stub Revolver",
-        "NameDe": "Maschinenkarabiner-Revolver"
-    },
-    "tl_advmedkit": {
-        "Name": "Advanced Medi-kit",
-        "NameDe": "Fortgeschrittenes Medikit"
-    },
-    "tl_auspex": {
-        "Name": "Auspex",
-        "NameDe": "Auspex"
-    },
-    "tl_bead": {
-        "Name": "Micro-bead",
-        "NameDe": "Micro-bead"
-    },
-    "tl_cuff": {
-        "Name": "Manacles",
-        "NameDe": "Handschellen"
-    },
-    "tl_combi": {
-        "Name": "Combi-tool",
-        "NameDe": "Kombinationswerkzeug"
-    },
-    "tl_disguise": {
-        "Name": "Disguise Kit",
-        "NameDe": "Verkleidungsset"
-    },
-    "tl_excruc": {
-        "Name": "Excruciator Kit",
-        "NameDe": "Folterwerkzeug-Set"
-    },
-    "tl_focus": {
-        "Name": "Psy Focus",
-        "NameDe": "Psi-Fokus"
-    },
-    "tl_grap": {
-        "Name": "Grapnel and Line",
-        "NameDe": "Enterhaken mit Seil"
-    },
-    "tl_harness": {
-        "Name": "Clip/Drop Harness",
-        "NameDe": "Sicherungsgurt/Abseilgeschirr"
-    },
-    "tl_inject": {
-        "Name": "Injector",
-        "NameDe": "Inhalator/Injektor"
-    },
-    "tl_medkit": {
-        "Name": "Medi-kit",
-        "NameDe": "Medikit"
-    },
-    "tl_quill": {
-        "Name": "Auto Quill",
-        "NameDe": "Automatischer Schreibfederhalter"
-    },
-    "tl_servoskull": {
-        "Name": "Servoskull",
-        "NameDe": "Servoschädel"
-    }
-}
-
-
 var Apts =
 {
 	"WS": {
 		"Label":"Weapon Skill",
-		"LabelDe":"Nahkampf Fähigkeit"
+		"LabelDe":"Nahkampf-Waffenfertigkeit",
+		"ShortDesc":"Expertise in melee weapon attacks.",
+		"ShortDescDe":"Können im Nahkampf mit Waffen."
 	},
 	"BS": {
 		"Label":"Ballistic Skill",
-		"LabelDe":"Ballistische Fähigkeit"
+		"LabelDe":"Ballistische Fertigkeit",
+		"ShortDesc":"Expertise in ranged weapon attacks.",
+		"ShortDescDe":"Geschick im Umgang mit Fernkampfwaffen."
 	},
 	"S": {
 		"Label":"Strength",
-		"LabelDe":"Stärke"
+		"LabelDe":"Stärke",
+		"ShortDesc":"Physical power for heavy tasks and melee combat.",
+		"ShortDescDe":"Körperkraft für schwere Aufgaben und Nahkampf."
 	},
 	"T": {
 		"Label":"Toughness",
-		"LabelDe":"Aushaltevermögen"
+		"LabelDe":"Aushaltevermögen",
+		"ShortDesc":"Resilience to physical and mental stress.",
+		"ShortDescDe":"Widerstandsfähigkeit gegenüber physischem und mentalem Stress."
 	},
 	"Ag": {
 		"Label":"Agility",
-		"LabelDe":"Agilität"
+		"LabelDe":"Agilität",
+		"ShortDesc":"Quickness, reflexes, and physical coordination.",
+		"ShortDescDe":"Schnelligkeit, Reflexe und körperliche Koordination."
 	},
 	"Int": {
 		"Label":"Intelligence",
-		"LabelDe":"Intelligenz"
+		"LabelDe":"Intelligenz",
+		"ShortDesc":"Ability to reason, learn, and solve problems.",
+		"ShortDescDe":"Fähigkeit zum Denken, Lernen und Problemlösen."
 	},
 	"Per": {
 		"Label":"Perception",
-		"LabelDe":"Wahrnehmung"
+		"LabelDe":"Wahrnehmung",
+		"ShortDesc":"Ability to notice and interpret surroundings.",
+		"ShortDescDe":"Fähigkeit, Umgebung wahrzunehmen und zu interpretieren."
 	},
 	"WP": {
 		"Label":"Willpower",
-		"LabelDe":"Willenskraft"
+		"LabelDe":"Willenskraft",
+		"ShortDesc":"Mental fortitude and resistance to influence.",
+		"ShortDescDe":"Mentale Stärke und Widerstand gegen Beeinflussung."
 	},
 	"Fel": {
 		"Label":"Fellowship",
-		"LabelDe":"Charisma"
+		"LabelDe":"Charisma",
+		"ShortDesc":"Skill in social interactions and persuasion.",
+		"ShortDescDe":"Fertigkeit in sozialer Interaktion und Überzeugungskraft."
 	},
 	"Offence": {
 		"Label":"Offence",
-		"LabelDe":"Offensive"
+		"LabelDe":"Offensive",
+		"ShortDesc":"Skill in maximizing damage during attacks.",
+		"ShortDescDe":"Fähigkeit, Schaden in Angriffen zu maximieren."
 	},
 	"Finesse": {
 		"Label":"Finesse",
-		"LabelDe":"Finesse"
+		"LabelDe":"Finesse",
+		"ShortDesc":"Skill in precise, delicate actions.",
+		"ShortDescDe":"Fertigkeit bei präzisen, feinen Handlungen."
 	},
 	"Defense": {
 		"Label":"Defense",
-		"LabelDe":"Verteidigung"
+		"LabelDe":"Verteidigung",
+		"ShortDesc":"Ability to avoid or reduce damage.",
+		"ShortDescDe":"Fähigkeit, Schaden zu vermeiden oder zu verringern."
 	},
 	"Knowledge": {
 		"Label":"Knowledge",
-		"LabelDe":"Wissen"
+		"LabelDe":"Wissen",
+		"ShortDesc":"Proficiency in scholarly and specialized information.",
+		"ShortDescDe":"Kompetenz in Gelehrsamkeit und spezialisiertem Wissen."
 	},
 	"Fieldcraft": {
 		"Label":"Fieldcraft",
-		"LabelDe":"Feldkunde"
+		"LabelDe":"Feldkunde",
+		"ShortDesc":"Expertise in outdoor survival and stealth.",
+		"ShortDescDe":"Können in Überleben und Heimlichkeit im Freien."
 	},
 	"Psyker": {
 		"Label":"Psyker",
-		"LabelDe":"Psyker"
+		"LabelDe":"Psyker",
+		"ShortDesc":"Ability to harness and control psychic powers.",
+		"ShortDescDe":"Fähigkeit, psionische Kräfte zu nutzen und zu kontrollieren."
 	},
 	"Social": {
 		"Label":"Social",
-		"LabelDe":"Sozial"
+		"LabelDe":"Sozial",
+		"ShortDesc":"Proficiency in interactions and building relationships.",
+		"ShortDescDe":"Kompetenz in Interaktionen und Beziehungsgestaltung."
 	},
 	"Leadership": {
 		"Label":"Leadership",
-		"LabelDe":"Führung"
+		"LabelDe":"Führung",
+		"ShortDesc":"Inspires, directs, and commands others effectively.",
+		"ShortDescDe":"Inspiriert, leitet und kommandiert andere effektiv."
 	},
 	"Tech": {
 		"Label":"Tech",
-		"LabelDe":"Technologie"
+		"LabelDe":"Technologie",
+		"ShortDesc":"Proficiency with machines and technological systems.",
+		"ShortDescDe":"Kompetenz im Umgang mit Maschinen und Technik."
 	},
 	"PsykerNAV": {
 		"Label":"Navigator",
-		"LabelDe":"Navigator"
+		"LabelDe":"Navigator",
+		"ShortDesc":"Ability to harness and control navigator powers.",
+		"ShortDescDe":"Fähigkeit, Navgiatoren-Kräfte zu nutzen."
 	},
 	"Faith": {
 		"Label":"Faith",
-		"LabelDe":"Glaube"
+		"LabelDe":"Glaube",
+		"ShortDesc":"Ability to access faith talents.",
+		"ShortDescDe":"Fähigkeit, Glaubens-Talente zu erlernen."
 	}
 	
 	
@@ -1445,85 +994,102 @@ var homeworlds = {
     }
 }
 
-var traits = {
-    "brut_charge": {
-        "Name": "Brutal Charge",
-        "NameDe": "Brutaler Ansturm"
-    }
-}
-
 var talents = {
     "ambassador": {
         "IsLeveled": 0,
         "Name": "Ambassador Imperialis",
         "NameDe": "Ambassador Imperialis",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Reduces penalty for xenos/non-Imperial Interaction tests by 20; reroll once per encounter.",
+		"ShortDescDe":"Reduziert Malus für Interaktions-Tests mit Xenos/Nicht-Imperialen um 20; einmal pro Begegnung wiederholen."
     },
     "ambidextrous": {
         "IsLeveled": 0,
         "Name": "Ambidextrous",
         "NameDe": "Beidhändigkeit",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Two-Weapon penalty reduced to -10 when attacking with both weapons.",
+		"ShortDescDe":"Malus für Zweiwaffenangriff auf -10 reduziert."
     },
     "aoa": {
         "IsLeveled": 0,
         "Name": "Air of Authority",
         "NameDe": "Aura der Autorität",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"+10 to Fellowship tests with military-background characters.",
+		"ShortDescDe":"+10 auf Charisma-Tests bei Charakteren mit Militärhintergrund."
     },
     "archivator": {
         "IsLeveled": 0,
         "Name": "Archivator",
         "NameDe": "Archivar",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Re-roll Scholastic/Forbidden Lore tests using recorded info with -10 penalty.",
+		"ShortDescDe":"Wiederhole Scholastik-/Verbotenes Wissen-Tests mit aufgezeichneten Infos; -10 Malus."
     },
     "battlerage": {
         "IsLeveled": 0,
         "Name": "Battle Rage",
         "NameDe": "Kampfrausch",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Can Parry while Frenzied; re-roll to resist or end Frenzy.",
+		"ShortDescDe":"Kann während Raserei parieren; Re-roll Tests um Raserei zu Widerstehen oder Beenden."
     },
     "bloodtracker": {
         "IsLeveled": 0,
         "Name": "Blood Tracker",
         "NameDe": "Blutspurjäger",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"+100 Objective Points for Military/Criminal Objectives when turning in fugitives.",
+		"ShortDescDe":"+100 Zielpunkte für Militär-/Kriminalziele bei Auslieferung von Flüchtigen."
     },
     "blademaster": {
         "IsLeveled": 0,
         "Name": "Blademaster",
         "NameDe": "Klingenmeister",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Re-roll one missed attack per round with bladed weapons.",
+		"ShortDescDe":"Wiederhole einen verfehlten Angriff pro Runde mit Klingenwaffen."
     },
     "bodyguard": {
         "IsLeveled": 0,
         "Name": "Bodyguard",
         "NameDe": "Leibwächter",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Use Reaction to shield ally; attack resolves against character instead.",
+		"ShortDescDe":"Nutze Reaktion, um Verbündeten zu schützen; Angriff trifft stattdessen den Charakter."
     },
     "bulwark_o_faith": {
         "IsLeveled": 0,
         "Name": "Bulwark of Faith",
         "NameDe": "Bollwerk des Glaubens",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Daemon takes 1 Energy damage per DoS on passed Fear test.",
+		"ShortDescDe":"Dämonen erleiden 1 Energieschaden pro Erfolgsg. bei bestandenem Furchttest."
     },
     "catfall": {
         "IsLeveled": 0,
         "Name": "Catfall",
         "NameDe": "Katzenfall",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Reduces fall distance by Agility bonus; +20 to Acrobatics (Jump).",
+		"ShortDescDe":"Reduziert Fallweite um Beweglichkeitsbonus; +20 auf Akrobatik (Springen)."
     },
     "clues_crowd": {
         "IsLeveled": 0,
         "Name": "Clues from the Crowds",
         "NameDe": "Hinweise aus der Menge",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Re-roll one test per day to gather information from a group.",
+		"ShortDescDe":"Re-roll 1/Tag, bei sammeln von Informationen aus Gruppen."
     },
     "contact_network": {
         "IsLeveled": 0,
         "Name": "Contact Network",
         "NameDe": "Kontaktnetzwerk",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Gain Inquiry bonus equal to Commerce ranks.",
+		"ShortDescDe":"Du Erhälst Bonus auf Ermittlungs-Tests in Höhe der Handelsränge."
     },
     "constant_vigilance": {
         "IsLeveled": 0,
@@ -1531,121 +1097,161 @@ var talents = {
         "NameDe": "Ständige Wachsamkeit",
         "TalentGroups": {
 				"any": ["Int","Per"]
-			}
+			},
+		"ShortDesc":"Use Per/Int for Initiative; roll two dice, pick higher.",
+		"ShortDescDe":"Nutze (Per)/(Int) für Initiative; würfle zwei Würfel, wähle höheren."
     },
     "coverup": {
         "IsLeveled": 0,
         "Name": "Cover-Up",
         "NameDe": "Vertuschung",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":" Re-roll Inquiry tests for Acquisition.",
+		"ShortDescDe":"Wiederhole Ermittlungs-Tests für Erwerb."
     },
     "d_team": {
         "IsLeveled": 0,
         "Name": "Double Team",
         "NameDe": "Doppelteam",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Gain +10 additional bonus when outnumbering an opponent.",
+		"ShortDescDe":"Erhalte zusätzlichen +10 Bonus, wenn Gegner zahlenmäßig unterlegen ist."
     },
     "daemonhunter": {
         "IsLeveled": 0,
         "Name": "Daemonhunter",
         "NameDe": "Dämonenjäger",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Re-roll failed Awareness/Psyniscience to detect Daemons; attacks agains them gain Proven(3).",
+		"ShortDescDe":"Wiederhole misslungene Aufmerksamkeit/Psyniscience-Tests gegen Dämonen; Angriffe gegen diese erhalten Eigenschaft Bewährt(3)."
 	},
     "darksoul": {
         "IsLeveled": 0,
         "Name": "Dark Soul",
         "NameDe": "Dunkle Seele",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"You can choose to pass mutation test; gain Malignancy and +1d10 Corruption.",
+		"ShortDescDe":"Du kannst Mutations-Test bestehen; erhalte Verderbniserscheinung und +1W10 Verderbnis."
     },
     "decadence": {
         "IsLeveled": 0,
-        "Name": "Delicate Dealings",
-        "NameDe": "Feinsinnige Verhandlungen",
-        "TalentGroups": {}
+        "Name": "Decadence",
+        "NameDe": "Dekadenz",
+        "TalentGroups": {},
+		"ShortDesc":"Resist alcohol twice TB; +10 to resist addiction effects.",
+		"ShortDescDe":"Widersteht Alkohol bis doppelt Zähigkeitsbonus; +10 gegen Suchtwirkungen."
     },
     "delicatedealings": {
         "IsLeveled": 0,
-        "Name": "Decadence",
-        "NameDe": "Dekadenz",
-        "TalentGroups": {}
+        "Name": "Delicate Dealings",
+        "NameDe": "Feinsinnige Verhandlungen",
+        "TalentGroups": {},
+		"ShortDesc":"Xenos dealings reduce Reputation loss by 1d5; can gain 1.",
+		"ShortDescDe":"Xenos-Handel reduziert Reputationsverlust um 1W5; kann +1 bringen."
     },
     "deny_witch": {
         "IsLeveled": 0,
         "Name": "Deny the Witch",
         "NameDe": "Die Hexe verwehren",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Use Willpower-Test to Evade psychic attacks.",
+		"ShortDescDe":"Willenskraft-Test, um psionische Angriffe auszuweichen."
     },
     "diehard": {
         "IsLeveled": 0,
         "Name": "Die Hard",
         "NameDe": "Zähigkeit",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Test Willpower (+0) to avoid Fatigue from Blood Loss.",
+		"ShortDescDe":"Bestehe Willenskraft-Test (+0), um Erschöpfung durch Blutverlust zu vermeiden."
     },
     "disarm": {
         "IsLeveled": 0,
         "Name": "Disarm",
         "NameDe": "Entwaffnen",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Full Action: Opposed WS test to disarm; steal with 3+ DoS.",
+		"ShortDescDe":"Volle Aktion: Gegenprobe Waffenfertigkeit zum Entwaffnen; bei 3+ Erfolgsgraden Waffe stehlen."
     },
     "enemy": {
         "IsLeveled": 0,
         "Name": "Enemy",
         "NameDe": "Feind",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"",
+		"ShortDescDe":""
     },
     "face_in_crowd": {
         "IsLeveled": 0,
         "Name": "Face in a Crowd",
         "NameDe": "Ein Gesicht in der Menge",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"-30 penalty to Fellowship and Influence tests with group.",
+		"ShortDescDe":"30 Malus auf Charisma- und Einfluss-Tests bei Gruppeninteraktionen."
     },
     "flagellant": {
         "IsLeveled": 0,
         "Name": "Flagellant",
         "NameDe": "Flagellant",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Full Action: Take Fatigue for +10 Willpower vs Fear, Pinning, etc.",
+		"ShortDescDe":" Volle Aktion: Erleide Erschöpfung für +10 Willenskraft gegen Furcht, Deckung usw."
     },
     "foresight": {
         "IsLeveled": 0,
         "Name": "Foresight",
         "NameDe": "Vorausblick",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Spend 10 minutes studying to gain +10 on next Int Test.",
+		"ShortDescDe":"Verbringe 10 Minuten mit Analyse für +10 auf nächsten Intelligenz-Test."
     },
     "frenzy": {
         "IsLeveled": 0,
         "Name": "Frenzy",
         "NameDe": "Raserei",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"One round: Frenzy grants +10 WS, Str, Tgh, WP; -20 BS, Int, Fel. Immune to Fear, Pinning, Stunning, Fatigue. Cannot Parry, flee, or use psychic powers. Ends after combat (WP test); 1-hour cooldown.",
+		"ShortDescDe":"Eine Runde: Raserei gibt +10 WF, St, Zäh, WK; -20 BF, Int, Cha. Immun gegen Furcht, Deckung, Betäubung, Erschöpfung. Kein Parieren, Fliehen, Psikräfte. Endet nach Kampf (WK-Test); 1 Stunde Abklingzeit."
     },
     "grey_soul": {
         "IsLeveled": 0,
         "Name": "Grey Soul",
         "NameDe": "Graue Seele",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Halves penalties on Malignancy Tests due to resilience against corruption.",
+		"ShortDescDe":"Halbiert Mali auf Verderbnis-Tests dank Widerstandskraft gegen Korruption."
     },	
     "hard_bargain": {
         "IsLeveled": 0,
         "Name": "Hard Bargain",
         "NameDe": "Harte Verhandlung",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Gain +1 Profit Factor for the group after completing an Endeavour.",
+		"ShortDescDe":"Erhalte +1 Profitfaktor für die Gruppe nach Abschluss eines Unterfangens."
     },
     "hard_target": {
         "IsLeveled": 0,
         "Name": "Hard Target",
         "NameDe": "Schweres Ziel",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"",
+		"ShortDescDe":""
     },
     "hardenedsoul": {
         "IsLeveled": 0,
         "Name": "Harden Soul",
         "NameDe": "Gehärtete Seele",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"-20 to hit the character during Charge or Run.",
+		"ShortDescDe":"-20, um den Charakter bei Ansturm oder Lauf zu treffen."
     },
     "hardy": {
         "IsLeveled": 0,
         "Name": "Hardy",
         "NameDe": "Zäh",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Always heals as if Lightly Damaged.",
+		"ShortDescDe":"Heilt immer, als ob leicht verletzt."
     },
     "hatred": {
         "IsLeveled": 0,
@@ -1653,126 +1259,164 @@ var talents = {
         "NameDe": "Hass",
         "TalentGroups": {
 			"any": ["mutant","eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
-				"inquisition","nobility","rt","smuggler","pirates","ministorum","navi","daemon"],
+				"inquisition","noble","rt","smuggler","pirates","ministorum","navi","daemons"],
 			"xenos": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid"],
-			"any_opp": ["mutant","eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid","daemon","pirates","rt"],
+			"any_opp": ["mutant","eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid","daemons","pirates","rt"],
 			"any_dyn": ["admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
-				"inquisition","nobility","rt","smuggler","pirates","ministorum","navi"],
-		}
+				"inquisition","noble","rt","smuggler","pirates","ministorum","navi"],
+		},
+		"ShortDesc":"",
+		"ShortDescDe":""
     },
     "heroic_insp": {
         "IsLeveled": 0,
         "Name": "Heroic Inspiration",
         "NameDe": "Heldenhafte Inspiration",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"+10 to Weapon Skill attacks; WP test (+0) to retreat/surrender.",
+		"ShortDescDe":"+10 auf Waffenfertigkeitsangriffe; WK-Test (+0) zum Rückzug/Ergeben."
     },
     "hotshot_pilot": {
         "IsLeveled": 0,
         "Name": "Hotshot Pilot",
         "NameDe": "Spitzenpilot",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"On successful Operate, take Fatigue to add half Agility DoS. On failure, take Fatigue to reduce DoF by Agility (min. 1).",
+		"ShortDescDe":"Bei erfolgreichem Fahrzeugführen-Test Erschöpfung erleiden für halben BW als EG. Bei Fehlschlag Erschöpfung erleiden, um Fehlschlagsgrade um BW zu reduzieren (min. 1)."
     },
     "iron_jaw": {
         "IsLeveled": 0,
         "Name": "Iron Jaw",
         "NameDe": "Eisernes Kinn",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Test Challenging (+0) Toughness Test to overcome Stunning.",
+		"ShortDescDe":"Herausfordernder (+0) Zähigkeitstest, um Betäubung zu überwinden."
     },
     "iron_resolve": {
         "IsLeveled": 0,
         "Name": "Iron Resolve",
         "NameDe": "Eisernes Durchhaltevermögen",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Re-roll failed Fear/Pinning test with a -10 modifier.",
+		"ShortDescDe":"Wiederhole misslungenen Furcht-/Pinningtest mit -10 Malus."
     },
     "iron_faith": {
         "IsLeveled": 0,
         "Name": "Iron Faith",
         "NameDe": "Eiserner Glaube",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"",
+		"ShortDescDe":""
     },
     "intep_target": {
         "IsLeveled": 0,
         "Name": "Independent Targeting",
         "NameDe": "Unabhängige Zielerfassung",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Immune to effects of Baneful Presence trait.",
+		"ShortDescDe":"Immun gegen die Effekte der Eigenschaft Unheilvolle Präsenz."
     },
     "infusedknowledge": {
         "IsLeveled": 0,
         "Name": "Infused Knowledge",
         "NameDe": "Eingeflößtes Wissen",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Counts as having all Common and Scholastic Lore at Rank 1.",
+		"ShortDescDe":"Zählt als im Besitz aller Allgemein- und Gelehrtenkenntnisse auf Rang 1."
     },
     "jaded": {
         "IsLeveled": 0,
         "Name": "Jaded",
         "NameDe": "Abgestumpft",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Ignore mundane horrors; no Insanity points or Fear tests from them.",
+		"ShortDescDe":"Ignoriere alltägliche Schrecken; keine Wahnsinnspunkte oder Furchttests dadurch."
     },
     "keen_intuition": {
         "IsLeveled": 0,
         "Name": "Keen Intuition",
         "NameDe": "Scharfe Intuition",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"",
+		"ShortDescDe":""
     },
     "l_sleeper": {
         "IsLeveled": 0,
         "Name": "Light Sleeper",
         "NameDe": "Leichter Schlaf",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Retry Awareness test once with a -10 modifier.",
+		"ShortDescDe":"Wiederhole Aufmerksamkeitstest einmal mit -10 Malus."
     },
     "leapup": {
         "IsLeveled": 0,
         "Name": "Leap Up",
         "NameDe": "Aufspringer",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Stand as a Free Action.",
+		"ShortDescDe":"Aufstehen ist eine Freie Aktion"
     },
     "leapingdodge": {
         "IsLeveled": 0,
         "Name": "Leaping Dodge",
         "NameDe": "Sprungausweichmanöver",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Use Dodge (Ag) instead of Agility to avoid Spray attacks.",
+		"ShortDescDe":"Nutze Ausweichen statt Agilität, um Spray-Angriffe zu vermeiden."
     },
     "lexographer": {
         "IsLeveled": 0,
         "Name": "Lexographer",
         "NameDe": "Lexograf",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Can Attempt untrained Linguistics tests even if not trained",
+		"ShortDescDe":"Kann Linguistik-Tests durchführen, auch wenn nicht gelernt."
     },
     "mechadendrite": {
         "IsLeveled": 0,
         "Name": "Mechadendrite Use",
         "NameDe": "Mechadendriten-Nutzung",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Gain ability to use Weapon or Utility Mechadendrites.",
+		"ShortDescDe":"Erhalte Fähigkeit, Waffen- oder Nutz-Mechadendriten zu verwenden."
     },
     "neverdie": {
         "IsLeveled": 0,
         "Name": "Never Die",
         "NameDe": "Niemals sterben",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Spend Fate point to ignore Critical damage penalties until encounter ends.",
+		"ShortDescDe":"Nutze Schicksalspunkt, um Kritische-Schaden-Mali bis Ende des Kampfes zu ignorieren."
     },
     "oneonone": {
         "IsLeveled": 0,
         "Name": "One-on-One",
         "NameDe": "Eins-zu-Eins",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Gain extra DoS in melee equal to half WS bonus.",
+		"ShortDescDe":"Erhalte zusätzliche EG im Nahkampf entsprechend halbem WS-Bonus (abgerundet)."
     },
     "no_hiding": {
         "IsLeveled": 0,
         "Name": "Nowhere to Hide",
         "NameDe": "Kein Versteck",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Add DoS from attack to reduce cover's armour value.",
+		"ShortDescDe":"Addiere DoS des Angriffs, um Rüstungswert der Deckung zu reduzieren."
     },
     "peer": {
-        "IsLeveled": 0,
+        "IsLeveled":1,
         "Name": "Peer",
         "NameDe": "Einfluss",
         "TalentGroups": {
 			"any_vs_owner": ["mechanicus","admin","navy","ecc","ministorum","rt","noble"],
 			"xenos": ["eldar","dark_eldar","ork","tau", "kroot"],
-			"any_imp": ["admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf","inquisition","nobility","rt","smuggler","pirates","ministorum"],
+			"any_imp": ["admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf","inquisition","noble","rt","smuggler","pirates","ministorum"],
 			"any": ["mutant","eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
-				"inquisition","nobility","rt","smuggler","pirates","ministorum"]
-		}
+				"inquisition","noble","rt","smuggler","pirates","ministorum"]
+		},
+		"ShortDesc":"+10 to Fellowship tests with chosen group; +1 Profit Factor.",
+		"ShortDescDe":"+10 auf Charisma-Tests bei gewählter Gruppe; +1 Profitfaktor."
     },
     "pure_hatred": {
         "IsLeveled": 0,
@@ -1780,24 +1424,30 @@ var talents = {
         "NameDe": "Reinheit des Hasses",
         "TalentGroups": {
 			"any": ["mutant","eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
-				"inquisition","nobility","rt","smuggler","pirates","ministorum","navi","daemon"],
+				"inquisition","noble","rt","smuggler","pirates","ministorum","navi","daemons"],
 			"xenos": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid"],
-			"any_opp": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid","daemon","pirates","rt"],
+			"any_opp": ["eldar","dark_eldar","ork","tau", "kroot","vspid","necron","tyranid","daemons","pirates","rt"],
 			"any_dyn": ["admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
-				"inquisition","nobility","rt","smuggler","pirates","ministorum","navi"],
-		}
+				"inquisition","noble","rt","smuggler","pirates","ministorum","navi"],
+		},
+		"ShortDesc":"Attacks gain Vengeful (9) against Hatred group opponents.",
+		"ShortDescDe":"Angriffe erhalten die Eigenschaft Vergeltung (9) gegen Gegner der Hassgruppe."
     },
     "q_draw": {
         "IsLeveled": 0,
         "Name": "Quick Draw",
         "NameDe": "Schnelles Ziehen",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Draw weapon as Free Action.",
+		"ShortDescDe":"Ziehe Waffe als freie Aktion."
     },
     "rap_reload": {
         "IsLeveled": 0,
         "Name": "Rapid Reload",
         "NameDe": "Schnelles Nachladen",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Reduce reload time by half time.",
+		"ShortDescDe":"Halbiert Nachladezeit für Waffen."
     },
     "res": {
         "IsLeveled": 0,
@@ -1808,70 +1458,92 @@ var talents = {
 				"cold",
 				"heat",
 				"fear",
-				"poisons",
+				"poison",
 				"radiation"
 			]
-		}
+		},
+		"ShortDesc":"Gain +10 bonus to particular resistance test.",
+		"ShortDescDe":"Erhalte +10 Bonus auf einen bestimmten Widerstandstest."
     },
     "sound_const": {
         "IsLeveled": 0,
         "Name": "Sound Constitution",
         "NameDe": "Robuste Konstitution",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Gain an additional wound.",
+		"ShortDescDe":"Erhalte eine zusätzliche Wunde."
     },
     "sprint": {
         "IsLeveled": 0,
         "Name": "Sprint",
         "NameDe": "Sprint",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Move more quickly in combat.",
+		"ShortDescDe":"Bewege dich schneller im Kampf."
     },
     "streetfight": {
         "IsLeveled": 0,
         "Name": "Street Fighting",
         "NameDe": "Straßenkampf",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"",
+		"ShortDescDe":""
     },
     "strong_minded": {
         "IsLeveled": 0,
         "Name": "Strong Minded",
         "NameDe": "Starker Geist",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Add half WS bonus to Critical Damage with small weapons or unarmed.",
+		"ShortDescDe":"Addiere halben WS-Bonus zu Kritischem Schaden mit kleinen Waffen oder unbewaffnet."
     },
     "takedown": {
         "IsLeveled": 0,
         "Name": "Takedown",
         "NameDe": "Niederschlag",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"",
+		"ShortDescDe":""
     },
     "tech_knock": {
         "IsLeveled": 0,
         "Name": "Technical Knock",
         "NameDe": "Technischer Schlag",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Make special attack to stun opponent.",
+		"ShortDescDe":"Führe einen Spezialangriff aus, um Gegner zu betäuben."
     },
     "total_recall": {
         "IsLeveled": 0,
         "Name": "Total Recall",
         "NameDe": "Fotografisches Gedächtnis",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Perferct Memory. GM may required Intelligence test to recall detailed or obscure information.",
+		"ShortDescDe":"Perfektes Gedächtnis. GM kann Intelligenztest erfordern, um detaillierte oder obskure Informationen abzurufen."
     },
     "truegrit": {
         "IsLeveled": 0,
         "Name": "True Grit",
         "NameDe": "Wahres Durchhaltevermögen",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"",
+		"ShortDescDe":""
     },
     "two_weapon": {
         "IsLeveled": 0,
         "Name": "Two-Weapon Wielder",
         "NameDe": "Zwei-Waffen-Kämpfer",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Reduce Critical damage taken.",
+		"ShortDescDe":""
     },
     "unarmed_spec": {
         "IsLeveled": 0,
         "Name": "Unarmed Specialist",
         "NameDe": "Nahkampfspezialist",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Reduce Critical Damage taken.",
+		"ShortDescDe":"Reduziere erlittenen Kritischen Schaden."
     },
     "w_training": {
         "IsLeveled": 0,
@@ -1893,31 +1565,41 @@ var talents = {
 				"shock",
 				"sp"
 			]
-		}
+		},
+		"ShortDesc":"Use Weapon Group without penalty.",
+		"ShortDescDe":"Nutze Waffenklasse ohne Malus."
     },
     "warp_sense": {
         "IsLeveled": 0,
         "Name": "Warp Sense",
         "NameDe": "Warp-Sinn",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Perform Psyniscience test as a Free Action.",
+		"ShortDescDe":"Führe Psyniscience-Test als freie Aktion durch."
     },
     "weapon_tech": {
         "IsLeveled": 0,
         "Name": "Weapon-Tech",
         "NameDe": "Waffen-Tech",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Enhance Melta, Plasma, Power, or Exotic weapon: +Int bonus to damage/penetration once per encounter.",
+		"ShortDescDe":"Verstärke Melta-, Plasma-, Energie- oder Exotenwaffe: +Int-Bonus auf Schaden/Durchschlag einmal pro Begegnung."
     },
     "witchfinder": {
         "IsLeveled": 0,
         "Name": "Witch Finder",
         "NameDe": "Hexenjäger",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Counts as having Psyniscience at Rank 1 (Known), even if not a psyker.",
+		"ShortDescDe":"Zählt als im Besitz von Psyniscience auf Rang 1, auch ohne Psioniker zu sein."
     },
     "xenosavant": {
         "IsLeveled": 0,
         "Name": "Xenosavant",
         "NameDe": "Xenokundiger",
-        "TalentGroups": {}
+        "TalentGroups": {},
+		"ShortDesc":"Attempt untrained Forbidden Lore (Xenos) tests even if not learned",
+		"ShortDescDe":"Führe ungeschulte Tests für Verbotenes Wissen (Xenos) durch. Auch wenn nicht gelernt"
     },
 }
 
@@ -1925,142 +1607,198 @@ var skills = {
     "acrobatics": {
         "Name": "Acrobatics",
         "NameDe": "Akrobatik",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Perform jumps, flips, or balance-related maneuvers.",
+		"ShortDescDe":"Führt Sprünge, Drehungen oder Balance-Manöver aus."
     },
     "athletics": {
         "Name": "Athletics",
         "NameDe": "Athletik",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Climbing, swimming, running, or other physical activities.",
+		"ShortDescDe":"Klettern, Schwimmen, Laufen oder andere körperliche Aktivitäten."
     },
     "awareness": {
         "Name": "Awareness",
         "NameDe": "Wahrnehmung",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Detect hidden objects, dangers, or changes in surroundings.",
+		"ShortDescDe":"Verborgene Objekte, Gefahren oder Änderungen in der Umgebung wahrnehmen."
     },
     "c_lore": {
         "Name": "Common Lore",
         "NameDe": "Allgemeinwissen",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"General knowledge about specific organizations, regions, or subjects.",
+		"ShortDescDe":"Allgemeinwissen über spezifische Organisationen, Regionen oder Themen."
     },
     "charm": {
         "Name": "Charm",
         "NameDe": "Charme",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Influence others positively through persuasion or social grace.",
+		"ShortDescDe":"Beeinflusse andere positiv durch Überzeugung oder soziale Gewandtheit."
     },
     "command": {
         "Name": "Command",
         "NameDe": "Führung",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Lead, inspire, or direct others through authority.",
+		"ShortDescDe":"Führen, inspirieren oder andere durch Autorität anleiten."
     },
     "commerce": {
         "Name": "Commerce",
         "NameDe": "Handel",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Negotiate, trade, or evaluate goods and financial opportunities.",
+		"ShortDescDe":"Verhandeln, handeln oder Waren und finanzielle Chancen bewerten."
     },
     "deceive": {
         "Name": "Deceive",
         "NameDe": "Täuschen",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Lie, bluff, or mislead others effectively.",
+		"ShortDescDe":"Lügen, bluffen oder andere effektiv täuschen."
     },
     "dodge": {
         "Name": "Dodge",
         "NameDe": "Ausweichen",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Evade attacks or hazards with agility.",
+		"ShortDescDe":"Angriffen oder Gefahren mit Beweglichkeit ausweichen."
     },
     "f_lore": {
         "Name": "Forbidden Lore",
         "NameDe": "Verbotenes Wissen",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Knowledge of hidden, dangerous, or heretical subjects.",
+		"ShortDescDe":"Wissen über verborgene, gefährliche oder ketzerische Themen."
     },
     "inquiry": {
         "Name": "Inquiry",
         "NameDe": "Ermittlung",
-        "SkillGroups":{}
+        "SkillGroups":{},
+		"ShortDesc":"Gather information through questioning or investigation.",
+		"ShortDescDe":"Informationen durch Befragung oder Nachforschung sammeln."
     },
     "interrogation": {
         "Name": "Interrogation",
         "NameDe": "Verhör",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Extract information through intimidation or coercion.",
+		"ShortDescDe":"Informationen durch Einschüchterung oder Zwang gewinnen."
     },
     "intimidate": {
         "Name": "Intimidate",
         "NameDe": "Einschüchtern",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Influence others through threats or fear.",
+		"ShortDescDe":"Andere durch Drohungen oder Angst beeinflussen."
     },
     "linguistics": {
         "Name": "Linguistics",
         "NameDe": "Linguistik",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Influence others through threats or fear.",
+		"ShortDescDe":""
     },
     "logic": {
         "Name": "Logic",
         "NameDe": "Logik",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Understand, speak, or write specific languages.",
+		"ShortDescDe":"Spezifische Sprachen verstehen, sprechen oder schreiben."
     },
     "medicae": {
         "Name": "Medicae",
         "NameDe": "Medizin",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Treat wounds, illnesses, or perform medical procedures.",
+		"ShortDescDe":"Wunden behandeln, Krankheiten kurieren oder medizinische Eingriffe durchführen."
     },
     "navigate": {
         "Name": "Navigate",
         "NameDe": "Navigieren ",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Plot and follow courses on land, sea, air, or void.",
+		"ShortDescDe":"Kurse zu Land, See, Luft oder im All planen und verfolgen."
     },
     "operate": {
         "Name": "Operate",
         "NameDe": "Fahrzeugführen",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Control and maneuver vehicles or machinery.",
+		"ShortDescDe":"Fahrzeuge oder Maschinen steuern und bedienen."
     },
     "parry": {
         "Name": "Parry",
         "NameDe": "Parieren",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"",
+		"ShortDescDe":""
     },
     "psyniscience": {
         "Name": "Psyniscience",
         "NameDe": "Psychische Wahrnehmung",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Block or deflect melee attacks.",
+		"ShortDescDe":"Nahkampfangriffe blockieren oder abwehren."
     },
     "s_lore": {
         "Name": "Scholastic Lore",
         "NameDe": "Scholastisches Wissen",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Academic knowledge of specialized or scholarly subjects.",
+		"ShortDescDe":"Akademisches Wissen über spezialisierte oder wissenschaftliche Themen."
     },
     "scrutiny": {
         "Name": "Scrutiny",
         "NameDe": "Beobachtung",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Analyze intentions, lies, or hidden motives in others.",
+		"ShortDescDe":"Absichten, Lügen oder verborgene Motive anderer analysieren."
     },
     "security": {
         "Name": "Security",
         "NameDe": "Sicherheit",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"",
+		"ShortDescDe":""
     },
     "sl_o_hand": {
         "Name": "Sleight of Hand",
         "NameDe": "Fingerfertigkeit",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Bypass locks, traps, or security systems.",
+		"ShortDescDe":"Schlösser, Fallen oder Sicherheitssysteme überwinden."
     },
     "stealth": {
         "Name": "Stealth",
         "NameDe": "Schleichen",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"",
+		"ShortDescDe":""
     },
     "survival": {
         "Name": "Stealth",
         "NameDe": "Überleben",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Remain unseen or unheard while moving or hiding.",
+		"ShortDescDe":"Ungesehen oder ungehört bewegen oder verstecken."
     },
     "techuse": {
         "Name": "Tech-Use",
         "NameDe": "Technologie-Nutzung",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Operate, repair, or manipulate technological devices.",
+		"ShortDescDe":"Technologische Geräte bedienen, reparieren oder manipulieren."
     },
     "trade": {
         "Name": "Trade",
         "NameDe": "Handwerk",
-        "SkillGroups": {}
+        "SkillGroups": {},
+		"ShortDesc":"Create, repair, or evaluate items within a specific craft.",
+		"ShortDescDe":"Gegenstände in einem spezifischen Handwerk herstellen, reparieren oder bewerten."
     }
 }
 
@@ -2232,6 +1970,10 @@ var groups = {
         "Name": "Heavy",
         "NameDe": "Schwere Waffen"
     },
+    "heat": {
+        "Name": "Heat",
+        "NameDe": "Hitze"
+    },
     "horusheresy": {
         "Name": "Horus Heresy",
         "NameDe": "Horus-Häresie"
@@ -2332,7 +2074,7 @@ var groups = {
         "Name": "Necron",
         "NameDe": "Necron"
     },
-    "Nobility": {
+    "noble": {
         "Name": "Nobility",
         "NameDe": "Adelige"
     },
@@ -2521,7 +2263,7 @@ var hwAbilities = {
         "Effect": "An agri-world character starts with the Brutal Charge (2) trait.",
         "EffectDe": "Ein Charakter von einer Agrarwelt beginnt mit der Eigenschaft Brutaler Ansturm (2).",
         "Skills": [],
-        "Traits": [["brut_charge",""]]
+        "Traits": ["trait_bcharge"]
     },
     "cardinal": {
         "Name": "Sacred Upbringings",
@@ -2660,7 +2402,7 @@ var hwAbilities = {
         "Effect": "A Mining World characters start with either the Resistance (Cold), Resistance (Heat), or Resistance (Poisons) talent. Additionally, Mining Colony characters gain a +10 to Awareness and Navigation (Surface) tests when underground.",
         "EffectDe": "Ein Charakter von einer Bergbauwelt beginnt mit dem Talent Widerstand (Kälte), Widerstand (Hitze) oder Widerstand (Gifte). Zusätzlich erhalten Charaktere aus einer Bergbaukolonie einen Bonus von +10 auf Wahrnehmung und Navigieren (Oberfläche), wenn sie sich unter der Erde befinden.",
         "Skills": [],
-        "Talents": [["res","cold|heat|poisons"]]
+        "Talents": [["res","cold|heat|poison"]]
     },
     "penal": {
         "Name": "Finger on the Pulse",
@@ -2793,7 +2535,8 @@ var careers = {
         "Descritpion_DE": "Ein Explorator ist ein Tech-Priester des Adeptus Mechanicus, der sich der Erforschung unerforschter Regionen der Galaxis widmet, um verlorene Technologien, antike Relikte und vergessenes Wissen zu entdecken. Sie sind häufig Mitglieder von Exploratorflotten und dringen in gefährliche und unbekannte Sektoren vor. Angetrieben von religiöser Hingabe an den Maschinengott verbinden sie wissenschaftliche Neugier mit einem unermüdlichen Streben nach technologischer Überlegenheit.",
         "IMAGE": "explorator.png",
         "NAME": "Explorator",
-        "NAME_DE": "Explorator"
+        "NAME_DE": "Explorator",
+		"Traits": ["trait_mecha"]
     },
     "miss": {
         "Apt": [
@@ -2869,15 +2612,17 @@ var careerOpts = {
 		"AbilityName": "Sanctioned Psyker",
 		"AbilityEffect": "You start with a Psy Rating of 2. You can never become an Untouchable. Choose 1 Psychic Discipline and gain 2 Abilities whose requirements you meet.",
 		"ANameDe": "Sanktionierter Psioniker",
-		"AEffectDe": "Du startest mit einem Psionik-Wert von 2. Du kannst niemals ein Unberührbarer werden. Wähle eine Psionische Disziplin und erhalte 2 Fähigkeiten, deren Voraussetzungen du erfüllst."
+		"AEffectDe": "Du startest mit einem Psionik-Wert von 2. Du kannst niemals ein Unberührbarer werden. Wähle eine Psionische Disziplin und erhalte 2 Fähigkeiten, deren Voraussetzungen du erfüllst.",
+		"Traits": ["trait_sanct","trait_psyker"],
     },
     "u_psy": {
         "Skills": [["psyniscience",""], ["f_lore","psyker"], ["f_lore","warp"]],
 		"Talents": [["w_training","las|primitive"],["enemy","inquisition"]],
 		"AbilityName": "Unsanctioned Psyker",
-		"AbilityEffect": "You start with a Psy Rating of 2. You can never become an Untouchable. Choose 1 Psychic Discipline and gain 2 Abilities whose requirements you meet. You can not use Psychic Abilites at fettered power. After Gaining Psy-Rating you gain 1d5+5 Corruption points",
+		"AbilityEffect": "You start with a Psy Rating of 1. You can never become an Untouchable. Choose 1 Psychic Discipline and gain 2 Abilities whose requirements you meet. You can not use Psychic Abilites at fettered power. After Gaining Psy-Rating you gain 1d5+5 Corruption points",
 		"ANameDe": "Nicht-Sanktionierter Psioniker",
-		"AEffectDe": "Du startest mit einem Psionik-Wert von 2. Du kannst niemals ein Unberührbarer werden. Wähle eine Psionische Disziplin und erhalte 2 Fähigkeiten, deren Voraussetzungen du erfüllst. Du kannst psionische Fähigkeiten nicht mit gezügelter Macht einsetzen. Nach dem Erhalt eines Psionik-Werts erhältst du 1W5+5 Verderbenspunkte."
+		"AEffectDe": "Du startest mit einem Psionik-Wert von 1. Du kannst niemals ein Unberührbarer werden. Wähle eine Psionische Disziplin und erhalte 2 Fähigkeiten, deren Voraussetzungen du erfüllst. Du kannst psionische Fähigkeiten nicht mit gezügelter Macht einsetzen. Nach dem Erhalt eines Psionik-Werts erhältst du 1W5+5 Verderbenspunkte.",
+		"Traits": ["trait_psyker"],
     },
     "arch": {
         "Skills": [],
@@ -2918,7 +2663,7 @@ var careerOpts = {
     "navi": {
         "Skills": [["f_lore","navi"],["s_lore","astromancy"],["trade","astrograph"],["linguistics","h_goth"]],
 		"Talents": [["w_training","sp|primitive"]],
-		"Traits": ["navigator"],
+		"Traits": ["trait_navigator"],
 		"AbilityName": "Power Limit",
 		"AbilityEffect": "Lidless Stare Navigator Power ignores the limit. The Navigator can have a specified number of powers in his arsenal. He can have up to half his Willpower bonus (rounded up) Master level Navigator Powers, Willpower Bonus of Adept level Navigator Powers and Willpower Bonus plus two Novice level Navigator Powers. He can delevel a Power to gain an empty spot. If he can’t delevel (due to no space in Adept or Novice powers), he can remove it entirely. He can regain the powers by again climbing the ladder by spending the experience again.  You count as having Psy Rating equal to quarter of number of Navigator Power Talents (rounded down) bought to a maximum of 8 and a minimum of 1",
 		"ANameDe": "Power Limit",
@@ -3149,7 +2894,8 @@ var backgrounds = {
         "Skills": [["deceive|inquiry","@@"],["f_lore","fl_any"], ["medicae|security","@@"],
 			["techuse",""], ["trade","tr_any"]],
         "Talents": [["w_training","sp"]],
-		"Cybernetics": ["mech",""],
+		"Cybernetics": [["mech",""]],
+		"Traits": ["trait_mecha"],
         "Gear": [["sp_stub_revo","",1], ["gr_web","",2],["tl_combi","",1],["a_flak_cloak","",1],["gr_fil_plug","",1]],
         "AName": "Master of Hidden Lores",
         "ANameDe": "Meister der Verborgenen Lehren",
@@ -3168,6 +2914,7 @@ var backgrounds = {
         "Skills": [["awareness|operate","@@any"],["c_lore","mechanicus"], ["logic",""],["security",""],
 			["techuse",""]],
         "Talents": [["mechadendrite","utility"],["w_training","sp"]],
+		"Traits": ["trait_mecha"],
 		"Cybernetics": [["mech",""]],
         "Gear": [["sp_auto_gun|sp_h_can","@@",1],["tl_servoskull","utility",1], ["a_b_imperial","",1],["cons_sacred","",2]],
         "AName": "Replace the Weak Flesh",
@@ -3264,7 +3011,7 @@ var backgrounds = {
         "ANameDe": "Verdrehte Gestalt",
         "ADesc": "A Mutant character can always choose to fail any test associated with resisting malignancy or mutation. Whenever he would gain a malignancy, he may gain a random mutation instead. You start with a random Mutation",
         "ADescDe": "Ein Mutant kann sich jederzeit entscheiden, jeden Test, der mit dem Widerstand gegen Verderbnis oder Mutationen zusammenhängt, absichtlich zu scheitern. Wann immer er eine Verderbnis erleiden würde, kann er stattdessen eine zufällige Mutation erhalten. Er beginnt mit einer zufälligen Mutation.",
-		"Traits": ["amphibious|darksight|natweapons|sonarsense|sturdy|toxic|unnat_ag|unnat_s|unnat_t"],
+		"Traits": ["trait_amphi|trait_dsight|trait_nat_weap|trait_sonar|trait_sturdy|trait_toxic|trait_unnat_char"],
 		"Mutations":["5d10"],
     },
     "navis": {
@@ -3332,7 +3079,7 @@ var backgrounds = {
         "Skills": [["acrobatics|sl_o_hand","@@"],["c_lore","underworld"],["deceive",""],["dodge",""],
 			["stealth",""]],
         "Talents": [["w_training","chain"], ["w_training","las|sp"]],
-        "Gear": [["sp_auto_pstl|las_pistol","@@",1], ["m_ch_swrd","",1] ["a_b_bglove|a_flak_vest","@@",1] ["tl_inject","",1], 
+        "Gear": [["sp_auto_pstl|las_pistol","@@",1], ["m_ch_swrd","",1], ["a_b_bglove|a_flak_vest","@@",1], ["tl_inject","",1], 
 			["cons_obscura|cons_slaught","@@",2]],
         "AName": "Never Quit",
         "ANameDe": "Niemals aufgeben",
@@ -3351,7 +3098,7 @@ var backgrounds = {
         "Skills": [["athletics",""],["command",""],["c_lore","pdf"], ["medicae|operate","@@surface"],
 			["navigate","surface"]],
         "Talents": [["w_training","sp"], ["w_training","primitive"]],
-        "Gear": [["sp_auto_gun|sp_auto_pstl&m_pr_sword","@@",1], ["tl_cuff","",1] ["a_flak_guard","",1], ["tl_grap","",1] 
+        "Gear": [["sp_auto_gun|sp_auto_pstl&m_pr_sword","@@",1], ["tl_cuff","",1], ["a_flak_guard","",1], ["tl_grap","",1], 
 			["cons_obscura","",1]],
         "AName": "Granted Authority",
         "ANameDe": "Gewährte Autorität",
@@ -3516,7 +3263,7 @@ var roles = {
         "ADescDe": "Zusätzlich zu den normalen Verwendungen von Schicksalspunkten kann ein Assassine, wenn er mit einem Angriff erfolgreich trifft, einen Schicksalspunkt ausgeben, um zusätzlichen Schaden in Höhe seiner Erfolgsgrade beim Angriffswurf auf den ersten Treffer des Angriffs zu verursachen.",
         "AName": "Sure Kill",
         "ANameDe": "Sicherer Tod",
-        "Aptitudes": ["Agility", "BS|WS", "Fieldcraft", "Finesse", "Per"],
+        "Aptitudes": ["Ag", "BS|WS", "Fieldcraft", "Finesse", "Per"],
         "Description": "An assassin is a master of stealth, precision, and lethality, trained to eliminate targets with deadly efficiency. Operating from the shadows, they rely on their agility, cunning, and expertise with weapons to complete their missions, often with surgical precision and without leaving a trace.",
         "Descritpion_DE": "Ein Assassine ist ein Meister der Heimlichkeit, Präzision und Tödlichkeit, ausgebildet, um Ziele mit tödlicher Effizienz auszuschalten. Sie agieren aus den Schatten, nutzen ihre Beweglichkeit, Gerissenheit und Waffenkunst, um ihre Missionen mit chirurgischer Präzision und ohne Spuren zu hinterlassen, auszuführen.",
         "IMAGE": "assassin.png",
@@ -3581,7 +3328,7 @@ var roles = {
         "ADescDe": "Einmal pro Runde kann ein Desperado-Charakter nach der Durchführung einer Bewegungsaktion einen einzelnen Standardangriff mit einer Pistolenwaffe, die er gerade führt, als freie Aktion ausführen.",
         "AName": "Move and Shoot",
         "ANameDe": "Bewegen und Schießen",
-        "Aptitudes": ["Ag", "BS", "Defence", "Fel", "Finesse"],
+        "Aptitudes": ["Ag", "BS", "Defense", "Fel", "Finesse"],
         "Description": "A desperado is a daring and resourceful individual who lives by their own rules, often on the fringes of society. Quick with a gun and quicker with their wits, they thrive in lawless environments, relying on their charisma and combat skills to navigate a dangerous and unpredictable world.",
         "Descritpion_DE": "Ein Desperado ist eine wagemutige und einfallsreiche Person, die nach ihren eigenen Regeln lebt und sich oft am Rande der Gesellschaft bewegt. Schnell mit der Waffe und noch schneller im Denken, gedeihen sie in gesetzlosen Umgebungen und verlassen sich auf ihren Charme und ihre Kampffähigkeiten, um in einer gefährlichen und unberechenbaren Welt zu überleben.",
         "IMAGE": "desperado.png",
@@ -3594,7 +3341,7 @@ var roles = {
         "ADescDe": "Zusätzlich zu den normalen Verwendungen von Schicksalspunkten kann ein Gesandter, wenn er mit Nicht-Imperialen zu tun hat, einen Schicksalspunkt ausgeben, um automatisch eine entgegengesetzte Interaktionsprobe mit einer Anzahl von Erfolgsgraden zu bestehen, die seinem Einflussbonus entspricht.",
         "AName": "Master Ambassador",
         "ANameDe": "Meisterbotschafter",
-        "Aptitudes": ["Fel", "Fieldcraft", "Per", "Social", "Willpower"],
+        "Aptitudes": ["Fel", "Fieldcraft", "Per", "Social", "WP"],
         "Description": "An emissary is a diplomat and envoy, skilled in negotiation, persuasion, and fostering alliances. Tasked with representing their faction, house, or organization, they navigate complex social and political landscapes to build relationships, broker deals, and further their agenda with tact and eloquence.",
         "Descritpion_DE": "Ein Gesandter ist ein Diplomat und Abgesandter, der in Verhandlungen, Überzeugungskunst und dem Aufbau von Allianzen bewandert ist. Mit der Aufgabe betraut, ihre Fraktion, ihr Haus oder ihre Organisation zu repräsentieren, navigieren sie durch komplexe soziale und politische Landschaften, um Beziehungen aufzubauen, Vereinbarungen zu treffen und ihre Ziele mit Taktgefühl und Eloquenz voranzutreiben.",
         "IMAGE": "emmisarry.png",
@@ -3737,7 +3484,7 @@ var roles = {
         "ADescDe": "The character can automatically identify whether an effect, presence, or event is Warp-based without requiring a test, provided they are aware of it. This ability extends to recognizing the subtle marks of Warp influence on objects, places, or beings.",
         "AName": "Blick in den Warp",
         "ANameDe": "Der Charakter kann automatisch erkennen, ob ein Effekt, eine Präsenz oder ein Ereignis auf den Warp zurückzuführen ist, ohne einen Test ablegen zu müssen, vorausgesetzt, er ist sich dessen bewusst. Diese Fähigkeit erstreckt sich auch darauf, die subtilen Zeichen von Warp-Einfluss auf Objekte, Orte oder Wesen zu erkennen.",
-        "Aptitudes": ["Defence", "Int", "Knowledge", "Per", "WP"],
+        "Aptitudes": ["Defense", "Int", "Knowledge", "Per", "WP"],
         "Description": "A mystic is an individual attuned to the unseen forces of the universe, often wielding psychic abilities or deeply understanding esoteric knowledge. Guided by visions, intuition, or communion with the Warp, they are enigmatic figures whose powers can inspire awe or fear, depending on their intent and control over the forces they channel.",
         "Descritpion_DE": "Ein Mystiker ist eine Person, die auf die verborgenen Kräfte des Universums eingestimmt ist und oft über psionische Fähigkeiten verfügt oder ein tiefes Verständnis für esoterisches Wissen besitzt. Geleitet von Visionen, Intuition oder der Verbindung mit dem Warp, sind sie rätselhafte Gestalten, deren Kräfte Ehrfurcht oder Furcht wecken können, je nach ihrer Absicht und Kontrolle über die Kräfte, die sie kanalisieren.",
         "IMAGE": "mystic.png",
@@ -3815,7 +3562,7 @@ var roles = {
         "ADescDe": "Einmal pro Runde kann ein Plünderer nach der Durchführung eines Standardangriffs mit einer Fernkampfwaffe eine einzelne Aktion \"In Deckung werfen\" als freie Aktion ausführen.",
         "AName": "Evasive",
         "ANameDe": "Ausweichend",
-        "Aptitudes": ["S", "T", "WS", "BS", "Fieldcraf"],
+        "Aptitudes": ["S", "T", "WS", "BS", "Fieldcraft"],
         "Description": "A scavenger is a resourceful individual who survives by salvaging discarded materials, remnants of war, or abandoned technology. Skilled at finding value in what others deem useless, they thrive in desolate environments, using ingenuity and determination to turn scraps into tools or trade goods.",
         "Descritpion_DE": "Ein Plünderer ist eine einfallsreiche Person, die durch das Bergen von weggeworfenen Materialien, Kriegsüberresten oder verlassener Technologie überlebt. Geschickt darin, in Dingen, die andere für wertlos halten, Nutzen zu finden, gedeiht er in trostlosen Umgebungen und nutzt Einfallsreichtum und Entschlossenheit, um Schrott in Werkzeuge oder Handelswaren zu verwandeln.",
         "IMAGE": "scavenger.png",
@@ -3854,7 +3601,7 @@ var roles = {
         "ADescDe": "Zusätzlich zu den normalen Verwendungen von Schicksalspunkten kann ein Secutor, wenn er mit einem Angriff erfolgreich trifft, einen Schicksalspunkt ausgeben, um den Zähigkeitsbonus seines Gegners um eine Anzahl zu verringern, die seinen Erfolgsgraden beim Angriffswurf entspricht, und zwar nur für den ersten Treffer des Angriffs.",
         "AName": "Devastating Precision",
         "ANameDe": "Verheerende Präzision",
-        "Aptitudes": ["T", "BS", "WS", "Fieldcraft|Finesse", "Perception"],
+        "Aptitudes": ["T", "BS", "WS", "Fieldcraft|Finesse", "Per"],
         "Description": "A secutor is a warrior-priest of the Adeptus Mechanicus, trained in both martial and technological disciplines. Tasked with leading military campaigns or defending Mechanicus interests, they are highly skilled in the art of war and often equipped with advanced weaponry and cybernetic augmentations.",
         "Descritpion_DE": "Ein Secutor ist ein Kriegerpriester des Adeptus Mechanicus, ausgebildet sowohl in kriegerischen als auch technologischen Disziplinen. Mit der Aufgabe betraut, militärische Kampagnen zu führen oder die Interessen des Mechanicus zu verteidigen, sind sie hochqualifiziert in der Kriegsführung und oft mit fortschrittlicher Bewaffnung und kybernetischen Verbesserungen ausgestattet.",
         "IMAGE": "secutor.png",
@@ -4502,7 +4249,7 @@ var lure =
 				"DescDe":"Deine Pflicht gilt dem Imperium der Menschheit, unabhängig davon, wer es derzeit regiert. Du bist bereit, jede Tat zu dokumentieren, damit nichts und niemand vergessen wird und ihre Namen auf dem Heiligen Terra selbst niedergeschrieben werden.",
 				"Talents":[],
 				"Skills":[["c_lore","imperium"],["s_lore","imperium"],["trade","loremancer"]],
-				"Gear":["Memorance Implant"],
+				"SImplant":[["memorance",""]],
 				"Points":5,
 				"PType":"IP"
 			},
@@ -4532,8 +4279,8 @@ var lure =
 				"NameDe":"Pflicht gegenüber anderen",
 				"DescDe":"Deine Pflicht gilt einer bestimmten Organisation. Sie haben dich entweder geschickt, um die Dynastie auszuspionieren, oder um ihnen als „Verbündete“ beizutreten. Allerdings wollten sie sicherstellen, dass du sie niemals verraten wirst.",
 				"Talents":[["peer","any_imp"]],
-				"Skills":"",
-				"Gear":["Volitor Implant"],
+				"Skills":[],
+				"SImplant":[["volitor",""]],
 				"Points":5,
 				"PType":"IP"
 			}
@@ -4712,7 +4459,8 @@ var lure =
 				"Talents":[],
 				"Skills":[],
 				"Points":5,
-				"PType":"CP"
+				"PType":"CP",
+				"Disorder":1
 			},
 			"deviant":{
 				"Name":"Deviant Philosophy",
