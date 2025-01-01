@@ -64,6 +64,18 @@ function restoreObject(compressedString) {
 
 var charLists = ["WS","BS","S","T","Ag","Int","Per","WP","Fel"]
 
+var hpFateTexts = 
+{
+	"InfoText":`<p>During character creation, you can use <b>Fate Points</b> to help your character survive difficult situations. Each character starts with a certain number of Fate Points, which can be used during the game to survive fatal damage or even avoid deadly situations. 
+	</br> </br> <b>Wounds</b> represent the physical and mental strain your character endures in the game. When you take damage in combat, Wounds are applied to your character, and if too many Wounds are suffered, your character may become unconscious or die.</p>`,
+	"InfoTextDe":`<p>Während der Charaktererstellung kannst du <b>Schicksalspunkte</v> erlangen, die deinem Charakter helfen, schwierige Situationen zu überstehen. Jeder Charakter beginnt mit einer bestimmten Anzahl an Schicksalspunkten, die während des Spiels genutzt werden können, um tödliche Schäden zu überleben oder sogar diverse Skilltests zu Meistern.
+	</br> </br> <b>Wunden</b> repräsentieren die physische und psychische Belastung deines Charakters im Spiel. Wenn du im Kampf Schaden erleidest, werden Wunden auf deinen Charakter angewendet, und bei zu vielen erlittenen Wunden kann dein Charakter bewusstlos werden oder sterben..</p>`,
+	"rollBtText":"Roll Characteristics",
+	"rollBtTextDe":"Charakteristika Rollen",
+	"ptBuyBtText":"Use Point Buy System",
+	"ptBuyBtTextDe":"Punkte System verwenden",
+}
+
 var characteristicsTexts = 
 {
 	"InfoText":`<p>You have two options for determining your character's characteristics:</p>
@@ -1022,7 +1034,7 @@ var talents = {
     "archivator": {
         "IsLeveled": 0,
         "Name": "Archivator",
-        "NameDe": "Archivar",
+        "NameDe": "Archivator",
         "TalentGroups": {},
 		"ShortDesc":"Re-roll Scholastic/Forbidden Lore tests using recorded info with -10 penalty.",
 		"ShortDescDe":"Wiederhole Scholastik-/Verbotenes Wissen-Tests mit aufgezeichneten Infos; -10 Malus."
@@ -1030,7 +1042,7 @@ var talents = {
     "battlerage": {
         "IsLeveled": 0,
         "Name": "Battle Rage",
-        "NameDe": "Kampfrausch",
+        "NameDe": "Kampfraserei",
         "TalentGroups": {},
 		"ShortDesc":"Can Parry while Frenzied; re-roll to resist or end Frenzy.",
 		"ShortDescDe":"Kann während Raserei parieren; Re-roll Tests um Raserei zu Widerstehen oder Beenden."
@@ -1096,7 +1108,6 @@ var talents = {
         "Name": "Constant Vigilance",
         "NameDe": "Ständige Wachsamkeit",
         "TalentGroups": {
-				"any": ["Int","Per"]
 			},
 		"ShortDesc":"Use Per/Int for Initiative; roll two dice, pick higher.",
 		"ShortDescDe":"Nutze (Per)/(Int) für Initiative; würfle zwei Würfel, wähle höheren."
@@ -1152,7 +1163,7 @@ var talents = {
     "deny_witch": {
         "IsLeveled": 0,
         "Name": "Deny the Witch",
-        "NameDe": "Die Hexe verwehren",
+        "NameDe": "Verleugnung der Hexe",
         "TalentGroups": {},
 		"ShortDesc":"Use Willpower-Test to Evade psychic attacks.",
 		"ShortDescDe":"Willenskraft-Test, um psionische Angriffe auszuweichen."
@@ -1160,7 +1171,7 @@ var talents = {
     "diehard": {
         "IsLeveled": 0,
         "Name": "Die Hard",
-        "NameDe": "Zähigkeit",
+        "NameDe": "Hart im Nehmen",
         "TalentGroups": {},
 		"ShortDesc":"Test Willpower (+0) to avoid Fatigue from Blood Loss.",
 		"ShortDescDe":"Bestehe Willenskraft-Test (+0), um Erschöpfung durch Blutverlust zu vermeiden."
@@ -1239,7 +1250,7 @@ var talents = {
     },
     "hardenedsoul": {
         "IsLeveled": 0,
-        "Name": "Harden Soul",
+        "Name": "Hardened Soul",
         "NameDe": "Gehärtete Seele",
         "TalentGroups": {},
 		"ShortDesc":"-20 to hit the character during Charge or Run.",
@@ -1279,7 +1290,7 @@ var talents = {
     "hotshot_pilot": {
         "IsLeveled": 0,
         "Name": "Hotshot Pilot",
-        "NameDe": "Spitzenpilot",
+        "NameDe": "Meisterpilot",
         "TalentGroups": {},
 		"ShortDesc":"On successful Operate, take Fatigue to add half Agility DoS. On failure, take Fatigue to reduce DoF by Agility (min. 1).",
 		"ShortDescDe":"Bei erfolgreichem Fahrzeugführen-Test Erschöpfung erleiden für halben BW als EG. Bei Fehlschlag Erschöpfung erleiden, um Fehlschlagsgrade um BW zu reduzieren (min. 1)."
@@ -1287,7 +1298,7 @@ var talents = {
     "iron_jaw": {
         "IsLeveled": 0,
         "Name": "Iron Jaw",
-        "NameDe": "Eisernes Kinn",
+        "NameDe": "Eiserne Kiefer",
         "TalentGroups": {},
 		"ShortDesc":"Test Challenging (+0) Toughness Test to overcome Stunning.",
 		"ShortDescDe":"Herausfordernder (+0) Zähigkeitstest, um Betäubung zu überwinden."
@@ -1295,7 +1306,7 @@ var talents = {
     "iron_resolve": {
         "IsLeveled": 0,
         "Name": "Iron Resolve",
-        "NameDe": "Eisernes Durchhaltevermögen",
+        "NameDe": "Eiserne Entschlossenheit",
         "TalentGroups": {},
 		"ShortDesc":"Re-roll failed Fear/Pinning test with a -10 modifier.",
 		"ShortDescDe":"Wiederhole misslungenen Furcht-/Pinningtest mit -10 Malus."
@@ -1319,7 +1330,7 @@ var talents = {
     "infusedknowledge": {
         "IsLeveled": 0,
         "Name": "Infused Knowledge",
-        "NameDe": "Eingeflößtes Wissen",
+        "NameDe": "Durchdrungenes Wissen",
         "TalentGroups": {},
 		"ShortDesc":"Counts as having all Common and Scholastic Lore at Rank 1.",
 		"ShortDescDe":"Zählt als im Besitz aller Allgemein- und Gelehrtenkenntnisse auf Rang 1."
@@ -1335,7 +1346,7 @@ var talents = {
     "keen_intuition": {
         "IsLeveled": 0,
         "Name": "Keen Intuition",
-        "NameDe": "Scharfe Intuition",
+        "NameDe": "Scharfsinn",
         "TalentGroups": {},
 		"ShortDesc":"",
 		"ShortDescDe":""
@@ -1351,7 +1362,7 @@ var talents = {
     "leapup": {
         "IsLeveled": 0,
         "Name": "Leap Up",
-        "NameDe": "Aufspringer",
+        "NameDe": "Aufspringen",
         "TalentGroups": {},
 		"ShortDesc":"Stand as a Free Action.",
 		"ShortDescDe":"Aufstehen ist eine Freie Aktion"
@@ -1359,7 +1370,7 @@ var talents = {
     "leapingdodge": {
         "IsLeveled": 0,
         "Name": "Leaping Dodge",
-        "NameDe": "Sprungausweichmanöver",
+        "NameDe": "Ausweichsprung",
         "TalentGroups": {},
 		"ShortDesc":"Use Dodge (Ag) instead of Agility to avoid Spray attacks.",
 		"ShortDescDe":"Nutze Ausweichen statt Agilität, um Spray-Angriffe zu vermeiden."
@@ -1382,7 +1393,7 @@ var talents = {
     },
     "neverdie": {
         "IsLeveled": 0,
-        "Name": "Never Die",
+        "Name": "Unsterblich",
         "NameDe": "Niemals sterben",
         "TalentGroups": {},
 		"ShortDesc":"Spend Fate point to ignore Critical damage penalties until encounter ends.",
@@ -1399,7 +1410,7 @@ var talents = {
     "no_hiding": {
         "IsLeveled": 0,
         "Name": "Nowhere to Hide",
-        "NameDe": "Kein Versteck",
+        "NameDe": "Nirgends Verstecken",
         "TalentGroups": {},
 		"ShortDesc":"Add DoS from attack to reduce cover's armour value.",
 		"ShortDescDe":"Addiere DoS des Angriffs, um Rüstungswert der Deckung zu reduzieren."
@@ -1407,7 +1418,7 @@ var talents = {
     "peer": {
         "IsLeveled":1,
         "Name": "Peer",
-        "NameDe": "Einfluss",
+        "NameDe": "Verbündeter",
         "TalentGroups": {
 			"any_vs_owner": ["mechanicus","admin","navy","ecc","ministorum","rt","noble"],
 			"xenos": ["eldar","dark_eldar","ork","tau", "kroot"],
@@ -1421,7 +1432,7 @@ var talents = {
     "pure_hatred": {
         "IsLeveled": 0,
         "Name": "Purity of Hatred",
-        "NameDe": "Reinheit des Hasses",
+        "NameDe": "Reiner Hass",
         "TalentGroups": {
 			"any": ["mutant","eldar","dark_eldar","ork","tau", "kroot","admin","astro","ecc","admin","astro","ecc","ad_sor","navy","guard","pdf","mechanicus","pdf",
 				"inquisition","noble","rt","smuggler","pirates","ministorum","navi","daemons"],
@@ -1436,7 +1447,7 @@ var talents = {
     "q_draw": {
         "IsLeveled": 0,
         "Name": "Quick Draw",
-        "NameDe": "Schnelles Ziehen",
+        "NameDe": "Schnellziehen",
         "TalentGroups": {},
 		"ShortDesc":"Draw weapon as Free Action.",
 		"ShortDescDe":"Ziehe Waffe als freie Aktion."
@@ -1452,7 +1463,7 @@ var talents = {
     "res": {
         "IsLeveled": 0,
         "Name": "Resistance",
-        "NameDe": "Widerstandsfähigkeit",
+        "NameDe": "Resistenz",
         "TalentGroups": {
 			"any":[
 				"cold",
@@ -1468,7 +1479,7 @@ var talents = {
     "sound_const": {
         "IsLeveled": 0,
         "Name": "Sound Constitution",
-        "NameDe": "Robuste Konstitution",
+        "NameDe": "Solide Konstitution",
         "TalentGroups": {},
 		"ShortDesc":"Gain an additional wound.",
 		"ShortDescDe":"Erhalte eine zusätzliche Wunde."
@@ -1476,7 +1487,7 @@ var talents = {
     "sprint": {
         "IsLeveled": 0,
         "Name": "Sprint",
-        "NameDe": "Sprint",
+        "NameDe": "Sprinten",
         "TalentGroups": {},
 		"ShortDesc":"Move more quickly in combat.",
 		"ShortDescDe":"Bewege dich schneller im Kampf."
@@ -1492,7 +1503,7 @@ var talents = {
     "strong_minded": {
         "IsLeveled": 0,
         "Name": "Strong Minded",
-        "NameDe": "Starker Geist",
+        "NameDe": "Starker Wille",
         "TalentGroups": {},
 		"ShortDesc":"Add half WS bonus to Critical Damage with small weapons or unarmed.",
 		"ShortDescDe":"Addiere halben WS-Bonus zu Kritischem Schaden mit kleinen Waffen oder unbewaffnet."
@@ -1500,7 +1511,7 @@ var talents = {
     "takedown": {
         "IsLeveled": 0,
         "Name": "Takedown",
-        "NameDe": "Niederschlag",
+        "NameDe": "Niederschlagen",
         "TalentGroups": {},
 		"ShortDesc":"",
 		"ShortDescDe":""
@@ -1540,7 +1551,7 @@ var talents = {
     "unarmed_spec": {
         "IsLeveled": 0,
         "Name": "Unarmed Specialist",
-        "NameDe": "Nahkampfspezialist",
+        "NameDe": "Unbewaffneter Spezialist",
         "TalentGroups": {},
 		"ShortDesc":"Reduce Critical Damage taken.",
 		"ShortDescDe":"Reduziere erlittenen Kritischen Schaden."
@@ -1580,7 +1591,7 @@ var talents = {
     "weapon_tech": {
         "IsLeveled": 0,
         "Name": "Weapon-Tech",
-        "NameDe": "Waffen-Tech",
+        "NameDe": "Waffen-Technik",
         "TalentGroups": {},
 		"ShortDesc":"Enhance Melta, Plasma, Power, or Exotic weapon: +Int bonus to damage/penetration once per encounter.",
 		"ShortDescDe":"Verstärke Melta-, Plasma-, Energie- oder Exotenwaffe: +Int-Bonus auf Schaden/Durchschlag einmal pro Begegnung."
@@ -1628,7 +1639,11 @@ var skills = {
     "c_lore": {
         "Name": "Common Lore",
         "NameDe": "Allgemeinwissen",
-        "SkillGroups": {},
+        "SkillGroups": {
+			"any":[
+				"ad_sor", "arbites","astro","mechanicus","ministorum","admin","ecc","imp_creed",
+					"guard","navy","imperium","pdf","rt","tech","underworld","war"
+			]},
 		"ShortDesc":"General knowledge about specific organizations, regions, or subjects.",
 		"ShortDescDe":"Allgemeinwissen über spezifische Organisationen, Regionen oder Themen."
     },
@@ -1670,7 +1685,14 @@ var skills = {
     "f_lore": {
         "Name": "Forbidden Lore",
         "NameDe": "Verbotenes Wissen",
-        "SkillGroups": {},
+        "SkillGroups": {"any":[
+				"archeotech","cartel","syndicate","daemonology","heresy","inquisition",
+				"mutant","navi","pirates","psykers","warp","eldar","dark_eldar",
+				"ork","tau","kroot","vspid","necron","tyranid"
+			],
+			"xenos":[
+				"eldar","dark_eldar","ork","tau","kroot","vspid","necron","tyranid"
+			]},
 		"ShortDesc":"Knowledge of hidden, dangerous, or heretical subjects.",
 		"ShortDescDe":"Wissen über verborgene, gefährliche oder ketzerische Themen."
     },
@@ -1698,7 +1720,11 @@ var skills = {
     "linguistics": {
         "Name": "Linguistics",
         "NameDe": "Linguistik",
-        "SkillGroups": {},
+        "SkillGroups": {
+			"xenos":[
+				"eldar","ork","tau","necron"
+			]			
+		},
 		"ShortDesc":"Influence others through threats or fear.",
 		"ShortDescDe":""
     },
@@ -1726,7 +1752,11 @@ var skills = {
     "operate": {
         "Name": "Operate",
         "NameDe": "Fahrzeugführen",
-        "SkillGroups": {},
+        "SkillGroups": {
+			"any":[
+				"surface","aeronautica","voidship"
+			]	
+		},
 		"ShortDesc":"Control and maneuver vehicles or machinery.",
 		"ShortDescDe":"Fahrzeuge oder Maschinen steuern und bedienen."
     },
@@ -1747,7 +1777,12 @@ var skills = {
     "s_lore": {
         "Name": "Scholastic Lore",
         "NameDe": "Scholastisches Wissen",
-        "SkillGroups": {},
+        "SkillGroups": {
+			"sl_any":[
+				"astromancy","bureaucracy","chymistry","heraldry","warrants","judgement",
+				"legends","numerology","occult","philo","tactica","xenology"
+			]	
+		},
 		"ShortDesc":"Academic knowledge of specialized or scholarly subjects.",
 		"ShortDescDe":"Akademisches Wissen über spezialisierte oder wissenschaftliche Themen."
     },
@@ -1796,13 +1831,41 @@ var skills = {
     "trade": {
         "Name": "Trade",
         "NameDe": "Handwerk",
-        "SkillGroups": {},
+        "SkillGroups": {
+			"tr_any":[
+				"agri","archao","armourer","astrograph","chymist","cook",
+				"lingu","loremancer","performer","shipwright","soothsayer","technomat"
+			]	
+		},
 		"ShortDesc":"Create, repair, or evaluate items within a specific craft.",
 		"ShortDescDe":"Gegenstände in einem spezifischen Handwerk herstellen, reparieren oder bewerten."
     }
 }
-
 var groups = {
+	"agri": {
+        "Name": "Agri",
+        "NameDe": "Agrar"
+    },
+	"archao": {
+        "Name": "Archaeologist",
+        "NameDe": "Archäologe"
+    },
+	"lingu": {
+        "Name": "Linguist",
+        "NameDe": "Linguist"
+    },
+	"performer": {
+        "Name": "Performer",
+        "NameDe": "Performer"
+    },
+	"sculpt": {
+        "Name": "Sculptor",
+        "NameDe": "Bildhauer"
+    },
+	"technomat": {
+        "Name": "Technomat",
+        "NameDe": "Technomat"
+    },
 	"Int": {
         "Name": "Intelligence",
         "NameDe": "Intelligenz"
@@ -1820,7 +1883,7 @@ var groups = {
     },
     "admin": {
         "Name": "Adeptus Administratum",
-        "NameDe": "Astromantie"
+        "NameDe": "Adeptus Administratum"
     },
     "any": {
         "Name": "Choose 1",
@@ -1996,7 +2059,7 @@ var groups = {
     },
     "imp_creed": {
         "Name": "Imperial Creed",
-        "NameDe": "Imperiales Credo"
+        "NameDe": "Imperialer Glaube"
     },
     "imperium": {
         "Name": "Imperium",
@@ -2028,7 +2091,7 @@ var groups = {
     },
     "loremancer": {
         "Name": "Remembrancer",
-        "NameDe": "Erinnerer"
+        "NameDe": "Historiker"
     },
     "longwar": {
         "Name": "The Long War",
@@ -2410,7 +2473,7 @@ var hwAbilities = {
         "Effect": "One survives a penal colony by instinctively knowing who is in charge and who is a threat. A penal colony character begins with one Rank in the Common Lore (Underworld) and Scrutiny skills, and starts with the Peer (Criminal Cartels) talent.",
         "EffectDe": "Man überlebt eine Strafkolonie, indem man instinktiv erkennt, wer das Sagen hat und wer eine Bedrohung darstellt. Ein Charakter aus einer Strafkolonie beginnt mit einem Rang in den Fertigkeiten Allgemeinwissen (Unterwelt) und Beobachtung sowie mit dem Talent Umgang (Kriminelle Kartelle)",
         "Skills": [["c_lore","underworld"],["scrutiny",""]],
-        "Talents": [["peer","cartel"]]
+        "Talents": [["peer","smugglers"]]
     },
     "pleasure": {
         "Name": "Everything in Excess",
@@ -2571,8 +2634,8 @@ var careers = {
     "voidm": {
         "Apt": ["Finesse"],
         "Description": "A Void-Master is an expert in starship operations, responsible for overseeing vital shipboard functions such as navigation, piloting, weapon control, or engineering. They are seasoned veterans of space travel, possessing unmatched technical and tactical skills. Void-Masters ensure the efficient and effective running of a Rogue Trader's vessel, making them indispensable in the harsh, unforgiving expanse of the galaxy.",
-        "Descritpion_DE": "Ein Void-Meister ist ein Experte für die Bedienung und Verwaltung von Raumschiffen. Er überwacht entscheidende Schiffsfunktionen wie Navigation, Steuerung, Waffenkontrolle oder Maschinenwartung. Als erfahrene Veteranen des Raumfluges verfügen sie über unvergleichliche technische und taktische Fähigkeiten. Void-Meister sorgen für den reibungslosen und effektiven Betrieb des Schiffs eines Freihändlers und sind in der harten, unerbittlichen Weite der Galaxis unverzichtbar.",
         "IMAGE": "void_master.png",
+        "Descritpion_DE": "Ein Void-Meister ist ein Experte für die Bedienung und Verwaltung von Raumschiffen. Er überwacht entscheidende Schiffsfunktionen wie Navigation, Steuerung, Waffenkontrolle oder Maschinenwartung. Als erfahrene Veteranen des Raumfluges verfügen sie über unvergleichliche technische und taktische Fähigkeiten. Void-Meister sorgen für den reibungslosen und effektiven Betrieb des Schiffs eines Freihändlers und sind in der harten, unerbittlichen Weite der Galaxis unverzichtbar.",
         "NAME": "Void-Master",
         "NAME_DE": "Void-Meister"
     },
@@ -2597,8 +2660,8 @@ var careerOpts = {
 		"AEffectDe": "Einmal pro Runde kann der Freihändler als freie Aktion einem Verbündeten, den er sehen und der ihn hören kann, einen Bonus von +10 % auf einen beliebigen Test gewähren."
     },
     "sister": {
-        "Skills": [["f_lore","heresy"], ["f_lore","sororitas"],
-					["s_lore","imp_creed"], ["s_lore","occult"]],
+        "Skills": [["f_lore","heresy"], ["c_lore","ad_sor"],
+					["C_lore","imp_creed"], ["s_lore","occult"]],
 		"Talents": [["w_training","bolt|power"]],
 		"AbilityName": "Pure Faith",
 		"AbilityEffect": "Immune to Baleful Presence. Gain one per session reroll for Fear test from Daemons. Gains access to Pure Faith Talents.",
@@ -2619,9 +2682,9 @@ var careerOpts = {
         "Skills": [["psyniscience",""], ["f_lore","psyker"], ["f_lore","warp"]],
 		"Talents": [["w_training","las|primitive"],["enemy","inquisition"]],
 		"AbilityName": "Unsanctioned Psyker",
-		"AbilityEffect": "You start with a Psy Rating of 1. You can never become an Untouchable. Choose 1 Psychic Discipline and gain 2 Abilities whose requirements you meet. You can not use Psychic Abilites at fettered power. After Gaining Psy-Rating you gain 1d5+5 Corruption points",
+		"AbilityEffect": "You start with a Psy Rating of 2. You can never become an Untouchable. Choose 1 Psychic Discipline and gain 2 Abilities whose requirements you meet. You can Push Psychic Powers up to +4. After Gaining Psy-Rating you gain 1d10+5 Corruption points",
 		"ANameDe": "Nicht-Sanktionierter Psioniker",
-		"AEffectDe": "Du startest mit einem Psionik-Wert von 1. Du kannst niemals ein Unberührbarer werden. Wähle eine Psionische Disziplin und erhalte 2 Fähigkeiten, deren Voraussetzungen du erfüllst. Du kannst psionische Fähigkeiten nicht mit gezügelter Macht einsetzen. Nach dem Erhalt eines Psionik-Werts erhältst du 1W5+5 Verderbenspunkte.",
+		"AEffectDe": "Du startest mit einem Psionik-Wert von 1. Du kannst niemals ein Unberührbarer werden. Wähle eine Psionische Disziplin und erhalte 2 Fähigkeiten, deren Voraussetzungen du erfüllst. Du kannst psionische Fähigkeiten auf bis zu +4 Pushen. Nach dem Erhalt eines Psionik-Werts erhältst du 1W10+5 Verderbenspunkte.",
 		"Traits": ["trait_psyker"],
     },
     "arch": {
@@ -2643,7 +2706,7 @@ var careerOpts = {
 		"AEffectDe": "Du startest mit einem Psionik-Wert von 2. Du kannst niemals ein Unberührbarer werden. Du beginnst mit allen astropathischen psionischen Kräften. Du wirst als blind betrachtet, kannst jedoch alles innerhalb von 30 Metern um dich herum wahrnehmen."
     },
     "explo": {
-        "Skills": [["c_lore","tech"],["f_lore","archeotech"],["f_lore","mechanicus"],
+        "Skills": [["c_lore","tech"],["f_lore","archeotech"],["c_lore","mechanicus"],
 			["linguistics","binary"],["linguistics","tech_lingo"]],
 		"Talents": [["w_training","melta|plasma"]],
 		"AbilityName": "Explorator Cybernetics",
@@ -2653,7 +2716,7 @@ var careerOpts = {
 		"Cybernetics": [["mech",""],["mech",""]]
     },
     "miss": {
-        "Skills": [["c_lore","imp_creed"],["c_lore","ecc"],["s_lore","imp_creed"],["f_lore","heresy"],["linguistics","h_goth"]],
+        "Skills": [["c_lore","imp_creed"],["c_lore","ecc"],["f_lore","heresy"],["linguistics","h_goth"]],
 		"Talents": [["w_training","flame|chain"]],
 		"AbilityName": "Pure Faith",
 		"AbilityEffect": "Immune to Baleful Presence. Gain one per session reroll for Fear test from Daemons. Gains access to Pure Faith Talents.",
@@ -2743,7 +2806,7 @@ var backgrounds = {
         "NAME": "Adeptus Astronomica",
         "NAME_DE": "Adeptus Astronomica",
         "Skills": [["awareness",""],["c_lore","astro"],["linguistics","h_goth"],
-			["linguistics","imp_creed"],["s_lore","occult"],["logic",""]],
+			["linguistics","imp_codes"],["s_lore","occult"],["logic",""]],
         "Talents": [["res|bodyguard","psychic@@"]],
         "Gear": [["las_pistol","",1],["m_pr_cstaff|m_pr_csword","@@",1],["a_b_imperial","",1],
 			["tl_focus|a_car_chest","@@",1]],
@@ -2762,7 +2825,7 @@ var backgrounds = {
         "NAME": "Child of Dynasty",
         "NAME_DE": "Kind der Dynastie",
         "Skills": [["awareness|scrutiny","@@"],["c_lore","rt"],["linguistics","h_goth"],
-			["s_lore","astro"]],
+			["s_lore","astromancy"]],
         "Talents": [["aoa|decadence","@@"],["l_sleeper|res","@@cold"],["w_training","las"]
 			,["w_training","primitive"]],
         "Gear": [["las_pistol|sp_h_can","@@",1],["las_hrlm_pistol|m_ch_hrlm_swrd|a_car_hrlm_chest","@@@@",1], ["tl_bead","",1],["gr_voidsuit","",1]],
@@ -2780,7 +2843,7 @@ var backgrounds = {
         "IMAGE": "crime.png",
         "NAME": "Crime Syndicate",
         "NAME_DE": "Verbrechersyndikat",
-        "Skills": [["c_lore","underworld"],["f_lore","cartel"],["f_lore","smuggler"],
+        "Skills": [["c_lore","underworld"],["f_lore","cartel"],
 			["stealth|deceive","@@"],["intimidate",""],["operate","surface"],["sl_o_hand",""]],
         "Talents": [["peer","underworld"],["w_training","chain"],["w_training","las|sp"]],
         "Gear": [["las_normal","",1],["m_ch_swrd","",1],["a_b_bglove","",1],["cons_ama","",2]],
@@ -2837,7 +2900,7 @@ var backgrounds = {
         "NAME": "Missionaria Galaxia",
         "NAME_DE": "Missionaria Galaxia",
         "Skills": [["c_lore","imp_creed"],["c_lore","imperium"],["f_lore|medicae","heresy@@"],
-			["s_lore","imp_creed"],["linguistics","h_goth"]],
+			["c_lore","imp_creed"],["linguistics","h_goth"]],
         "Talents": [["w_training","primitive"],["w_training","chain"],["w_training","flame"]],
         "Gear": [["las_normal","",1],["a_flak_coat|a_b_imperial","@@",1],["gr_aqpend","",1],["tl_bead","",1]],
         "AName": "Unshakeable Faith",
@@ -2891,10 +2954,9 @@ var backgrounds = {
         "IMAGE": "heretek.png",
         "NAME": "Heretek",
         "NAME_DE": "Häretiker",
-        "Skills": [["deceive|inquiry","@@"],["f_lore","fl_any"], ["medicae|security","@@"],
+        "Skills": [["deceive|inquiry","@@"],["f_lore","any"], ["medicae|security","@@"],
 			["techuse",""], ["trade","tr_any"]],
         "Talents": [["w_training","sp"]],
-		"Cybernetics": [["mech",""]],
 		"Traits": ["trait_mecha"],
         "Gear": [["sp_stub_revo","",1], ["gr_web","",2],["tl_combi","",1],["a_flak_cloak","",1],["gr_fil_plug","",1]],
         "AName": "Master of Hidden Lores",
@@ -2913,9 +2975,8 @@ var backgrounds = {
         "NAME_DE": "Adeptus Mechanicus",
         "Skills": [["awareness|operate","@@any"],["c_lore","mechanicus"], ["logic",""],["security",""],
 			["techuse",""]],
-        "Talents": [["mechadendrite","utility"],["w_training","sp"]],
+        "Talents": [["mechadendrite",""],["w_training","sp"]],
 		"Traits": ["trait_mecha"],
-		"Cybernetics": [["mech",""]],
         "Gear": [["sp_auto_gun|sp_h_can","@@",1],["tl_servoskull","utility",1], ["a_b_imperial","",1],["cons_sacred","",2]],
         "AName": "Replace the Weak Flesh",
         "ANameDe": "Das schwache Fleisch ersetzen",
@@ -3011,7 +3072,7 @@ var backgrounds = {
         "ANameDe": "Verdrehte Gestalt",
         "ADesc": "A Mutant character can always choose to fail any test associated with resisting malignancy or mutation. Whenever he would gain a malignancy, he may gain a random mutation instead. You start with a random Mutation",
         "ADescDe": "Ein Mutant kann sich jederzeit entscheiden, jeden Test, der mit dem Widerstand gegen Verderbnis oder Mutationen zusammenhängt, absichtlich zu scheitern. Wann immer er eine Verderbnis erleiden würde, kann er stattdessen eine zufällige Mutation erhalten. Er beginnt mit einer zufälligen Mutation.",
-		"Traits": ["trait_amphi|trait_dsight|trait_nat_weap|trait_sonar|trait_sturdy|trait_toxic|trait_unnat_char"],
+		"Traits": ["trait_amphi|trait_dsight|trait_nat_weap|trait_sonar|trait_sturdy|trait_toxic"],
 		"Mutations":["5d10"],
     },
     "navis": {
@@ -3170,7 +3231,7 @@ var backgrounds = {
         "IMAGE": "sororitas.png",
         "NAME": "Adepta Sororitas",
         "NAME_DE": "Adepta Sororitas",
-        "Skills": [["athletics",""],["charm|intimidate","@@"],["c_lore","sororitas"],["linguistics","h_goth"],
+        "Skills": [["athletics",""],["charm|intimidate","@@"],["c_lore","ad_sor"],["linguistics","h_goth"],
 			["medicae|parry","@@"]],
         "Talents": [["w_training","flame|las"],["w_training","chain"]],
         "Gear": [["las_pistol|f_hand","@@",1], ["m_ch_blade","",1], ["a_b_bglove","",1], ["tl_bead","",1]],
@@ -3308,7 +3369,7 @@ var roles = {
         "IMAGE": "commander.png",
         "NAME": "Commander",
         "NAME_DE": "Kommandant",
-        "Talents": [["constant_vigilance|heroic_insp","any@@"]]
+        "Talents": [["constant_vigilance|heroic_insp","@@"]]
     },
     "crusader": {
         "ADesc": "In addition to the normal uses of Fate points, a Crusader character can also spend a Fate Point to automatically pass a Fear test with a number of degrees of success equal to his Willpower bonus. In addition, whenever he inflicts a hit with a melee attack against a target with the Fear (X) trait, he inflicts X additional damage and counts his weapon’s penetration as being X higher.",
@@ -3480,10 +3541,10 @@ var roles = {
         "Talents": [["q_draw|rap_reload","@@"]]
     },
     "mystic": {
-        "ADesc": "Stare into the Warp ",
-        "ADescDe": "The character can automatically identify whether an effect, presence, or event is Warp-based without requiring a test, provided they are aware of it. This ability extends to recognizing the subtle marks of Warp influence on objects, places, or beings.",
-        "AName": "Blick in den Warp",
-        "ANameDe": "Der Charakter kann automatisch erkennen, ob ein Effekt, eine Präsenz oder ein Ereignis auf den Warp zurückzuführen ist, ohne einen Test ablegen zu müssen, vorausgesetzt, er ist sich dessen bewusst. Diese Fähigkeit erstreckt sich auch darauf, die subtilen Zeichen von Warp-Einfluss auf Objekte, Orte oder Wesen zu erkennen.",
+        "ADesc": "A Mystic starts the game with a psy rating of 1. And one Minor Psychic Power. If you already are a Psyker: gain 1 Minor Psychic Power whose requirements you meet. You can also reroll it.",
+        "ADescDe": "Ein Mystiker startet mit einem PSY Rating von 1 und einer Psychische Fähigkeit (Minor) seiner Wahl. Wenn dur bereits ein Psyker bist bekommme statt ein einer Psychische Fähigkeit (Minor), du hast 1 reroll auf diese Fähigkeit.",
+        "AName": "Stare into the Warp",
+        "ANameDe": "Blick in den Warp",
         "Aptitudes": ["Defense", "Int", "Knowledge", "Per", "WP"],
         "Description": "A mystic is an individual attuned to the unseen forces of the universe, often wielding psychic abilities or deeply understanding esoteric knowledge. Guided by visions, intuition, or communion with the Warp, they are enigmatic figures whose powers can inspire awe or fear, depending on their intent and control over the forces they channel.",
         "Descritpion_DE": "Ein Mystiker ist eine Person, die auf die verborgenen Kräfte des Universums eingestimmt ist und oft über psionische Fähigkeiten verfügt oder ein tiefes Verständnis für esoterisches Wissen besitzt. Geleitet von Visionen, Intuition oder der Verbindung mit dem Warp, sind sie rätselhafte Gestalten, deren Kräfte Ehrfurcht oder Furcht wecken können, je nach ihrer Absicht und Kontrolle über die Kräfte, die sie kanalisieren.",
@@ -3870,7 +3931,7 @@ var birthrights = {
 				"nameDe":"Apostel",
 				"label":"You worked closely with the devoted servants of the God-Emperor, assisting in spreading His teachings and carrying out His will.",
 				"labelDe":"Du hast eng mit den treuen Dienern des Gott-Imperators zusammengearbeitet, um seine Lehren zu verbreiten und seinen Willen auszuführen.",
-				"skills":[["s_lore","imp_creed"]],
+				"skills":[["c_lore","imp_creed"]],
 				"Talents":[],
 				"stat":"WP"
 			},
@@ -3888,7 +3949,7 @@ var birthrights = {
 				"nameDe":"Philosoph",
 				"label":"Many viewed you as odd or eccentric. After all, who truly needs philosophy in a galaxy consumed by war and survival?",
 				"labelDe":"Viele hielten dich für seltsam oder exzentrisch. Wer braucht schon Philosophie in einer Galaxie, die von Krieg und Überleben geprägt ist?",
-				"skills":[["s_lore","philo"]],
+				"skills":[["s_lore","philo"],["s_lore","philo"]],
 				"Talents":[],
 				"stat":"WP"
 			},
@@ -3897,7 +3958,7 @@ var birthrights = {
 				"nameDe":"Kind eines anderen Credos",
 				"label":"You worked closely with the devoted servants of the Omnissiah, learning their ways and assisting in their sacred duties.",
 				"labelDe":"Du hast eng mit den treuen Dienern des Omnissiah zusammengearbeitet, ihre Lehren kennengelernt und sie bei ihren heiligen Aufgaben unterstützt.",
-				"skills":[["s_lore","mechanicus"]],
+				"skills":[["c_lore","mechanicus"]],
 				"Talents":[],
 				"stat":"WP"
 			}
@@ -4150,7 +4211,7 @@ var lure =
 				"NameDe":"Wiederholungstäter",
 				"DescDe":"Du hast viele Jahre drinnen und draußen verbracht. Der Arm des Gesetzes konnte dich nie zum Tode verurteilen.",
 				"Talents":[],
-				"Skills":[["c_lore","underworld"],["f_lore","cartel"],["f_lore","smuggler"]],
+				"Skills":[["c_lore","underworld"],["f_lore","cartel"]],
 				"Points":5,
 				"PType":"CP"
 			},
@@ -4170,7 +4231,7 @@ var lure =
 				"NameDe":"Freidenker",
 				"DescDe":"Du hast deine Tage damit verbracht, über den Tellerrand hinauszudenken. Das war tödlich gefährlich. Bevor dir jemand dein Leben nehmen konnte, bist du geflohen.",
 				"Talents":[],
-				"Skills":[["s_lore","philo"],["f_lore","philo"]],
+				"Skills":[["s_lore","philo"],["f_lore","heresy"]],
 				"Points":5,
 				"PType":"CP"
 			},
@@ -4228,7 +4289,7 @@ var lure =
 				"Desc":"You lived on the outskirts of human civilization. People who walk ruined worlds need people such as yourself.",
 				"NameDe":"Waldläufer",
 				"DescDe":"Ein Meister des Überlebens, der Jagd und der Erkundung in ungezähmten und gefährlichen Gebieten.",
-				"Talents":[["constant_vigilance","any"]],
+				"Talents":[["constant_vigilance",""]],
 				"Skills":[["navigate","surface"]],
 				"Points":5,
 				"PType":"IP"
@@ -4248,7 +4309,7 @@ var lure =
 				"NameDe":"Pflicht gegenüber dem Thron",
 				"DescDe":"Deine Pflicht gilt dem Imperium der Menschheit, unabhängig davon, wer es derzeit regiert. Du bist bereit, jede Tat zu dokumentieren, damit nichts und niemand vergessen wird und ihre Namen auf dem Heiligen Terra selbst niedergeschrieben werden.",
 				"Talents":[],
-				"Skills":[["c_lore","imperium"],["s_lore","imperium"],["trade","loremancer"]],
+				"Skills":[["c_lore","imperium"],["c_lore","imperium"],["trade","loremancer"]],
 				"SImplant":[["memorance",""]],
 				"Points":5,
 				"PType":"IP"
@@ -4518,7 +4579,7 @@ var lure =
 				"NameDe":"Archeotechnologe",
 				"DescDe":"Du hast deine Zeit damit verbracht, alte Technologie zu studieren. Ob es sanktioniert war oder nicht, du hast viel gelernt.",
 				"Talents":[],
-				"Skills":[["f_lore","archeotech"],["f_lore","tech"]],
+				"Skills":[["f_lore","archeotech"],["c_lore","tech"]],
 				"Points":5,
 				"PType":"CP"
 			},
@@ -4769,7 +4830,7 @@ var trials = {
 				"Desc":"Whenever it was at your home planet, maybe some once peaceful land or the voidship you lived for some time, the worst happened. Something or someone came aboard. People started to go missing. Bodies started to pile up in strange places. Skulls littered without bodies. Something was playing with you and the rest of your friends. You survived in the nick of time but the scars are still there. You start to have attacks of paranoia, especially in silent situations. You want sound or else the memories will flood back.",
 				"NameDe":"Gejagt im eigenen Heim",
 				"DescDe":"Egal, ob es auf deinem Heimatplaneten geschah, vielleicht einem einst friedlichen Land, oder dem Voidschiff, auf dem du eine Zeit lang lebtest, das Schlimmste passierte. Etwas oder jemand kam an Bord. Menschen begannen zu verschwinden. Leichen häuften sich an seltsamen Orten. Schädel verstreut ohne Körper. Etwas spielte mit dir und dem Rest deiner Freunde. Du hast es im letzten Moment überlebt, aber die Narben sind noch da. Du bekommst Panikattacken, besonders in stillen Situationen. Du brauchst Geräusche, sonst kehren die Erinnerungen zurück.",
-				"Talents":[["constant_vigilance","any"]],
+				"Talents":[["constant_vigilance",""]],
 				"Skills":[["scrutiny",""],["survival",""],["trade","voidfarer"]],
 				"AName":"They Are Here, I know it",
 				"ADesc":"The character was hunted in his own home, be it on a voidship or on his home planet by Xenos or worse. The constant feeling of fear never left him, leaving him more of a shell. The character is extremely paranoid of everything, especially being in a small group or alone. He receives -20 penalty to all Stealth actions, while also being very easy to find, allowing others to have +20 bonus to find him.",
@@ -4847,7 +4908,7 @@ var trials = {
 				"Desc":"This is above your abilities. Somebody bad happened in the past and it will never go away, it will never wash out. This person, this family, this Dynasty, seeks nothing more than your torment. They want to see you on the pyre, that might be not even of your making! No matter what you do, it will never please them and will seek nothing less than total annihilation of your person, your family, friends and your home.",
 				"NameDe":"Blutfehde",
 				"DescDe":"Das liegt jenseits deiner Möglichkeiten. Irgendetwas Schreckliches geschah in der Vergangenheit, und es wird nie vergessen oder vergeben. Eine Person, eine Familie oder eine Dynastie sucht nichts Geringeres als dein Leid. Sie wollen dich auf dem Scheiterhaufen sehen – selbst wenn du nicht einmal die Ursache dafür bist! Egal, was du tust, du wirst sie niemals besänftigen können, und sie streben nicht weniger an als deine völlige Auslöschung – von dir, deiner Familie, deinen Freunden und deiner Heimat.",
-				"Talents":[["l_sleeper",""],["constant_vigilance","any"],["hatred","any_dyn"],["pure_hatred","any_dyn"]],
+				"Talents":[["l_sleeper",""],["constant_vigilance",""],["hatred","any_dyn"],["pure_hatred","any_dyn"]],
 				"Skills":[["awareness",""],["s_lore","heraldry"]],
 				"AName":"Highest of Feuds",
 				"ADesc":"When it all started? It doesn’t matter. What matters is that it continues to this day. The rival is someone who is much stronger and influential than the character, maybe he isn’t a Dynasty but an Inquisitor. He will always try his best to bring death or destruction upon the character without being outright responsible for it. Maybe sending a self-destructing assassin, killing a member of the character’s family when he wasn’t home or worse - planting seeds of destruction on the character’s homeworld, so when he comes back, it is either overrun with Tyranids, Orks or Exterminatus.",
@@ -4934,7 +4995,7 @@ var trials = {
 				"NameDe":"Vorsichtige Schritte",
 				"DescDe":"Der Umgang mit verschiedenen Häusern, Dynastien und Adeligen ist anstrengend. Ein falscher Schritt könnte leicht eine Jahrtausende währende Fehde auslösen. Anstatt sich in Schwierigkeiten zu bringen, konzentrierst du dich lieber auf das Wesentliche.",
 				"Talents":[],
-				"Skills":[["s_lore","heraldry"],["f_lore","heraldry"]],
+				"Skills":[["s_lore","heraldry"],["s_lore","heraldry"]],
 				"AName":"I need to concentrate",
 				"ADesc":"The character’s life is full of distractions. The worst come in social situations, when he needs to look for every problem in etiquette he might be doing. Whenever there is a social gathering, be it an officer meeting or a grand ball, the character receives -10 penalty to all tests not concerning the goal of the gathering itself - like Awareness test if there’s an assassin on the loose coming to get him, while he is rather busy with crumpets.",
 				"ANameDe":"Ich muss mich konzentrieren",
@@ -5012,7 +5073,7 @@ var trials = {
 				"NameDe":"Rogue-Planet",
 				"DescDe":"Es gab diesen kleinen Planeten, weit entfernt vom imperialen Raum. Wer wusste schon, welche Reichtümer er bergen könnte? Zumindest dachtest du das, bevor du deinen ersten Schritt darauf gesetzt hast. Vergessene Technologie erwachte in dem Moment, in dem du sie berührtest – und sie mochte es nicht. Du hast es lebend herausgeschafft, aber nicht die Hunderte von Crewmitgliedern, die mit dir auf den Planeten hinabstiegen. Wie hast du überlebt",
 				"Talents":[],
-				"Skills":[["f_lore","astromancy"],["f_lore","men_o_iron"],["f_lore","numerology"]],
+				"Skills":[["s_lore","astromancy"],["f_lore","men_o_iron"],["s_lore","numerology"]],
 				"AName":"A Price was Paid",
 				"ADesc":"The character received an undetectable implant in his body that is bonded with his DNA. He will never be able to remove it. At the start of a session, roll 1d10. On a 7 or higher, the implant is activated. From this point on, the character will seek out a way to disrupt his personal plans, be it by destroying the item he was crafting, burning the papers he was preparing or killing his aide. The character is fully aware of what is going on and the implant wants to destroy his life but not kill him. Once he made an action that would make the character miserable in the nearby future, it deactivates itself until the next session.",
 				"ANameDe":"Ein Preis wurde bezahlt",
@@ -5063,8 +5124,8 @@ var trials = {
 				"NameDe":"Verbotenes Wissen",
 				"DescDe":"Du hattest Zugriff auf einen Cogitator oder eine verlorene Bibliothek voller Wissen, die du niemals hättest betreten dürfen. Wissen, das jedem außer der Inquisition selbst verboten ist. Du konntest nicht widerstehen und hast alles gelesen und nochmals gelesen, was dort war. Nun ist dein Kopf mit verbotenem Wissen gefüllt, das du nicht löschen kannst. Sollte die Inquisition jemals davon erfahren, wird dies deinen vorzeitigen Tod bedeuten.",
 				"Talents":[],
-				"Skills":[["f_lore","daemonology|horusheresy|longwar|inquisition|assassinorum"],
-					["f_lore","daemonology|horusheresy|longwar|inquisition|assassinorum"]],
+				"Skills":[["f_lore","daemonology|horusheresy|inquisition|assassinorum"],
+					["f_lore","daemonology|horusheresy|inquisition|assassinorum"]],
 				"AName":"You better keep your mouth shut!",
 				"ADesc":"The character got access to some forbidden knowledge, that nobody should ever have. Be it knowledge about summoning daemons, truth about the Horus Heresy, Inquisition and its branches as well as different philosophies or even knowledge about the Temple Assassins and their almost-takeover. This knowledge is highly forbidden for someone who isn’t an Inquisitor. If this is found out, the character might gain an Enemy (Inquisition) (or just be a useful tool)! Because of this, he receives -20 penalty to Scrutiny tests made against the Inquisition.",
 				"ANameDe":"Besser den Mund halten!",
@@ -5091,7 +5152,7 @@ var trials = {
 				"Desc":"This couldn’t happen to just anyone. You just had to do it, right? The deed is done. The dead tell no tales. However, it will haunt you and when it surfaces, there will be consequences more deadly than anybody can imagine. Maybe even sending a Temple Assassin for your ass. Whatever you did, nobody will help you after they learn your secret.",
 				"NameDe":"Dunkles Geheimnis",
 				"DescDe":"Dies hätte jedem passieren können, aber es musste ausgerechnet dir geschehen, oder? Die Tat ist vollbracht, und die Toten erzählen keine Geschichten. Doch es wird dich verfolgen, und wenn es ans Licht kommt, werden die Konsequenzen tödlicher sein, als sich irgendjemand vorstellen kann. Vielleicht wird sogar ein Tempel-Assassine auf dich angesetzt. Was auch immer du getan hast, niemand wird dir helfen, sobald sie dein Geheimnis kennen.",
-				"Talents":[["constant_vigilance","any"],["coverup",""],["face_in_crowd",""]],
+				"Talents":[["constant_vigilance",""],["coverup",""],["face_in_crowd",""]],
 				"Skills":[],
 				"AName":"A Ghastly Deed",
 				"ADesc":"The character made a mistake, he can never be forgiven for. If the truth goes out, he will be branded Excommunicato Traitoris for this. It has to be some heinous deed, like selling out an Inquisitor to the Drukhari, making a sacred world the target of a Tyranid invasion or worse. People, however, must use it against the character. As such, he receives -40 penalty to any social test made against those who know his secret.",

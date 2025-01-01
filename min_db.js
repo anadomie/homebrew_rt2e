@@ -74,14 +74,14 @@ const Gear ={
     "cons_ama": {
         "Name": "Amasec",
         "NameDe": "Amasec",
-		"ShortDesc":"",
-		"ShortDescDe":""
+		"ShortDesc":"Distilled spirits. Think brandy, whiskey, etc.",
+		"ShortDescDe":"Hochprozentiger Alkohol. Wie brandy, whiskey, etc."
     },
     "cons_lho": {
         "Name": "Lho-Sticks",
         "NameDe": "Lho-Stäbchen",
-		"ShortDesc":"Distilled spirits. Think brandy, whiskey, etc.",
-		"ShortDescDe":"Hochprozentiger Alkohol. Wie brandy, whiskey, etc."
+		"ShortDesc":"like cigarettes",
+		"ShortDescDe":"Ähnlich wie zigaretten"
     },
     "cons_obscura": {
         "Name": "Obscura",
@@ -128,14 +128,14 @@ const Gear ={
     "gr_rebbreath": {
         "Name": "Rebreather",
         "NameDe": "Atemwiederaufbereiter",
-		"ShortDesc":"",
-		"ShortDescDe":""
-    },
-    "gr_voidsuit": {
-        "Name": "Synskin",
-        "NameDe": "Synhaut",
 		"ShortDesc":"Immune to toxins, water-breathing; lasts 1 hour; Full Action to replace.",
 		"ShortDescDe":"Immun gegen Gifte, wasseratmend; hält 1 Stunde; volle Aktion zum Ersetzen."
+    },
+    "gr_voidsuit": {
+        "Name": "Voidsuit",
+        "NameDe": "Weltraumanzug",
+		"ShortDesc":"Allows you to Survive in Vacuums",
+		"ShortDescDe":"Damit kann man im Vakuum für eine zeit überleben"
     },
     "gr_web": {
         "Name": "Web Grenade",
@@ -647,6 +647,13 @@ const traits = {
 }
 
 const implants = {
+	"miu":{
+		"Name":"Mind Impulse Unit (MIU)",
+		"Type": "miu",
+		"NameDe": "Mind Impulse Unit (MIU)",
+		"ShortDesc":"Used to interface with compatible devices. +10 Tech-Use, Pilot, or Drive tests when linked. Varies by craftsmanship.",
+		"ShortDescDe":"Kann verwendet werden um mit Kombatiblen geräten zu verlinken. +10 auf betroffenen tests wenn verlinkt"
+	},
 	"bio_arm":
 	{
 		"Name":"Bionic Arm",
@@ -710,13 +717,6 @@ const implants = {
 		"NameDe": "Optischer Mechadendrit",
 		"ShortDesc":"Includes visual tools: magnifiers, spotlights, or scanners.",
 		"ShortDescDe":"Enthält visuelle Werkzeuge: Vergrößerungslinsen, Scheinwerfer oder Scanner."
-	},
-	"mech_nozzle":{
-		"Name":"Utility Nozzle Mechadendrite",
-		"Type": "mech",
-		"NameDe": "Nutzdüsen-Mechadendrit",
-		"ShortDesc":"Features nozzles for spraying liquids like oil, foam, or acid.",
-		"ShortDescDe":"Verfügt über Düsen zum Versprühen von Flüssigkeiten wie Öl, Schaum oder Säure."
 	},	
 	"mech_dat":{
 		"Name":"Data-Spike Mechadendrite",
@@ -736,15 +736,15 @@ const implants = {
 		"Name":"Volitor Implant",
 		"Type": "volitor",
 		"NameDe": "Volitor-Implantat",
-		"ShortDesc":"Implant suppresses disobedience, ensuring loyalty through neural control.",
-		"ShortDescDe":"Implantat unterdrückt Ungehorsam und sichert Loyalität durch neuronale Kontrolle."
+		"ShortDesc":"IMay hide certain information in artificial memory or prevent a certain task. Attempts to force information or task can knock out or kill the user.",
+		"ShortDescDe":"Kann bestimmte Informationen im künstlichen Gedächtnis verbergen oder eine bestimmte Aufgabe verhindern. Versuche, Informationen oder Aufgaben zu erzwingen, können den Benutzer ausschalten oder töten."
 	},	
 	"memorance":{
 		"Name":"Memorance Implant",
 		"Type": "memorance",
 		"NameDe": "Memorance-Implantat",
-		"ShortDesc":"Implant stores and recalls vast data for instant access.",
-		"ShortDescDe":"Implantat speichert und ruft große Datenmengen für sofortigen Zugriff ab."
+		"ShortDesc":"Implant stores and recalls vast data for instant access. Gain the total recall Talent.",
+		"ShortDescDe":"Implantat speichert und ruft große Datenmengen für sofortigen Zugriff ab. Zählt als Perfektes Gedächtnis Talent"
 	}
 }
 

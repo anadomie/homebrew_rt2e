@@ -10,7 +10,7 @@
   </head>
   <body>
 	<div class="top">
-		<div class="flags">
+		<div class="flags hidden">
 		  <button class="language languageEN" onclick="setLanguage('en')">
 		  </button>
 		  <button class="language languageDE" onclick="setLanguage('de')">
@@ -19,7 +19,7 @@
 
 		<h1>Warhammer 40k Character Builder</h1>
 		<hr class="tophr">
-		<div class="navbar">
+		<div class="navbar hidden">
 		  <a href="#" id="classLink" onclick="populateCareers()">Class</a>
 		  <a href="#" id="homeworldLink" onclick="populateHomeworlds()">Homeworld</a>
 		  <a href="#" id="backgroundLink" onclick="populateBackgrounds()">Background</a>
@@ -31,7 +31,21 @@
 		  <a href="#" id="previewLink" onclick="generateAptitudeSelection()">Preview</a>
 		</div>
 	</div>
-    <div id="tiles" class="tiles"></div>
+    <div id="tiles" class="tiles">	
+		<div class="language-buttons">
+			<!-- English Language Button -->
+			<button class="language-button" id="english-button" onclick="start('en')">
+				<img src="images/gb.webp" alt="English" class="flag-image">
+				<span class="language-text">English</span>
+			</button>
+
+			<!-- German Language Button -->
+			<button class="language-button" id="german-button" onclick="start('de')">
+				<img src="images/de.webp" alt="Deutsch" class="flag-image">
+				<span class="language-text">Deutsch</span>
+			</button>
+		</div>
+	</div>
 	<div id="tiles2" class="tiles2"></div>
 	<div id="charChoice" class="charChoice"></div>
   </body>

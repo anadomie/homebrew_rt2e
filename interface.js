@@ -12,6 +12,162 @@ function setLanguage(language) {
 
 }
 
+function formatDataForExcel(data) {
+    let output = [];
+
+    // Add basic details
+    output.push("language\tCareer\tHomeworld\tBackground\tRole\tBirthright\tLure\tTrial\tMotivation");
+    output.push(currentLanguage+"\t"+data.Career+"\t"+data.Homeworld+"\t"+data.Background
+		+"\t"+data.Role+"\t"+data.Birthright+"\t"+data.Lure+"\t"+data.Trial+"\t"+data.Motivation);
+	output.push("\t\t\t\t\t"+data.BRDetail+"\t"+data.LureDetail+"\t"+data.TrialDetail+
+		"\t"+data.MotivationDetail);
+	output.push("");
+	output.push("");
+	
+	let statsTab = [];
+	statsTab.push(["Aptitudes","","Stats"])
+	for(let i = 0; i < 10; i++)
+	{
+		let subArr = [];
+		if(i < data.Aptitudes.length){
+			subArr.push(data.Aptitudes[i].value);
+			subArr.push(data.Aptitudes[i].amount.toString());
+		}else{
+			subArr.push("");
+			subArr.push("");
+		}
+		
+		if(i < data.Stats.length){
+			subArr.push(data.Stats[i].value);
+			subArr.push(data.Stats[i].base);
+			subArr.push(data.Stats[i].brBonus);
+			subArr.push(data.Stats[i].moBonus);
+			subArr.push(data.Stats[i].rolledValues);
+		}else{
+			for (let x = 0; i < 5; i++) {
+				subArr.push("");
+			}
+		}
+		subArr.push("");
+		if(i===0){
+			subArr.push(data.Fate);
+		}if(i===1){
+			subArr.push(data.HP);
+		}if(i===2){
+			subArr.push(data.Insanity);
+		}if(i===3){
+			subArr.push(data.Corruption);
+		}
+		
+		statsTab.push(subArr);
+	}
+	
+	statsTab.forEach(item => {
+		output.push(item.join("\t"));
+	});
+	
+	output.push("");
+	output.push("");
+	
+	const maxValue = Math.max(data.Talents.length, data.Traits.length, data.Skills.length, 
+		data.Gear.length, data.Implants.length, data.Mutations.length, data.Malignancies.length);
+
+	statsTab = [];
+	
+	for(let i = 0; i < maxValue; i++)
+	{
+		let subArr = [];
+		if(i < data.Talents.length){
+			subArr.push(data.Talents[i].value.id);
+			subArr.push(data.Talents[i].value.grp_id);
+			console.log(data.Talents[i]);
+			subArr.push(data.Talents[i].amount.toString());
+		}else{
+			for (let x = 0; x < 3; x++) {
+				subArr.push("");
+			}
+		}
+		
+		subArr.push("");
+		
+		
+		if(i < data.Traits.length){
+			subArr.push(data.Traits[i].id);
+			subArr.push("");
+		}else{
+			for (let x = 0; x < 2; x++) {
+				subArr.push("");
+			}
+		}
+		
+		subArr.push("");
+		
+		if(i < data.Skills.length){
+			subArr.push(data.Skills[i].value.id);
+			subArr.push(data.Skills[i].value.grp_id);
+			subArr.push(data.Skills[i].amount);
+		}else{
+			for (let x = 0; x < 3; x++) {
+				subArr.push("");
+			}
+		}
+		
+		subArr.push("");
+		
+		if(i < data.Gear.length){
+			subArr.push(data.Gear[i].value.id);
+			subArr.push(data.Gear[i].value.grp_id);
+			subArr.push(data.Gear[i].value.qty);
+		}else{
+			for (let x = 0; x < 3; x++) {
+				subArr.push("");
+			}
+		}
+		subArr.push("");
+		
+		if(i < data.Implants.length){
+			subArr.push(data.Implants[i].id);
+			subArr.push(data.Implants[i].quality);
+		}else{
+			for (let x = 0; x < 2; x++) {
+				subArr.push("");
+			}
+		}
+		subArr.push("");
+		
+		if(i < data.Mutations.length){
+			subArr.push(data.Mutations[i]);
+		}else{
+			for (let x = 0; x < 1; x++) {
+				subArr.push("");
+			}
+		}
+		subArr.push("");
+		
+		if(i < data.Malignancies.length){
+			subArr.push(data.Malignancies[i]);
+		}else{
+			for (let x = 0; x < 1; x++) {
+				subArr.push("");
+			}
+		}
+			
+		
+		statsTab.push(subArr);
+	}
+
+	statsTab.forEach(item => {
+		output.push(item.join("\t"));
+	});
+
+
+
+    // Join output with newlines
+    return output.join("\n");
+}
+
+
+
 function refresh(){
 	if(currentMenu === 2)
 	{
@@ -46,6 +202,13 @@ function clearContentDivs(){
 	document.getElementById('tiles').innerHTML = '';
 	document.getElementById('tiles2').innerHTML = '';
 	document.getElementById('charChoice').innerHTML = '';	
+	scroll(0,0);
+}
+
+function start(lang)
+{
+	setLanguage(lang);
+	populateCareers();
 }
 
 function parseSkills(pSkills){
@@ -932,6 +1095,7 @@ function setSelectedTalents(){
 		const jObj = JSON.parse(item.value);
 		
 		const existingEntry = CharData.Talents.find(entry => entry.value.value === jObj.value);
+		
 		if (existingEntry) {
 			// If it exists, increment the amount
 			existingEntry.amount += 1;
@@ -1618,6 +1782,10 @@ function chooseImplantsMutationsAndTraits(){
 		
 	div.classList.add('dataCard');
 	container.appendChild(div);
+	
+	if(validateSelections()){
+		showNextBt();
+	}
 }
 
 function chooseGear(){
@@ -1768,6 +1936,50 @@ function chooseGear(){
 	}
 }
 
+function populateCopyChardata(){
+	clearContentDivs();
+	const container = document.getElementById('charChoice');
+	
+	var div = document.createElement('div');
+	div.classList.add('copy-container');
+	
+	var tA = document.createElement('textarea');
+	tA.id = "copyArea";
+	tA.classList.add("copyArea");
+	tA.textContent = formatDataForExcel(CharData);
+	tA.setAttribute('readonly', true)
+	div.appendChild(tA);
+	
+	var bt = document.createElement('button');
+	bt.id = "copyButton";
+	bt.classList.add("copyButton");
+	bt.textContent = (currentLanguage ==='de') ? 'Charakter Kopieren': 'Copy character';
+	bt.addEventListener("click", function(event) {
+		let resTxt = document.getElementById("copyArea").value;
+		navigator.clipboard.writeText(resTxt)
+			.then(() => {
+				// Success feedback
+				event.target.textContent = (currentLanguage === 'de') ? 'Kopieret' : 'Copied';
+				event.target.style.backgroundColor = '#28a745'; // Green background
+				setTimeout(() => {
+					event.target.textContent = (currentLanguage === 'de') ? 'Charakter Kopieren' : 'Copy character';
+					event.target.style.backgroundColor = '#007BFF'; // Revert to blue
+				}, 2000);
+			})
+			.catch(err => {
+				// Error handling
+				console.error('Failed to copy text: ', err);
+				alert('Failed to copy configuration.');
+			});
+	});
+	div.appendChild(bt);
+	
+	container.appendChild(div);
+	
+	
+}
+
+
 function chooseHealthAndFate(){
 	clearContentDivs();
 	CharData.Fate = 0;
@@ -1778,13 +1990,13 @@ function chooseHealthAndFate(){
 	var div = document.createElement('div');
 	div.classList.add('infoCard');
 	
-	div.innerHTML = `${((currentLanguage==='de') ? talentsTexts.InfoTextDe : talentsTexts.InfoText)}`;
+	div.innerHTML = `<div class="infotext">${((currentLanguage==='de') ? hpFateTexts.InfoTextDe : hpFateTexts.InfoText)}</div>`;
 	container.appendChild(div);
 	
 	div = document.createElement('div');
 	
 	var nextDiv = document.createElement('div');
-	nextDiv.classList.add("dataCardPtsSelect");
+	nextDiv.classList.add("dataCardPtsSelect","cntr");
 	
 	nextDiv.appendChild(document.createElement('br'));
 	
@@ -1801,7 +2013,7 @@ function chooseHealthAndFate(){
 	nextDiv.appendChild(document.createElement('br'));
 	
 	el = document.createElement("button");
-	el.classList.add("btRollBig");
+	el.classList.add("btRollMalig");
 	el.id = "btWounds"; 
 	el.textContent = ((currentLanguage==='de')? "Rolle 1W5 Bonus-Wunden" : "roll 1d5 bonus-wounds");
 	el.addEventListener("click", (event) => {
@@ -1836,7 +2048,7 @@ function chooseHealthAndFate(){
 	nextDiv.appendChild(document.createElement('br'));
 	
 	el = document.createElement("button");
-	el.classList.add("btRollBig");
+	el.classList.add("btRollMalig");
 	el.id = "btFate"; 
 	el.textContent = ((currentLanguage==='de')? "Rolle 1W10. +1 Shicksal Wenn >= " : "roll 1d10. +1 Fate on >=")+homeworlds[CharData.Homeworld].Fate[1].toString();
 	el.addEventListener("click", (event) => {
@@ -1866,7 +2078,7 @@ function chooseHealthAndFate(){
 	btNxt.classList.add("btNext","hidden");
 	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
 	btNxt.addEventListener("click", (event) => {
-		  console.log('ToDo');
+		  populateCopyChardata();
 		});
 	
 	nextDiv.appendChild(btNxt);
@@ -2165,33 +2377,39 @@ function chooseTraumaAndMalig(){
 	
 	for(let i = 0; i < choices.Malignancies; i++)
 	{
+		let mTDiv = document.createElement("div");
+		mTDiv.classList.add("divmtest");
+		
 		let el = document.createElement("button");
-		el.classList.add("btRollMalig");
+		el.classList.add("btRollMalig","choice");
 		el.id = "btMalig"+i.toString(); 
 		el.textContent = ((currentLanguage==='de')? "Rolle Malignität" : "roll Malignancy");
 		el.txtId = "txtMalig"+i.toString();
 		el.addEventListener("click", (event) => {
 			  const result = rollMalignancy();
-			  event.target.classList.add("clicked");
-			  event.target.textContent = ((currentLanguage==='de')? "ToDo" : "ToDo");
-			  event.target.classList.add("btRolled");
-			  if(false){
-				  //ToDo
-				  showNextBt();
-			  }
+			event.target.classList.add("clicked");
+			event.target.classList.remove("choice");
+			event.target.textContent = ((currentLanguage==='de')? Malignancies[result].NameDe : Malignancies[result].Name);
+			document.getElementById(event.target.txtId).textContent = ((currentLanguage==='de') ? Malignancies[result].EffectDe : Malignancies[result].Effect);
+			if(validateSelections())
+			{
+				showNextBt();
+			}
 			  
-			}, { once: true });
+		}, { once: true });
 			
-		nextDiv.appendChild(el);
-		nextDiv.appendChild(document.createElement('br'));
+		mTDiv.appendChild(el);
+		mTDiv.appendChild(document.createElement('br'));
 		el = document.createElement("p");
 		el.classList.add("resMalig");
 		let resTxt = document.createElement('b');
 		resTxt.id = "txtMalig"+i.toString();
 		el.appendChild(resTxt);
-		nextDiv.appendChild(el);
-		nextDiv.appendChild(document.createElement('br'));
-		nextDiv.appendChild(document.createElement('br'));
+		mTDiv.appendChild(el);
+		mTDiv.appendChild(document.createElement('br'));
+		mTDiv.appendChild(document.createElement('br'));
+		
+		nextDiv.appendChild(mTDiv);
 	}
 	
 	for(let i = 0; i < choices.MalignanciyTests; i++)
@@ -2263,7 +2481,7 @@ function chooseTraumaAndMalig(){
 	btNxt.classList.add("btNext","hidden");
 	btNxt.textContent = ((currentLanguage==='de')? "Weiter" : "next");
 	btNxt.addEventListener("click", (event) => {
-		  console.log('ToDo');
+		  chooseHealthAndFate();
 		});
 	
 	nextDiv.appendChild(btNxt);
@@ -2273,6 +2491,11 @@ function chooseTraumaAndMalig(){
 		
 	div.classList.add('dataCard');
 	container.appendChild(div);
+	
+	if(validateSelections())
+	{
+		showNextBt();
+	}
 }
 
 function chooseInsanityAndCorruption(){
@@ -2319,7 +2542,7 @@ function chooseInsanityAndCorruption(){
 	div = document.createElement('div');
 	
 	var nextDiv = document.createElement('div');
-	nextDiv.classList.add("dataCardPtsSelect");
+	nextDiv.classList.add("dataCardPtsSelect","cntr");
 	
 	nextDiv.appendChild(document.createElement('br'));
 	
